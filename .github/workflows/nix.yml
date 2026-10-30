@@ -1,0 +1,77 @@
+name: Nix
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nix-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      # cachix/install-nix-action v31
+      - uses: cachix/install-nix-action@d9186cbdca7adedf113a159fa91f725a27866771
+      - name: Check formatting
+        run: nix fmt -- --check $(git ls-files '*.nix')
+      - name: Evaluate every supported system without changing the lockfile
+        run: nix flake check --no-build --all-systems --no-update-lock-file
+
+  build:
+    needs: evaluate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - server
+          - workstation
+          - lxqt
+          - gnome
+          - mobile
+          - configuration
+          - nixos-configuration
+          - nixos-smoke
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      # cachix/install-nix-action v31
+      - uses: cachix/install-nix-action@d9186cbdca7adedf113a159fa91f725a27866771
+      - name: Enable KVM for the NixOS smoke test
+        if: matrix.check == 'nixos-smoke'
+        run: sudo chmod a+rw /dev/kvm
+      - name: Build check
+        run: >-
+          nix build --no-update-lock-file --print-build-logs
+          .#checks.x86_64-linux.${{ matrix.check }}
+
+  # Full desktop closures are large; build these explicitly on demand. Their
+  # derivations are still evaluated on every push/PR by flake check above.
+  hosts:
+    if: github.event_name == 'workflow_dispatch'
+    needs: evaluate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [vanir, testvm]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      # cachix/install-nix-action v31
+      - uses: cachix/install-nix-action@d9186cbdca7adedf113a159fa91f725a27866771
+      - name: Build host closure
+        run: >-
+          nix build --no-update-lock-file --print-build-logs
+          .#checks.x86_64-linux.nixos-${{ matrix.host }}

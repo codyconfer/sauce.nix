@@ -1,6 +1,7 @@
-{ ... }:
+{ modulesPath, ... }:
 {
   imports = [
+    "${modulesPath}/virtualisation/qemu-vm.nix"
     ../profiles/workstation.nix
     ../profiles/gnome.nix
   ];
@@ -11,15 +12,18 @@
   sauce.system.user = "testvm";
   users.users.testvm = {
     isNormalUser = true;
+    initialPassword = "";
     extraGroups = [ "wheel" ];
   };
 
+  security.sudo.wheelNeedsPassword = false;
+  services.displayManager.defaultSession = "gnome";
   services.displayManager.autoLogin = {
     enable = true;
     user = "testvm";
   };
 
-  virtualisation.vmVariant.virtualisation = {
+  virtualisation = {
     memorySize = 4096;
     cores = 4;
     graphics = true;

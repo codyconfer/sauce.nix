@@ -11,7 +11,7 @@ let
   desktop = cfg.machineRole != "server";
   workstation = desktop && cfg.machineRole == "workstation";
   sway = desktop && builtins.elem "sway" cfg.desktopEnvironments && builtins.elem "sway" cfg.guiApps;
-  hyprland = workstation;
+  hyprland = workstation && builtins.elem "hyprland" cfg.guiApps;
   kde = desktop && builtins.elem "kde" cfg.desktopEnvironments;
   cosmic = desktop && builtins.elem "cosmic" cfg.desktopEnvironments;
   gnome = desktop && builtins.elem "gnome" cfg.desktopEnvironments;
@@ -29,7 +29,10 @@ let
   '';
 in
 {
-  imports = [ ./options.nix ];
+  imports = [
+    ./options.nix
+    ./maintenance.nix
+  ];
   options.sauce.system = {
     user = mkOption {
       type = types.str;
@@ -111,6 +114,18 @@ in
         description = "systemd OnCalendar expression.";
       };
     };
+    remote = {
+      sshAuthorizedKeysFile = mkOption {
+        type = types.str;
+        default = "/etc/ssh/sauce-authorized-keys/%u";
+        description = "Runtime authorized_keys file; %u expands to the login name. Provision before enabling remote access.";
+      };
+      codeServerEnvironmentFile = mkOption {
+        type = types.str;
+        default = "/run/secrets/sauce-code-server.env";
+        description = "Root-readable runtime EnvironmentFile containing HASHED_PASSWORD (preferred) or PASSWORD. Never use a Nix path literal for secrets.";
+      };
+    };
     k3s.enable = mkOption {
       type = types.bool;
       default = builtins.elem "k3s" cfg.tools;
@@ -174,20 +189,34 @@ in
         xdg.portal = {
           enable = desktop;
           wlr.enable = sway;
-          extraPortals = lib.mkForce (lib.unique (
-            [ pkgs.xdg-desktop-portal-gtk ]
-            ++ lib.optional sway pkgs.xdg-desktop-portal-wlr
-            ++ lib.optional hyprland pkgs.xdg-desktop-portal-hyprland
-            ++ lib.optional kde pkgs.kdePackages.xdg-desktop-portal-kde
-            ++ lib.optional gnome pkgs.xdg-desktop-portal-gnome
-            ++ lib.optional cosmic pkgs.xdg-desktop-portal-cosmic
-          ));
+          extraPortals = lib.mkForce (
+            lib.unique (
+              [ pkgs.xdg-desktop-portal-gtk ]
+              ++ lib.optional sway pkgs.xdg-desktop-portal-wlr
+              ++ lib.optional hyprland pkgs.xdg-desktop-portal-hyprland
+              ++ lib.optional kde pkgs.kdePackages.xdg-desktop-portal-kde
+              ++ lib.optional gnome pkgs.xdg-desktop-portal-gnome
+              ++ lib.optional cosmic pkgs.xdg-desktop-portal-cosmic
+            )
+          );
           config = {
             common.default = [ "gtk" ];
-            hyprland.default = [ "hyprland" "gtk" ];
-            kde.default = [ "kde" "gtk" ];
-            gnome.default = [ "gnome" "gtk" ];
-            cosmic.default = [ "cosmic" "gtk" ];
+            hyprland.default = [
+              "hyprland"
+              "gtk"
+            ];
+            kde.default = [
+              "kde"
+              "gtk"
+            ];
+            gnome.default = [
+              "gnome"
+              "gtk"
+            ];
+            cosmic.default = [
+              "cosmic"
+              "gtk"
+            ];
             sway = {
               default = [ "gtk" ];
               "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
@@ -265,7 +294,19 @@ in
         networking.firewall.enable = true;
       })
       (mkIf cfg.remoteAccess {
+        assertions = [
+          {
+            assertion =
+              lib.hasPrefix "/" sys.remote.codeServerEnvironmentFile
+              && !(lib.hasPrefix "/nix/store/" sys.remote.codeServerEnvironmentFile);
+            message = "sauce.system.remote.codeServerEnvironmentFile must be an absolute runtime path outside /nix/store.";
+          }
+        ];
         networking.nftables.enable = true;
+        networking.firewall = {
+          enable = true;
+          backend = "firewalld";
+        };
         services.firewalld = {
           enable = true;
           settings = {
@@ -275,13 +316,29 @@ in
           zones.tailscale = {
             target = "DROP";
             interfaces = [ "tailscale0" ];
-            ports = map (port: {
-              inherit port;
-              protocol = "tcp";
-            }) [ 22 80 3389 ];
+            ports =
+              map
+                (port: {
+                  inherit port;
+                  protocol = "tcp";
+                })
+                [
+                  22
+                  80
+                  3389
+                ];
           };
         };
-        services.openssh.enable = true;
+        services.openssh = {
+          enable = true;
+          openFirewall = false;
+          authorizedKeysFiles = [ sys.remote.sshAuthorizedKeysFile ];
+          settings = {
+            PasswordAuthentication = false;
+            KbdInteractiveAuthentication = false;
+            PermitRootLogin = "no";
+          };
+        };
         services.caddy = {
           enable = true;
           openFirewall = false;
@@ -300,7 +357,10 @@ in
           onSuccess = [ "caddy.service" ];
           after = [ "tailscaled.service" ];
           requires = [ "tailscaled.service" ];
-          path = [ pkgs.coreutils pkgs.tailscale ];
+          path = [
+            pkgs.coreutils
+            pkgs.tailscale
+          ];
           serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
@@ -334,16 +394,28 @@ in
           group = "users";
           host = "127.0.0.1";
           port = 8080;
-          auth = "none";
+          auth = "password";
+        };
+        systemd.services.code-server = {
+          serviceConfig.EnvironmentFile = sys.remote.codeServerEnvironmentFile;
+          preStart = ''
+            if [ -z "''${HASHED_PASSWORD:-}" ] && [ -z "''${PASSWORD:-}" ]; then
+              echo "Provision HASHED_PASSWORD or PASSWORD in the configured runtime EnvironmentFile" >&2
+              exit 1
+            fi
+          '';
         };
         services.xrdp = {
           enable = true;
           openFirewall = false;
-          defaultWindowManager = if kde then "startplasma-x11" else "xterm";
+          defaultWindowManager = if kde then "startplasma-x11" else "${pkgs.xterm}/bin/xterm";
         };
       })
-      (mkIf workstation {
-        services.displayManager.defaultSession = lib.mkDefault "hyprland-uwsm";
+      (mkIf hyprland {
+        services.displayManager.defaultSession = lib.mkOverride 900 "hyprland-uwsm";
+      })
+      (mkIf (sway || hyprland) {
+        security.pam.services.swaylock = { };
       })
       (mkIf sys.rslsync {
         systemd.tmpfiles.rules = [ "d /var/lib/resilio-sync/sync 2770 rslsync rslsync -" ];
@@ -367,7 +439,6 @@ in
           binPath = "/run/current-system/sw/bin/sway";
         };
         security.polkit.enable = true;
-        security.pam.services.swaylock = { };
         hardware.i2c.enable = true;
         fonts.packages = with pkgs; [
           nerd-fonts.hack

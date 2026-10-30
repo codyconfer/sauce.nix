@@ -68,7 +68,11 @@ let
       isHyprland = compositor == "hyprland";
       compositorSource =
         if isHyprland then
-          (builtins.removeAttrs waybarSource [ "sway/workspaces" "sway/mode" "sway/window" ])
+          (builtins.removeAttrs waybarSource [
+            "sway/workspaces"
+            "sway/mode"
+            "sway/window"
+          ])
           // {
             "hyprland/workspaces" = {
               "disable-scroll" = true;
@@ -93,20 +97,29 @@ let
           }
         else
           waybarSource;
-      config =
-        compositorSource
-        // {
-          "modules-left" =
-            if isHyprland then
-              [ "hyprland/workspaces" "hyprland/submap" ]
-            else
-              [ "sway/workspaces" "sway/mode" ];
-          "modules-center" = [ (if isHyprland then "hyprland/window" else "sway/window") ];
-          "modules-right" =
-            [ "tray" ]
-            ++ lib.optional locationConfigured "custom/weather"
-            ++ [ "pulseaudio" "battery" "clock" ];
-        };
+      config = compositorSource // {
+        "modules-left" =
+          if isHyprland then
+            [
+              "hyprland/workspaces"
+              "hyprland/submap"
+            ]
+          else
+            [
+              "sway/workspaces"
+              "sway/mode"
+            ];
+        "modules-center" = [ (if isHyprland then "hyprland/window" else "sway/window") ];
+        "modules-right" = [
+          "tray"
+        ]
+        ++ lib.optional locationConfigured "custom/weather"
+        ++ [
+          "pulseaudio"
+          "battery"
+          "clock"
+        ];
+      };
       withWeather =
         if locationConfigured then
           config
@@ -205,7 +218,10 @@ in
             askpass
           ]
           ++ lib.optionals (!(builtins.elem "foot" cfg.guiApps)) [ pkgs.foot ]
-          ++ lib.optionals locationConfigured [ pkgs.wlsunset pkgs.wttrbar ]
+          ++ lib.optionals locationConfigured [
+            pkgs.wlsunset
+            pkgs.wttrbar
+          ]
           ++ lib.optionals sway [
             swaybg
             waypipe
@@ -221,29 +237,34 @@ in
           ".local/bin/sauce-askpass".source = "${askpass}/bin/sauce-askpass";
         };
         xdg.configFile =
-          directories [ "foot" "fuzzel" "mako" "swayimg" "swaylock" "waylogout" ]
+          directories [
+            "foot"
+            "fuzzel"
+            "mako"
+            "swayimg"
+            "swaylock"
+            "waylogout"
+          ]
           // {
             "uwsm/env".source = source + /uwsm/env;
             "waybar/style.css".source = source + /waybar/style.css;
           };
       })
       (lib.mkIf sway {
-        xdg.configFile =
-          directories [ "way-displays" ]
-          // {
-            "sway/config".text =
-              swayConfig
-              + lib.optionalString locationConfigured ''
-                exec $app wlsunset -l ${toString cfg.sway.latitude} -L ${toString cfg.sway.longitude}
-              ''
-              + ''
-                exec ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1
-              '';
-            "waybar/config-sway.jsonc".text = waybarConfig "sway";
-            "waybar/style.css".source = source + /waybar/style.css;
-            "xdg-desktop-portal/sway-portals.conf".source = source + /xdg-desktop-portal/sway-portals.conf;
-            "uwsm/env-sway".source = source + /uwsm/env-sway;
-          };
+        xdg.configFile = directories [ "way-displays" ] // {
+          "sway/config".text =
+            swayConfig
+            + lib.optionalString locationConfigured ''
+              exec $app wlsunset -l ${toString cfg.sway.latitude} -L ${toString cfg.sway.longitude}
+            ''
+            + ''
+              exec ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1
+            '';
+          "waybar/config-sway.jsonc".text = waybarConfig "sway";
+          "waybar/style.css".source = source + /waybar/style.css;
+          "xdg-desktop-portal/sway-portals.conf".source = source + /xdg-desktop-portal/sway-portals.conf;
+          "uwsm/env-sway".source = source + /uwsm/env-sway;
+        };
       })
       (lib.mkIf hyprland {
         xdg.configFile = {

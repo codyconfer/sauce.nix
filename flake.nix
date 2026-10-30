@@ -111,22 +111,41 @@
           server = (home ./profiles/server.nix).activationPackage;
         }
         // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
-          workstation = (home {
-            imports = [
-              ./profiles/workstation.nix
-              ./profiles/sway.nix
-              ./profiles/kde.nix
-              ./profiles/cosmic.nix
-              ./profiles/lxqt.nix
-              ./profiles/gnome.nix
-            ];
-          }).activationPackage;
-          lxqt = (home {
-            imports = [ ./profiles/workstation.nix ./profiles/lxqt.nix ];
-          }).activationPackage;
-          gnome = (home {
-            imports = [ ./profiles/workstation.nix ./profiles/gnome.nix ];
-          }).activationPackage;
+          nixos-vanir = self.nixosConfigurations.vanir.config.system.build.toplevel;
+          nixos-testvm = self.nixosConfigurations.testvm.config.system.build.toplevel;
+          nixos-configuration = import ./tests/nixos-configuration.nix {
+            inherit pkgs mkSystem;
+            vanirConfig = self.nixosConfigurations.vanir.config;
+          };
+          nixos-smoke = import ./tests/nixos-smoke.nix {
+            inherit pkgs;
+            sauceModule = self.nixosModules.default;
+          };
+          workstation =
+            (home {
+              imports = [
+                ./profiles/workstation.nix
+                ./profiles/sway.nix
+                ./profiles/kde.nix
+                ./profiles/cosmic.nix
+                ./profiles/lxqt.nix
+                ./profiles/gnome.nix
+              ];
+            }).activationPackage;
+          lxqt =
+            (home {
+              imports = [
+                ./profiles/workstation.nix
+                ./profiles/lxqt.nix
+              ];
+            }).activationPackage;
+          gnome =
+            (home {
+              imports = [
+                ./profiles/workstation.nix
+                ./profiles/gnome.nix
+              ];
+            }).activationPackage;
           mobile = (home ./profiles/mobile.nix).activationPackage;
           configuration = import ./tests/configuration.nix {
             inherit pkgs;
@@ -146,7 +165,10 @@
                 desktopEnvironments = [ "sway" ];
                 guiApps = [ "sway" ];
                 flatpaks = [ "signal" ];
-                media = [ "vlc" "ffmpeg" ];
+                media = [
+                  "vlc"
+                  "ffmpeg"
+                ];
               };
             };
             mobile = home ./profiles/mobile.nix;

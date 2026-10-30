@@ -12,6 +12,9 @@
       "1password"
       "codex"
     ];
-    flatpaks = lib.mkDefault [ "slack" "zoom" ];
+    flatpaks = lib.mkDefault [
+      "slack"
+      "zoom"
+    ];
   };
 }

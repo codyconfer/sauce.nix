@@ -37,8 +37,13 @@ sudo nixos-rebuild build --flake "path:$PWD#vanir"
 sudo nixos-rebuild switch --flake "path:$PWD#vanir"
 ```
 
-`vanir` imports its platform hardware module and latest kernel. Set the desired
-local timezone in its host file. The account is created
+`vanir` imports its platform hardware module and latest kernel, plus `personal`,
+`devbox`, `cosmic`, `kde`, `remote`, `workstation`, `gaming`, and `mobile` profiles.
+It explicitly retains the workstation role and mobile firewall/Tailscale defaults;
+COSMIC is the default desktop, with KDE and Hyprland also available. Profile
+selection lists are merged, so development and personal tools are not masked by
+a host-level tools override. Provision the remote credentials described below
+before switching. Set the desired local timezone in its host file. The account is created
 without a usable password; provision authentication before relying on login.
 Lanzaboote is included but Secure Boot remains opt-in: provision and enroll your
 own keys first, then set `boot.lanzaboote.enable = true;` and
@@ -93,10 +98,114 @@ on for mobile and `remote` profiles; Resilio Sync defaults on for workstations.
 The `remote` profile enables SSH, Firewalld, Caddy, browser-based code-server,
 and XRDP. Firewalld drops inbound traffic by default and permits SSH, HTTP, and
 RDP only on `tailscale0`; configure Tailscale ACLs too. Caddy binds to the
-resolved Tailscale IPv4 address and proxies to code-server on loopback. Code
-server authentication is disabled behind that boundary. XRDP uses Plasma X11
+resolved Tailscale IPv4 address and proxies to code-server on loopback. Code-server
+also requires a password supplied through a runtime environment file. SSH accepts
+keys only, with root login and keyboard-interactive authentication disabled.
+The firewall explicitly uses the Firewalld backend, including mobile + remote
+combinations. XRDP uses Plasma X11
 when KDE is selected; JetBrains Gateway starts its backend over SSH. VS Code
 Tunnel is omitted because its Microsoft relay is not tailnet-only.
+
+### Provision remote access before switching
+
+Enroll Tailscale and restrict SSH, HTTP, and RDP with tailnet ACLs. Provision your
+SSH **public** key through the console or an existing administrative session:
+
+```sh
+sudo install -d -m 0755 /etc/ssh/sauce-authorized-keys
+sudo install -m 0644 /path/to/your-key.pub /etc/ssh/sauce-authorized-keys/codyconfer
+```
+
+The directory and public key must be readable by the login user, but writable only
+by root. `sauce.system.remote.sshAuthorizedKeysFile` changes this runtime location
+(`%u` expands to the login name). Existing `~/.ssh/authorized_keys` and declarative
+NixOS public keys remain supported. Keep console access until SSH is tested.
+
+Provision `/run/secrets/sauce-code-server.env` with mode `0600`, owned by root,
+using your secret manager. Set `HASHED_PASSWORD` to a code-server-compatible
+Argon2 hash (preferred), or `PASSWORD` to a strong password, using systemd
+EnvironmentFile syntax. Set only one. The file is mandatory and an empty file
+fails closed. `sauce.system.remote.codeServerEnvironmentFile` changes its path.
+Never use a Nix path literal or `builtins.readFile` for credentials. `/run` is
+volatile: arrange provisioning on every boot before the service starts.
+
+Restart `code-server.service` after provisioning. Test that unauthenticated
+browser access reaches the login page and that SSH and RDP are unreachable from
+outside the tailnet. XRDP still requires a usable local account password; SSH
+password login remains disabled. The HTTP connection relies on WireGuard's
+encryption, so do not expose the proxy outside the tailnet.
+
+## Maintenance and recovery
+
+Weekly garbage collection removes unreferenced store paths and generations older
+than 30 days; current profiles and their closures remain rooted. Automatic store
+optimisation is also enabled. Older rollback generations may be removed: pin a
+needed generation with a GC root before relying on it long term. Override
+`nix.gc`/`nix.optimise`, or set `sauce.system.maintenance.enable = false` to opt out
+of these defaults.
+
+Backups are **opt-in**, not silently enabled without a destination. Configure:
+
+```nix
+sauce.system.backup = {
+  enable = true;
+  repository = "sftp:backup@backup-host:/backups/vanir";
+  passwordFile = "/run/secrets/sauce-restic-password";
+  # Optional remote-provider credentials, provisioned at runtime:
+  # environmentFile = "/run/secrets/sauce-restic.env";
+  paths = [ "/home/codyconfer" "/path/to/sauce.nix" ];
+  # For a local disk, declare its fileSystems mount, then require that mount:
+  # repository = "/mnt/backup/restic";
+  # requiresMountsFor = [ "/mnt/backup" ];
+};
+```
+
+Provision the password/credential files root-owned, mode `0600`, outside the Nix
+store, and preserve the repository password separately for disaster recovery.
+For SFTP, provision root's SSH credentials and verified known-host entry too.
+Backups run daily around 02:00 with up to one hour of jitter and catch up after
+missed runs. The repository initializes on first use; retention keeps 7 daily,
+5 weekly, and 12 monthly snapshots. Each run checks metadata and reads a random
+10% of stored data. The default paths are the managed user's home and
+`/etc/nixos`; override them to match the actual configuration location. A live
+file backup is not an application-consistent database snapshot: configure
+service-specific dumps/hooks if needed.
+
+Before trusting backups, run and inspect a complete restore drill:
+
+```sh
+sudo systemctl start restic-backups-sauce.service
+sudo journalctl -u restic-backups-sauce.service
+sudo restic-sauce snapshots
+sudo restic-sauce check --read-data
+sudo restic-sauce restore latest --target /var/tmp/sauce-restore
+# Inspect/compare restored files; do not restore over the live home blindly.
+```
+
+Repeat full checks and restore drills periodically. Inspect failed backup units
+and arrange notifications/monitoring appropriate to your environment. Keep an
+offline/off-site copy and recovery media; NixOS rollback is not a data backup.
+
+## Validation and CI
+
+```sh
+nix fmt -- --check $(git ls-files '*.nix')
+nix flake check --no-build --all-systems --no-update-lock-file
+nix build .#checks.x86_64-linux.nixos-configuration
+nix build -L .#checks.x86_64-linux.nixos-smoke
+nix build .#checks.x86_64-linux.nixos-vanir
+nix build .#checks.x86_64-linux.nixos-testvm
+```
+
+CI checks formatting, evaluates all supported systems without modifying the
+lockfile, and builds Home Manager and NixOS regression checks. The VM test checks
+runtime credentials, SSH key login, code-server authentication, tailnet-only
+firewall access, and encrypted backup/restore. It simulates tailnet ingress with
+network namespaces; it does not test actual Tailscale enrollment/ACLs, graphical
+unlocking, or physical hardware. Full host closures can be built through the
+manual GitHub Actions workflow; their derivations are evaluated on every push/PR.
+The VM test requires KVM. Test locking/unlocking in each real desktop session
+before deployment. Vanir's placeholder UUIDs still require local configuration.
 
 ## Dotfiles and security
 

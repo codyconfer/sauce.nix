@@ -94,13 +94,14 @@ in
           "$HOME/.cargo/bin"
           "$HOME/.dotnet/tools"
         ];
-        home.sessionVariables = lib.optionalAttrs (builtins.elem "nvim" cfg.tools) {
-          EDITOR = "nvim";
-          VISUAL = "nvim";
-        }
-        // lib.optionalAttrs (builtins.elem "dotnet" cfg.tools) {
-          DOTNET_ROOT = "${pkgs.dotnet-sdk}/share/dotnet";
-        };
+        home.sessionVariables =
+          lib.optionalAttrs (builtins.elem "nvim" cfg.tools) {
+            EDITOR = "nvim";
+            VISUAL = "nvim";
+          }
+          // lib.optionalAttrs (builtins.elem "dotnet" cfg.tools) {
+            DOTNET_ROOT = "${pkgs.dotnet-sdk}/share/dotnet";
+          };
         fonts.fontconfig.enable = desktop;
         home.file.".gnupg/gpg-agent.conf".source = ../dotfiles/gnupg/gpg-agent.conf;
         programs.home-manager.enable = true;

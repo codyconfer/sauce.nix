@@ -1,12 +1,21 @@
 { pkgs, ... }:
 {
   imports = [
-    ../profiles/workstation.nix
+    ../profiles/personal.nix
+    ../profiles/devbox.nix
+    ../profiles/cosmic.nix
     ../profiles/kde.nix
-    ../profiles/hypervisor.nix
+    ../profiles/remote.nix
+    ../profiles/workstation.nix
+    ../profiles/gaming.nix
+    ../profiles/mobile.nix
   ];
 
   networking.hostName = "vanir";
+  # Keep workstation capabilities while also applying mobile's firewall default.
+  sauce.machineRole = "workstation";
+  networking.firewall.enable = true;
+  services.displayManager.defaultSession = "cosmic";
   nixpkgs.hostPlatform = "x86_64-linux";
   time.timeZone = "UTC";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -43,7 +52,6 @@
     nvidia = false;
     clamav.daemon = true;
   };
-  sauce.tools = [ "pi" ];
 
   hardware.bluetooth.enable = true;
   services.fail2ban.enable = true;

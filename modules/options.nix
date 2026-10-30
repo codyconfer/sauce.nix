@@ -14,7 +14,13 @@ in
   options.sauce = {
     enable = lib.mkEnableOption ".sauce configuration";
     machineRole = mkOption {
-      type = types.nullOr (types.enum [ "workstation" "mobile" "server" ]);
+      type = types.nullOr (
+        types.enum [
+          "workstation"
+          "mobile"
+          "server"
+        ]
+      );
       default = null;
       description = "Machine role selected by a machine profile.";
     };
@@ -24,7 +30,15 @@ in
       description = "Enable remote-access defaults such as Tailscale.";
     };
     desktopEnvironments = mkOption {
-      type = types.listOf (types.enum [ "kde" "sway" "cosmic" "lxqt" "gnome" ]);
+      type = types.listOf (
+        types.enum [
+          "kde"
+          "sway"
+          "cosmic"
+          "lxqt"
+          "gnome"
+        ]
+      );
       default = [ ];
       description = "Desktop sessions added by profiles; multiple profiles can be combined independently of machine role.";
     };
