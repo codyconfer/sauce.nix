@@ -12,6 +12,10 @@
       url = "github:nix-community/lanzaboote/v0.4.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -21,6 +25,7 @@
       nixpkgs-stable,
       home-manager,
       lanzaboote,
+      nixos-hardware,
       ...
     }:
     let
@@ -68,13 +73,18 @@
         imports = [ ./modules/home.nix ];
         nixpkgs.overlays = [ azureOverlay ];
       };
-      nixosConfigurations.sauce = mkSystem { modules = [ ./hosts/sauce.nix ]; };
+      nixosConfigurations.vanir = mkSystem {
+        modules = [
+          nixos-hardware.nixosModules.framework-intel-core-ultra-series3
+          ./hosts/vanir.nix
+        ];
+      };
       nixosConfigurations.testvm = mkSystem { modules = [ ./hosts/testvm.nix ]; };
-      homeConfigurations."sauce" = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations.codyconfer = home-manager.lib.homeManagerConfiguration {
         pkgs = mkPkgs "x86_64-linux";
         modules = [
           self.homeManagerModules.default
-          ./hosts/home.nix
+          ./hosts/codyconfer.nix
         ];
       };
       formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt);
@@ -90,8 +100,8 @@
                 ./modules/home.nix
                 profile
                 {
-                  home.username = "sauce";
-                  home.homeDirectory = "/home/sauce";
+                  home.username = "codyconfer";
+                  home.homeDirectory = "/home/codyconfer";
                   home.stateVersion = "25.11";
                 }
               ];
@@ -102,10 +112,14 @@
         }
         // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           workstation = (home {
-            imports = [ ./profiles/workstation.nix ./profiles/sway.nix ];
-          }).activationPackage;
-          hyprland = (home {
-            imports = [ ./profiles/workstation.nix ./profiles/hyprland.nix ];
+            imports = [
+              ./profiles/workstation.nix
+              ./profiles/sway.nix
+              ./profiles/kde.nix
+              ./profiles/cosmic.nix
+              ./profiles/lxqt.nix
+              ./profiles/gnome.nix
+            ];
           }).activationPackage;
           lxqt = (home {
             imports = [ ./profiles/workstation.nix ./profiles/lxqt.nix ];
@@ -117,9 +131,24 @@
           configuration = import ./tests/configuration.nix {
             inherit pkgs;
             workstation = home {
-              imports = [ ./profiles/workstation.nix ./profiles/sway.nix ];
+              imports = [
+                ./profiles/workstation.nix
+                ./profiles/sway.nix
+                ./profiles/kde.nix
+                ./profiles/cosmic.nix
+                ./profiles/lxqt.nix
+                ./profiles/gnome.nix
+              ];
             };
-            server = home ./profiles/server.nix;
+            server = home {
+              imports = [ ./profiles/server.nix ];
+              sauce = {
+                desktopEnvironments = [ "sway" ];
+                guiApps = [ "sway" ];
+                flatpaks = [ "signal" ];
+                media = [ "vlc" "ffmpeg" ];
+              };
+            };
             mobile = home ./profiles/mobile.nix;
           };
         }

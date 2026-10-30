@@ -5,7 +5,7 @@
     ../profiles/gnome.nix
   ];
 
-  networking.hostName = "sauce-testvm";
+  networking.hostName = "testvm";
   system.stateVersion = "25.11";
 
   sauce.system.user = "testvm";
@@ -14,8 +14,6 @@
     extraGroups = [ "wheel" ];
   };
 
-  # This host is for disposable local VM testing only. Auto-login is enabled
-  # because the VM account intentionally has no password.
   services.displayManager.autoLogin = {
     enable = true;
     user = "testvm";

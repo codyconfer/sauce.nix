@@ -1,7 +1,7 @@
 { lib, ... }:
 {
   sauce = {
-    desktopEnvironment = lib.mkDefault "sway";
+    desktopEnvironments = lib.mkDefault [ "sway" ];
     guiApps = lib.mkDefault [ "sway" ];
   };
 }

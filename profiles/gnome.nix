@@ -1,4 +1,4 @@
 { lib, ... }:
 {
-  sauce.desktopEnvironment = lib.mkDefault "gnome";
+  sauce.desktopEnvironments = lib.mkDefault [ "gnome" ];
 }

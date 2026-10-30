@@ -6,11 +6,9 @@
 }:
 let
   cfg = config.sauce;
+  desktop = cfg.machineRole != "server";
   enabled = cfg.enable && builtins.elem "pi" cfg.tools;
-  extensions =
-    cfg.pi.extensions
-    ++ lib.optional (!cfg.headless && builtins.elem "lmstudio" cfg.guiApps) "npm:pi-lmstudio"
-    ++ lib.optional (builtins.elem "ollama" cfg.tools) "npm:pi-ollama";
+  extensions = cfg.pi.extensions;
   install = pkgs.writeShellApplication {
     name = "sauce-pi-extensions";
     runtimeInputs = [
@@ -35,7 +33,7 @@ in
       };
       ".pi/agent/mcp.json".text = builtins.toJSON cfg.pi.mcp;
     }
-    // lib.optionalAttrs (!cfg.headless && builtins.elem "lmstudio" cfg.guiApps) {
+    // lib.optionalAttrs (desktop && builtins.elem "lmstudio" cfg.guiApps) {
       ".pi/agent/lmstudio.json".text = builtins.toJSON {
         url = cfg.pi.lmstudioUrl;
         servers = [ ];

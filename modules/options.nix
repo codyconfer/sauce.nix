@@ -18,15 +18,15 @@ in
       default = null;
       description = "Machine role selected by a machine profile.";
     };
-    desktopEnvironment = mkOption {
-      type = types.nullOr (types.enum [ "kde" "sway" "hyprland" "cosmic" "lxqt" "gnome" ]);
-      default = null;
-      description = "Optional desktop profile; select kde, sway, hyprland, cosmic, lxqt, or gnome separately from machine role.";
-    };
-    headless = mkOption {
+    remoteAccess = mkOption {
       type = types.bool;
       default = false;
-      description = "Disable desktop packages and files.";
+      description = "Enable remote-access defaults such as Tailscale.";
+    };
+    desktopEnvironments = mkOption {
+      type = types.listOf (types.enum [ "kde" "sway" "cosmic" "lxqt" "gnome" ]);
+      default = [ ];
+      description = "Desktop sessions added by profiles; multiple profiles can be combined independently of machine role.";
     };
     tools = selection "tools" [ ];
     guiApps = selection "guiApps" [ ];
@@ -46,7 +46,7 @@ in
     packageOverrides = mkOption {
       type = types.attrsOf types.package;
       default = { };
-      description = "Packages keyed by selection name, required for gcx, loglit and claude desktop.";
+      description = "Custom package derivations keyed by selection name; overrides take precedence over catalog mappings.";
     };
     extraPackages = mkOption {
       type = types.listOf types.package;
@@ -60,23 +60,31 @@ in
         description = "Optional companion tools not shipped in nixpkgs.";
       };
       latitude = mkOption {
-        type = types.str;
-        default = "40.6";
-        description = "Wlsunset latitude.";
+        type = types.nullOr types.float;
+        default = null;
+        description = "Optional location latitude for weather and night-light tools.";
       };
       longitude = mkOption {
-        type = types.str;
-        default = "-105.1";
-        description = "Wlsunset longitude.";
+        type = types.nullOr types.float;
+        default = null;
+        description = "Optional location longitude for weather and night-light tools.";
       };
     };
     pi = {
       extensions = mkOption {
         type = types.listOf types.str;
         default = [
-          "npm:pi-subagents"
-          "npm:pi-web-access"
           "npm:pi-mcp-adapter"
+          "npm:billion-context"
+          "npm:pi-web-access"
+          "npm:pi-subagents"
+          "npm:@langfuse/pi-observability-plugin"
+          "npm:@juicesharp/rpiv-ask-user-question"
+          "npm:pi-powerline-footer"
+          "npm:pi-lens"
+          "npm:pi-lmstudio"
+          "npm:pi-goal-x"
+          "npm:pi-mermaid"
         ];
         description = "Pi packages offered by the explicit sauce-pi-extensions command (not fetched during activation).";
       };

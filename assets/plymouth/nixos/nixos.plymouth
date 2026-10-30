@@ -1,12 +1,12 @@
 [Plymouth Theme]
-Name=Arch Linux
-Description=Arch Linux splash with a graphical LUKS passphrase prompt
+Name=NixOS
+Description=NixOS splash with a graphical LUKS passphrase prompt
 ModuleName=two-step
 
 [two-step]
-Font=Noto Sans 8
-TitleFont=Noto Sans Light 12
-ImageDir=/usr/share/plymouth/themes/arch
+Font=Noto Sans 10
+TitleFont=Noto Sans Light 20
+ImageDir=/usr/share/plymouth/themes/nixos
 WatermarkHorizontalAlignment=.5
 WatermarkVerticalAlignment=.38
 DialogHorizontalAlignment=.5
@@ -17,10 +17,10 @@ HorizontalAlignment=.5
 VerticalAlignment=.78
 Transition=none
 TransitionDuration=0.0
-BackgroundStartColor=0x1a1a1a
-BackgroundEndColor=0x0d0d0d
-ProgressBarBackgroundColor=0x242424
-ProgressBarForegroundColor=0x1793d1
+BackgroundStartColor=0x17212b
+BackgroundEndColor=0x0b1118
+ProgressBarBackgroundColor=0x22313d
+ProgressBarForegroundColor=0x7ebae4
 MessageBelowAnimation=true
 
 [boot-up]

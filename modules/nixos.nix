@@ -8,16 +8,21 @@ let
   inherit (lib) mkOption types mkIf;
   cfg = config.sauce;
   sys = cfg.system;
-  desktop = !cfg.headless;
-  sway = desktop && cfg.desktopEnvironment == "sway" && builtins.elem "sway" cfg.guiApps;
-  hyprland = desktop && cfg.desktopEnvironment == "hyprland" && builtins.elem "hyprland" cfg.guiApps;
+  desktop = cfg.machineRole != "server";
+  workstation = desktop && cfg.machineRole == "workstation";
+  sway = desktop && builtins.elem "sway" cfg.desktopEnvironments && builtins.elem "sway" cfg.guiApps;
+  hyprland = workstation;
+  kde = desktop && builtins.elem "kde" cfg.desktopEnvironments;
+  cosmic = desktop && builtins.elem "cosmic" cfg.desktopEnvironments;
+  gnome = desktop && builtins.elem "gnome" cfg.desktopEnvironments;
+  lxqt = desktop && builtins.elem "lxqt" cfg.desktopEnvironments;
   selected = name: desktop && builtins.elem name cfg.guiApps;
   emulator = name: desktop && builtins.elem name cfg.emulators;
   themes = pkgs.runCommand "sauce-plymouth-themes" { } ''
     mkdir -p "$out/share/plymouth/themes"
-    cp -r ${../assets/plymouth}/arch ${../assets/plymouth}/grafana "$out/share/plymouth/themes/"
+    cp -r ${../assets/plymouth}/nixos ${../assets/plymouth}/grafana "$out/share/plymouth/themes/"
     chmod -R u+w "$out"
-    for theme in arch grafana; do
+    for theme in nixos grafana; do
       substituteInPlace "$out/share/plymouth/themes/$theme/$theme.plymouth" \
         --replace-fail "/usr/share/plymouth/themes/$theme" "$out/share/plymouth/themes/$theme"
     done
@@ -28,7 +33,7 @@ in
   options.sauce.system = {
     user = mkOption {
       type = types.str;
-      default = "sauce";
+      default = "codyconfer";
       description = "Login user managed by .sauce.";
     };
     homeDirectory = mkOption {
@@ -41,8 +46,16 @@ in
       default = "25.11";
       description = "Initial Home Manager state version; do not bump on upgrades.";
     };
-    tailscale = lib.mkEnableOption "Tailscale (authenticate manually with tailscale up)";
-    rslsync = lib.mkEnableOption "Resilio Sync";
+    tailscale = mkOption {
+      type = types.bool;
+      default = cfg.machineRole == "mobile" || cfg.remoteAccess;
+      description = "Tailscale; enabled by default for mobile and remote-access profiles.";
+    };
+    rslsync = mkOption {
+      type = types.bool;
+      default = cfg.machineRole == "workstation";
+      description = "Resilio Sync; enabled by default on workstations.";
+    };
     nvidia = lib.mkEnableOption "proprietary NVIDIA driver (configure PRIME bus IDs in your host module if needed)";
     fingerprint = lib.mkEnableOption "fprintd authentication";
     fwupd = mkOption {
@@ -63,7 +76,7 @@ in
     displayManager = mkOption {
       type = types.bool;
       default = true;
-      description = "Enable ly for Sway desktops.";
+      description = "Enable Ly as the desktop session selector.";
     };
     consoleFont = mkOption {
       type = types.str;
@@ -72,8 +85,8 @@ in
     };
     plymouthTheme = mkOption {
       type = types.str;
-      default = "none";
-      description = "none, arch, grafana, bgrt, spinner, or a separately installed theme.";
+      default = if cfg.machineRole == "workstation" then "nixos" else "none";
+      description = "none, nixos, grafana, bgrt, spinner, or a separately installed theme.";
     };
     nixLd = mkOption {
       type = types.bool;
@@ -119,6 +132,11 @@ in
           "flakes"
         ];
         nixpkgs.config.allowUnfree = lib.mkDefault true;
+        security.apparmor = {
+          enable = true;
+          packages = [ pkgs.apparmor-profiles ];
+        };
+        security.auditd.enable = true;
         networking.networkmanager = {
           enable = lib.mkDefault true;
           wifi.powersave = sys.wifiPowerSave;
@@ -144,14 +162,42 @@ in
           font = sys.consoleFont;
           packages = [ pkgs.terminus_font ];
         };
-        services.desktopManager.plasma6.enable = desktop && cfg.desktopEnvironment == "kde";
-        services.desktopManager.cosmic.enable = desktop && cfg.desktopEnvironment == "cosmic";
-        services.desktopManager.gnome.enable = desktop && cfg.desktopEnvironment == "gnome";
-        services.displayManager.gdm.enable = desktop && cfg.desktopEnvironment == "gnome";
-        services.xserver.enable = desktop && cfg.desktopEnvironment == "lxqt";
-        services.xserver.desktopManager.lxqt.enable = desktop && cfg.desktopEnvironment == "lxqt";
-        services.displayManager.ly.enable = desktop && cfg.desktopEnvironment == "lxqt" && sys.displayManager;
+        services.desktopManager.plasma6.enable = kde;
+        services.desktopManager.cosmic.enable = cosmic;
+        services.desktopManager.gnome.enable = gnome;
+        services.xserver.enable = lxqt || (cfg.remoteAccess && kde);
+        services.xserver.desktopManager.lxqt.enable = lxqt;
+        services.displayManager.ly.enable = desktop && sys.displayManager;
+        services.displayManager.sddm.enable = lib.mkForce false;
+        services.displayManager.gdm.enable = lib.mkForce false;
+        services.displayManager.cosmic-greeter.enable = lib.mkForce false;
+        xdg.portal = {
+          enable = desktop;
+          wlr.enable = sway;
+          extraPortals = lib.mkForce (lib.unique (
+            [ pkgs.xdg-desktop-portal-gtk ]
+            ++ lib.optional sway pkgs.xdg-desktop-portal-wlr
+            ++ lib.optional hyprland pkgs.xdg-desktop-portal-hyprland
+            ++ lib.optional kde pkgs.kdePackages.xdg-desktop-portal-kde
+            ++ lib.optional gnome pkgs.xdg-desktop-portal-gnome
+            ++ lib.optional cosmic pkgs.xdg-desktop-portal-cosmic
+          ));
+          config = {
+            common.default = [ "gtk" ];
+            hyprland.default = [ "hyprland" "gtk" ];
+            kde.default = [ "kde" "gtk" ];
+            gnome.default = [ "gnome" "gtk" ];
+            cosmic.default = [ "cosmic" "gtk" ];
+            sway = {
+              default = [ "gtk" ];
+              "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
+              "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
+            };
+          };
+        };
         programs.hyprland.enable = hyprland;
+        programs.hyprland.withUWSM = hyprland;
+        programs.uwsm.enable = desktop && (workstation || sway);
         services.tailscale.enable = sys.tailscale;
         services.resilio.enable = sys.rslsync;
         services.fwupd.enable = sys.fwupd;
@@ -165,7 +211,6 @@ in
         virtualisation.libvirtd.enable = emulator "qemu";
         programs.virt-manager.enable = emulator "qemu";
         programs.steam.enable = emulator "steam";
-        services.ollama.enable = builtins.elem "ollama" cfg.tools;
         services.flatpak.enable = desktop && cfg.flatpaks != [ ];
         programs._1password.enable = builtins.elem "1password-cli" cfg.tools;
         programs._1password-gui = {
@@ -176,7 +221,7 @@ in
           enable = sys.plymouthTheme != "none";
           theme = lib.mkIf (sys.plymouthTheme != "none") sys.plymouthTheme;
           themePackages = lib.optionals (builtins.elem sys.plymouthTheme [
-            "arch"
+            "nixos"
             "grafana"
           ]) [ themes ];
         };
@@ -219,6 +264,87 @@ in
       (mkIf (cfg.machineRole == "mobile") {
         networking.firewall.enable = true;
       })
+      (mkIf cfg.remoteAccess {
+        networking.nftables.enable = true;
+        services.firewalld = {
+          enable = true;
+          settings = {
+            DefaultZone = "drop";
+            FirewallBackend = "nftables";
+          };
+          zones.tailscale = {
+            target = "DROP";
+            interfaces = [ "tailscale0" ];
+            ports = map (port: {
+              inherit port;
+              protocol = "tcp";
+            }) [ 22 80 3389 ];
+          };
+        };
+        services.openssh.enable = true;
+        services.caddy = {
+          enable = true;
+          openFirewall = false;
+          environmentFile = "/run/sauce-caddy/tailscale.env";
+          virtualHosts.":80" = {
+            listenAddresses = [ "{$TAILSCALE_IP}" ];
+            extraConfig = ''
+              reverse_proxy 127.0.0.1:8080
+            '';
+          };
+        };
+        systemd.services.sauce-caddy-tailscale-address = {
+          description = "Resolve the Tailscale address for Caddy";
+          wantedBy = [ "multi-user.target" ];
+          before = [ "caddy.service" ];
+          onSuccess = [ "caddy.service" ];
+          after = [ "tailscaled.service" ];
+          requires = [ "tailscaled.service" ];
+          path = [ pkgs.coreutils pkgs.tailscale ];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            Restart = "on-failure";
+            RestartSec = "30s";
+          };
+          script = ''
+            attempt=0
+            while [ "$attempt" -lt 30 ]; do
+              address="$(tailscale ip -4 2>/dev/null || true)"
+              if [ -n "$address" ]; then
+                install -d -m 0755 /run/sauce-caddy
+                printf 'TAILSCALE_IP=%s\n' "$address" > /run/sauce-caddy/tailscale.env
+                chmod 0644 /run/sauce-caddy/tailscale.env
+                exit 0
+              fi
+              attempt=$((attempt + 1))
+              sleep 2
+            done
+            echo "Tailscale IPv4 address not available yet" >&2
+            exit 1
+          '';
+        };
+        systemd.services.caddy = {
+          requires = [ "sauce-caddy-tailscale-address.service" ];
+          after = [ "sauce-caddy-tailscale-address.service" ];
+        };
+        services.code-server = {
+          enable = true;
+          user = sys.user;
+          group = "users";
+          host = "127.0.0.1";
+          port = 8080;
+          auth = "none";
+        };
+        services.xrdp = {
+          enable = true;
+          openFirewall = false;
+          defaultWindowManager = if kde then "startplasma-x11" else "xterm";
+        };
+      })
+      (mkIf workstation {
+        services.displayManager.defaultSession = lib.mkDefault "hyprland-uwsm";
+      })
       (mkIf sys.rslsync {
         systemd.tmpfiles.rules = [ "d /var/lib/resilio-sync/sync 2770 rslsync rslsync -" ];
       })
@@ -236,27 +362,13 @@ in
           enable = true;
           wrapperFeatures.gtk = true;
         };
-        programs.uwsm = {
-          enable = true;
-          waylandCompositors.sway = {
-            prettyName = "Sway";
-            binPath = "/run/current-system/sw/bin/sway";
-          };
+        programs.uwsm.waylandCompositors.sway = {
+          prettyName = "Sway";
+          binPath = "/run/current-system/sw/bin/sway";
         };
-        services.displayManager.ly.enable = sys.displayManager;
         security.polkit.enable = true;
         security.pam.services.swaylock = { };
         hardware.i2c.enable = true;
-        xdg.portal = {
-          enable = true;
-          wlr.enable = true;
-          extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-          config.sway = {
-            default = [ "gtk" ];
-            "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
-            "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
-          };
-        };
         fonts.packages = with pkgs; [
           nerd-fonts.hack
           nerd-fonts.terminess-ttf
@@ -264,20 +376,7 @@ in
         ];
       })
       (mkIf hyprland {
-        programs.uwsm = {
-          enable = true;
-          waylandCompositors.hyprland = {
-            prettyName = "Hyprland";
-            binPath = "/run/current-system/sw/bin/Hyprland";
-          };
-        };
-        services.displayManager.ly.enable = sys.displayManager;
         security.polkit.enable = true;
-        xdg.portal = {
-          enable = true;
-          extraPortals = [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gtk ];
-          config.hyprland.default = [ "hyprland" "gtk" ];
-        };
         fonts.packages = with pkgs; [
           nerd-fonts.hack
           nerd-fonts.terminess-ttf

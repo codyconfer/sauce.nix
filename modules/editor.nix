@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.sauce;
+  desktop = cfg.machineRole != "server";
   has = name: builtins.elem name cfg.tools;
   enabled = cfg.enable && has "nvim";
   logHighlight = pkgs.vimUtils.buildVimPlugin {
@@ -35,7 +36,7 @@ let
   ++ lib.optional (has "nvm") "ts_ls"
   ++ lib.optional (has "dotnet") "omnisharp"
   ++ lib.optional (has "rustup") "rust_analyzer"
-  ++ lib.optional (!cfg.headless && builtins.elem "docker" cfg.guiApps) "dockerls";
+  ++ lib.optional (desktop && builtins.elem "docker" cfg.guiApps) "dockerls";
 in
 {
   config = lib.mkIf enabled {
@@ -66,7 +67,7 @@ in
         ++ lib.optionals (has "nvm") [ typescript-language-server ]
         ++ lib.optionals (has "dotnet") [ omnisharp-roslyn ]
         ++ lib.optionals (has "rustup") [ rust-analyzer ]
-        ++ lib.optionals (!cfg.headless && builtins.elem "docker" cfg.guiApps) [
+        ++ lib.optionals (desktop && builtins.elem "docker" cfg.guiApps) [
           dockerfile-language-server
         ];
       plugins = with pkgs.vimPlugins; [

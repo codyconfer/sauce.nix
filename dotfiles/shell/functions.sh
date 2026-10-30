@@ -3,7 +3,6 @@
 source "$HOME/.config/sauce/styles.sh"
 
 _sauce_tool_registered() {
-  # Packages are selected declaratively, not through chezmoi data.
   case "$1" in
   bitwarden-cli) command -v bw >/dev/null 2>&1 ;;
   1password-cli) command -v op >/dev/null 2>&1 ;;

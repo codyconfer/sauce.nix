@@ -1,4 +1,4 @@
 { lib, ... }:
 {
-  sauce.desktopEnvironment = lib.mkDefault "cosmic";
+  sauce.desktopEnvironments = lib.mkDefault [ "cosmic" ];
 }

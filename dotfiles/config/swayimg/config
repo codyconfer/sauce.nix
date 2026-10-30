@@ -1,4 +1,3 @@
-# swayimg v4 config (Ubuntu 26.04 ships 4.7 — INI format, not the v5 Lua one)
 
 [general]
 mode = viewer

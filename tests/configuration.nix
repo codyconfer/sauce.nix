@@ -7,25 +7,46 @@
 let
   inherit (pkgs) lib;
   swayText = workstation.config.xdg.configFile."sway/config".text;
+  hyprlandText = workstation.config.xdg.configFile."hypr/hyprland.conf".text;
+  waybarHyprlandText = workstation.config.xdg.configFile."waybar/config-hyprland.jsonc".text;
+  waybarSwayText = workstation.config.xdg.configFile."waybar/config-sway.jsonc".text;
+  footText = builtins.readFile (workstation.config.xdg.configFile.foot.source + "/foot.ini");
   flatpakText = lib.concatStringsSep " " workstation.config.systemd.user.services.sauce-flatpaks.Service.ExecStart;
   serverFiles = builtins.attrNames server.config.xdg.configFile;
 in
 assert workstation.config.sauce.machineRole == "workstation";
-assert workstation.config.sauce.desktopEnvironment == "sway";
+assert workstation.config.wayland.windowManager.hyprland.systemd.enable == false;
+assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
+assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
+assert lib.elem "cosmic" workstation.config.sauce.desktopEnvironments;
+assert lib.elem "lxqt" workstation.config.sauce.desktopEnvironments;
+assert lib.elem "gnome" workstation.config.sauce.desktopEnvironments;
+assert lib.elem "hyprland" workstation.config.sauce.guiApps;
+assert lib.elem "foot" workstation.config.sauce.guiApps;
 assert lib.elem "sway" workstation.config.sauce.guiApps;
 assert lib.hasInfix "swayr switch-window" swayText;
+assert lib.hasInfix "set $term foot" swayText;
+assert lib.hasInfix "$terminal = foot" hyprlandText;
+assert lib.hasInfix "waybar/config-hyprland.jsonc" hyprlandText;
+assert lib.hasInfix "hyprland/workspaces" waybarHyprlandText;
+assert lib.hasInfix "sway/workspaces" waybarSwayText;
+assert lib.hasInfix "term=foot" footText;
+assert !(lib.hasInfix "40.6" (swayText + hyprlandText + waybarHyprlandText + waybarSwayText));
 assert lib.hasInfix "grimshot copy area" swayText;
 assert lib.hasInfix "sauce-power" swayText;
 assert !(lib.hasInfix "$bin/zofi" swayText);
 assert !(lib.hasInfix "$bin/lumactl" swayText);
 assert lib.hasInfix "sauce-flatpaks" flatpakText;
 assert server.config.sauce.machineRole == "server";
-assert server.config.sauce.headless;
+assert builtins.elem "sway" server.config.sauce.guiApps;
+assert server.config.sauce.flatpaks == [ "signal" ];
 assert !(builtins.elem "sway/config" serverFiles);
 assert !(builtins.hasAttr "sauce-flatpaks" server.config.systemd.user.services);
+assert !(builtins.elem pkgs.vlc server.config.home.packages);
+assert builtins.elem pkgs.ffmpeg server.config.home.packages;
 assert mobile.config.sauce.machineRole == "mobile";
-assert !mobile.config.sauce.headless;
-assert mobile.config.sauce.desktopEnvironment == null;
+assert mobile.config.fonts.fontconfig.enable;
+assert mobile.config.sauce.desktopEnvironments == [ ];
 pkgs.runCommand "sauce-configuration-tests" { } ''
   touch "$out"
 ''

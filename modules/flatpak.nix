@@ -7,7 +7,7 @@
 let
   cfg = config.sauce;
   catalog = import ../lib/catalog.nix;
-  enabled = cfg.enable && !cfg.headless && cfg.flatpaks != [ ];
+  enabled = cfg.enable && cfg.machineRole != "server" && cfg.flatpaks != [ ];
   ids = map (name: catalog.flatpaks.${name}) cfg.flatpaks;
   sync = pkgs.writeShellApplication {
     name = "sauce-flatpaks";

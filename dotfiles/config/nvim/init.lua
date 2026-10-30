@@ -1,4 +1,3 @@
--- Plugins, parsers and language servers come from the pinned Nix closure, not Mason/Lazy downloads.
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 require("sauce.options")

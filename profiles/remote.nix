@@ -1,2 +1,4 @@
-# Deliberately empty: remote-access services are enabled explicitly per host.
-{ ... }: { }
+{ lib, ... }:
+{
+  sauce.remoteAccess = lib.mkDefault true;
+}

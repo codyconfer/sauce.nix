@@ -4,10 +4,8 @@ set $down j
 set $up k
 set $right l
 
-set $term alacritty
+set $term foot
 set $menu fuzzel
-# Source-built tools live in ~/.local/bin, which is NOT on PATH when the
-# session comes up via ly — always exec them through $bin.
 set $bin ~/.local/bin
 set $app uwsm app -s b --
 set $lock $bin/sauce-power lock
@@ -43,17 +41,15 @@ input "type:keyboard" {
 }
 
 exec uwsm finalize
-exec $app waybar
+exec $app waybar --config $HOME/.config/waybar/config-sway.jsonc
 exec $app mako
 exec $app $bin/way-displays > /tmp/way-displays.${XDG_VTNR}.${USER}.log 2>&1
 exec $app $bin/wl-clip-persist --clipboard regular
-exec $app wlsunset -l 40.6 -L -105.1
 exec $app $bin/zofi clipd
 exec mkdir -p $EXPOSWAYDIR && $app $bin/exposwayd
 exec $app $bin/sauce-power daemon
 
 bindsym $mod+Return exec $term
-bindsym $mod+Shift+Return exec $bin/havoc
 bindsym $mod+d focus mode_toggle
 bindsym $mod+q kill
 bindsym $mod+BackSpace kill

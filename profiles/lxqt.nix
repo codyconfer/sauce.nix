@@ -1,4 +1,4 @@
 { lib, ... }:
 {
-  sauce.desktopEnvironment = lib.mkDefault "lxqt";
+  sauce.desktopEnvironments = lib.mkDefault [ "lxqt" ];
 }

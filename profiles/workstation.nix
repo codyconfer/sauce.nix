@@ -3,10 +3,10 @@
   sauce = {
     machineRole = lib.mkDefault "workstation";
     enable = lib.mkDefault true;
-    headless = lib.mkDefault false;
     guiApps = lib.mkDefault [
       "firefox"
-      "alacritty"
+      "foot"
+      "hyprland"
       "sourcegit"
       "vscode"
       "zed"

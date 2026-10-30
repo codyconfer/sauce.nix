@@ -1,6 +1,7 @@
 { lib, ... }:
 {
   sauce = {
+    netTools = true;
     tools = lib.mkDefault [
       "adb"
       "dotnet"
@@ -14,9 +15,9 @@
       "pi"
       "poetry"
       "pyenv"
+      "pnpm"
       "rustup"
       "tmux"
-      "yarn"
       "docker"
     ];
   };

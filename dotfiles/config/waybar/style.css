@@ -20,7 +20,6 @@ window#waybar {
 #network,
 #pulseaudio,
 #backlight,
-#custom-weather,
 #tray {
     background: #37474f;
     border-radius: 2px;
@@ -81,7 +80,6 @@ window#waybar.empty #window {
 #network { color: #03a9f4; }
 #network.disconnected { color: #e91e63; }
 #backlight { color: #ffc107; }
-#custom-weather { color: #ffc107; }
 #clock { color: #eceff1; }
 
 #battery { color: #8bc34a; }
