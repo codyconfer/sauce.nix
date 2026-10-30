@@ -1,0 +1,9 @@
+hide-cancel
+default-action=logout
+fa-font=Font Awesome 6 Free
+lock-command=swaylock -f
+logout-command=swaymsg exit
+reload-command=swaymsg reload
+suspend-command=systemctl suspend
+reboot-command=systemctl reboot
+poweroff-command=systemctl poweroff

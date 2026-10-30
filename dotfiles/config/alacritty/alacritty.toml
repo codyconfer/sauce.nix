@@ -1,0 +1,64 @@
+[env]
+TERM = "xterm-256color"
+
+[window]
+padding = { x = 8, y = 8 }
+dynamic_padding = false
+opacity = 0.85
+blur = true
+dimensions = { columns = 120, lines = 69 }
+
+[scrolling]
+history = 500
+
+[font]
+size = 8
+
+[font.normal]
+family = "Hack Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "Hack Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "Hack Nerd Font"
+style = "Italic"
+
+[colors.primary]
+background = "#01141D"
+foreground = "#CBE0E7"
+
+[colors.cursor]
+text = "#C8E0E7"
+cursor = "#C8E0E7"
+
+[colors.selection]
+text = "#01144D"
+background = "#C8E0E7"
+
+[colors.normal]
+black = "#001E2C"
+red = "#DA4453"
+green = "#00AA7F"
+yellow = "#DA770E"
+blue = "#007CC8"
+magenta = "#FE557F"
+cyan = "#009AB5"
+white = "#C8E0E7"
+
+[colors.bright]
+black = "#001E2C"
+red = "#DA4453"
+green = "#00AA7F"
+yellow = "#DA770E"
+blue = "#007CC8"
+magenta = "#FE557F"
+cyan = "#009AB5"
+white = "#C8E0E7"
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"

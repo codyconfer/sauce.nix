@@ -1,0 +1,20 @@
+font=Terminess Nerd Font 11
+background-color=#263238
+text-color=#eceff1
+border-color=#03a9f4
+border-size=2
+border-radius=8
+padding=10
+margin=8
+default-timeout=5000
+anchor=top-right
+markup=1
+format=<b>󰂚 %s</b>\n%b
+
+[urgency=low]
+format=<b>󰧞 %s</b>\n%b
+
+[urgency=critical]
+border-color=#e91e63
+default-timeout=0
+format=<b>󰀦 %s</b>\n%b

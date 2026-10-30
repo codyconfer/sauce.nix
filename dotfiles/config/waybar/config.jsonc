@@ -1,0 +1,72 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 34,
+  "spacing": 6,
+  "margin-top": 6,
+  "margin-left": 6,
+  "margin-right": 6,
+  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-center": ["sway/window"],
+  "modules-right": ["tray", "custom/weather", "pulseaudio", "battery", "clock"],
+
+  "sway/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "format": "{name}",
+    "strip-workspace-numbers": true,
+  },
+  "sway/mode": {
+    "format": "{}",
+  },
+  "sway/window": {
+    "max-length": 60,
+  },
+  "custom/weather": {
+    "exec": "$HOME/.local/bin/wttrbar --nerd --mph --hide-conditions --location 40.6,-105.1 --custom-indicator '{ICON} {temp_C}°'",
+    "return-type": "json",
+    "format": "{}",
+    "interval": 1800,
+    "tooltip": true,
+    "on-click": "xdg-open https://wttr.in/40.6,-105.1",
+  },
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰂂", "󰁹"],
+    "states": { "warning": 30, "critical": 15 },
+  },
+  "clock": {
+    "format": "󰃭 {0:%Y.%m.%d} 󰥔 {0:%H:%M}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+  },
+  "network": {
+    "format-wifi": "{icon} {essid}",
+    "format-ethernet": "󰈀 {ipaddr}",
+    "format-linked": "󰈁 {ifname}",
+    "format-disconnected": "󰗳 off",
+    "format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
+    "tooltip-format": "{ifname}: {ipaddr}",
+    "tooltip-format-wifi": "󰤨 {essid} ({signalStrength}%)\n{ifname}: {ipaddr}",
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰖁 muted",
+    "format-bluetooth": "󰥰 {volume}%",
+    "format-icons": {
+      "headphone": "󰋋",
+      "headset": "󰋎",
+      "hdmi": "󰡁",
+      "default": ["󰖀", "󰖀", "󰕾"],
+    },
+    "on-click": "pavucontrol",
+  },
+  "backlight": {
+    "format": "{icon} {percent}%",
+    "format-icons": ["󰃞", "󰃟", "󰃠"],
+  },
+  "tray": {
+    "spacing": 8,
+  },
+}
