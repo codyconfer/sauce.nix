@@ -23,6 +23,31 @@ let
           (throw "sauce: nixpkgs has no package for ${name}; set sauce.packageOverrides.${name}")
           pkgs;
   packages = category: names: map (resolve category) names;
+  auth = pkgs.writeShellApplication {
+    name = "sauce-auth";
+    runtimeInputs = [ pkgs.gh pkgs.git pkgs.tailscale pkgs.bitwarden-cli ];
+    text = ''
+      set -euo pipefail
+      echo "Logging in to GitHub..."
+      gh auth login
+      gh auth setup-git
+
+      read -r -p "Git commit author name: " git_name
+      read -r -p "Git commit author email: " git_email
+      if [[ -z "$git_name" || -z "$git_email" ]]; then
+        echo "Git name and email must not be empty." >&2
+        exit 1
+      fi
+      git config --global user.name "$git_name"
+      git config --global user.email "$git_email"
+
+      echo "Connecting to Tailscale..."
+      sudo tailscale up
+
+      echo "Logging in to Bitwarden..."
+      bw login
+    '';
+  };
 in
 {
   imports = [
@@ -48,6 +73,7 @@ in
           with pkgs;
           [
             git
+            auth
             curl
             wget
             unzip
