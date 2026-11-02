@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   imports = [
     ../profiles/personal.nix
@@ -52,6 +52,9 @@
     nvidia = false;
     clamav.daemon = true;
   };
+
+  # Temporary bootstrap access; disable after SSH keys are provisioned.
+  services.openssh.settings.PasswordAuthentication = lib.mkForce true;
 
   hardware.bluetooth.enable = true;
   services.fail2ban.enable = true;
