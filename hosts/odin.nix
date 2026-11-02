@@ -51,6 +51,10 @@
   sauce.system = {
     user = "codyconfer";
     homeStateVersion = "26.05";
+    remote = {
+      sshAuthorizedKeysFile = "/var/lib/sauce/ssh-authorized-keys/%u";
+      codeServerEnvironmentFile = "/var/lib/sauce/secrets/code-server.env";
+    };
     tailscale = true;
     nvidia = true;
     displayManager = true;
