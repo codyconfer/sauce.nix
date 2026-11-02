@@ -25,7 +25,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/<LUKS-UUID>";
+  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/7a1abf0d-7ffc-4fed-aadc-3eb9c8b3e9b1";
   boot.initrd.availableKernelModules = [
     "nvme"
     "xhci_pci"
@@ -39,10 +39,13 @@
     fsType = "ext4";
   };
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/<EFI-UUID>";
+    device = "/dev/disk/by-uuid/0EE7-F6E5";
     fsType = "vfat";
     options = [ "umask=0077" ];
   };
+  swapDevices =
+    [ { device = "/dev/mapper/luks-2a31f243-8226-4a27-b03d-4fd6b76339a1"; }
+    ];
 
   sauce.system = {
     user = "codyconfer";
