@@ -74,10 +74,23 @@ let
     true;
 in
 assert vanirConfig.sauce.machineRole == "workstation";
+assert vanirConfig.boot.plymouth.enable;
+assert vanirConfig.boot.plymouth.theme == "bgrt";
+assert vanirConfig.boot.plymouth.themePackages == [ ];
+assert hyprland.boot.plymouth.theme == "bgrt";
+assert !serverRemote.boot.plymouth.enable;
 assert vanirConfig.services.displayManager.defaultSession == "cosmic";
 assert vanirConfig.services.desktopManager.cosmic.enable;
-assert vanirConfig.services.desktopManager.plasma6.enable;
+assert !vanirConfig.services.desktopManager.plasma6.enable;
+assert !vanirConfig.services.desktopManager.gnome.enable;
+assert !vanirConfig.services.xserver.desktopManager.lxqt.enable;
 assert vanirConfig.programs.hyprland.enable;
+assert vanirConfig.programs.sway.enable;
+assert
+  lib.sort builtins.lessThan vanirConfig.sauce.desktopEnvironments == [
+    "cosmic"
+    "sway"
+  ];
 assert vanirConfig.sauce.system.tailscale;
 assert assertRemote vanirConfig;
 assert lib.all (name: lib.elem name vanirConfig.sauce.tools) [

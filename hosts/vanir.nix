@@ -4,7 +4,7 @@
     ../profiles/personal.nix
     ../profiles/devbox.nix
     ../profiles/cosmic.nix
-    ../profiles/kde.nix
+    ../profiles/sway.nix
     ../profiles/remote.nix
     ../profiles/workstation.nix
     ../profiles/gaming.nix
@@ -50,6 +50,7 @@
     tailscale = true;
     nvidia = false;
     clamav.daemon = true;
+    plymouthTheme = "bgrt";
   };
 
   services.openssh.settings.PasswordAuthentication = lib.mkForce true;

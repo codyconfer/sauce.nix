@@ -18,11 +18,22 @@ let
   lxqt = desktop && builtins.elem "lxqt" cfg.desktopEnvironments;
   selected = name: desktop && builtins.elem name cfg.guiApps;
   emulator = name: desktop && builtins.elem name cfg.emulators;
+  # Keep upstream launchers available to UWSM, but show each compositor once in Ly.
+  lyWaylandSessions = pkgs.runCommand "sauce-ly-wayland-sessions" { } ''
+    mkdir -p "$out"
+    cp -a ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions/. "$out/"
+    chmod u+w "$out"
+    for session in "$out"/*.desktop; do
+      if [ -e "''${session%.desktop}-uwsm.desktop" ]; then
+        rm "$session"
+      fi
+    done
+  '';
   themes = pkgs.runCommand "sauce-plymouth-themes" { } ''
     mkdir -p "$out/share/plymouth/themes"
-    cp -r ${../assets/plymouth}/nixos ${../assets/plymouth}/grafana "$out/share/plymouth/themes/"
+    cp -r ${../assets/plymouth}/grafana "$out/share/plymouth/themes/"
     chmod -R u+w "$out"
-    for theme in nixos grafana; do
+    for theme in grafana; do
       substituteInPlace "$out/share/plymouth/themes/$theme/$theme.plymouth" \
         --replace-fail "/usr/share/plymouth/themes/$theme" "$out/share/plymouth/themes/$theme"
     done
@@ -88,8 +99,8 @@ in
     };
     plymouthTheme = mkOption {
       type = types.str;
-      default = if cfg.machineRole == "workstation" then "nixos" else "none";
-      description = "none, nixos, grafana, bgrt, spinner, or a separately installed theme.";
+      default = if cfg.machineRole == "workstation" then "bgrt" else "none";
+      description = "none, grafana, bgrt, spinner, or a separately installed theme.";
     };
     nixLd = mkOption {
       type = types.bool;
@@ -182,7 +193,10 @@ in
         services.desktopManager.gnome.enable = gnome;
         services.xserver.enable = lxqt || (cfg.remoteAccess && kde);
         services.xserver.desktopManager.lxqt.enable = lxqt;
-        services.displayManager.ly.enable = desktop && sys.displayManager;
+        services.displayManager.ly = {
+          enable = desktop && sys.displayManager;
+          settings.waylandsessions = toString lyWaylandSessions;
+        };
         services.displayManager.sddm.enable = lib.mkForce false;
         services.displayManager.gdm.enable = lib.mkForce false;
         services.displayManager.cosmic-greeter.enable = lib.mkForce false;
@@ -249,10 +263,7 @@ in
         boot.plymouth = {
           enable = sys.plymouthTheme != "none";
           theme = lib.mkIf (sys.plymouthTheme != "none") sys.plymouthTheme;
-          themePackages = lib.optionals (builtins.elem sys.plymouthTheme [
-            "nixos"
-            "grafana"
-          ]) [ themes ];
+          themePackages = lib.optional (sys.plymouthTheme == "grafana") themes;
         };
         home-manager = {
           useGlobalPkgs = true;

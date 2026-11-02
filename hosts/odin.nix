@@ -18,11 +18,18 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "usb_storage" "sd_mod" ];
+  boot.initrd.availableKernelModules = [
+    "nvme"
+    "xhci_pci"
+    "usb_storage"
+    "sd_mod"
+  ];
   boot.kernelModules = [ "kvm-intel" ];
 
-  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/a7c0cfaf-22c0-4754-9c1e-2bb6b9125ee6";
-  boot.initrd.luks.devices."cryptdata".device = "/dev/disk/by-uuid/8fedde26-0ddb-43f2-83e5-fb3e5738e5bc";
+  boot.initrd.luks.devices."cryptroot".device =
+    "/dev/disk/by-uuid/a7c0cfaf-22c0-4754-9c1e-2bb6b9125ee6";
+  boot.initrd.luks.devices."cryptdata".device =
+    "/dev/disk/by-uuid/8fedde26-0ddb-43f2-83e5-fb3e5738e5bc";
   boot.initrd.luks.devices."luks-497e4eb6-ceeb-4a47-a6d6-bf79214f54b5".device =
     "/dev/disk/by-uuid/497e4eb6-ceeb-4a47-a6d6-bf79214f54b5";
   swapDevices = [
@@ -56,7 +63,7 @@
     tailscale = true;
     nvidia = true;
     displayManager = true;
-    plymouthTheme = "nixos";
+    plymouthTheme = "bgrt";
   };
 
   services.displayManager.defaultSession = "cosmic";

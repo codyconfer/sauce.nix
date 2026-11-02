@@ -38,9 +38,10 @@ sudo nixos-rebuild switch --flake "path:$PWD#vanir"
 ```
 
 `vanir` imports its platform hardware module and latest kernel, plus `personal`,
-`devbox`, `cosmic`, `kde`, `remote`, `workstation`, `gaming`, and `mobile` profiles.
-It explicitly retains the workstation role and mobile firewall/Tailscale defaults;
-COSMIC is the default desktop, with KDE and Hyprland also available. Profile
+`devbox`, `cosmic`, `sway`, `remote`, `workstation`, `gaming`, and `mobile` profiles.
+It explicitly retains the workstation role and mobile firewall/Tailscale defaults.
+Both `vanir` and `odin` offer only COSMIC, Hyprland, and Sway sessions, with COSMIC
+as the default desktop. Profile
 selection lists are merged, so development and personal tools are not masked by
 a host-level tools override. Provision the remote credentials described below
 before switching. Set the desired local timezone in its host file. The account is created
@@ -83,7 +84,8 @@ sessions. The workstation includes Hyprland under UWSM and Ly, with Hyprland as
 its default session. Sway is also UWSM-managed; KDE, GNOME, COSMIC, and LXQt use
 their native Ly sessions. Combine session profiles as needed. Hyprland and Sway
 share Foot, Fuzzel, Waybar styling, the Mod-key/workspace/launch/lock workflows,
-and power controls; Waybar uses a session-specific module config. Location-based
+and power controls; Waybar uses a session-specific module config. Ly shows only
+the UWSM launcher when both native and UWSM entries exist for a compositor. Location-based
 weather and night-light features are disabled unless both coordinates are set in
 your local host configuration.
 
@@ -91,7 +93,7 @@ Selection lists (`tools`, `guiApps`, `media`, `flatpaks`, `emulators`) use keys
 from `lib/catalog.nix`; `extraPackages` and `packageOverrides` extend/replace
 packages. The server role suppresses GUI/emulator/Flatpak selections even if set.
 The workstation defaults include development tools, desktop applications, and
-media. NixOS workstations also default to the NixOS Plymouth theme; other roles
+media. NixOS workstations also default to Plymouth's stock `bgrt` theme; other roles
 default to no theme. Add capability profiles only when needed. Tailscale defaults
 on for mobile and `remote` profiles; Resilio Sync defaults on for workstations.
 

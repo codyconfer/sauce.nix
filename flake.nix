@@ -114,6 +114,13 @@
         // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           nixos-vanir = self.nixosConfigurations.vanir.config.system.build.toplevel;
           nixos-testvm = self.nixosConfigurations.testvm.config.system.build.toplevel;
+          nixos-ly-sessions = import ./tests/ly-sessions.nix {
+            inherit pkgs;
+            configurations = with self.nixosConfigurations; [
+              vanir
+              odin
+            ];
+          };
           nixos-configuration = import ./tests/nixos-configuration.nix {
             inherit pkgs mkSystem;
             vanirConfig = self.nixosConfigurations.vanir.config;
