@@ -21,8 +21,6 @@
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "usb_storage" "sd_mod" ];
   boot.kernelModules = [ "kvm-intel" ];
 
-  # Encrypted root and data; games is a separate ext4 filesystem.
-  # Keep the existing EFI partition on nvme0n1p1.
   boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/a7c0cfaf-22c0-4754-9c1e-2bb6b9125ee6";
   boot.initrd.luks.devices."cryptdata".device = "/dev/disk/by-uuid/8fedde26-0ddb-43f2-83e5-fb3e5738e5bc";
   boot.initrd.luks.devices."luks-497e4eb6-ceeb-4a47-a6d6-bf79214f54b5".device =
@@ -63,7 +61,6 @@
 
   services.displayManager.defaultSession = "cosmic";
 
-  # Temporary bootstrap access; disable after SSH keys are provisioned.
   services.openssh.settings.PasswordAuthentication = lib.mkForce true;
 
   networking.firewall.enable = true;

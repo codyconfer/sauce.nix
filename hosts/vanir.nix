@@ -12,7 +12,6 @@
   ];
 
   networking.hostName = "vanir";
-  # Keep workstation capabilities while also applying mobile's firewall default.
   sauce.machineRole = "workstation";
   networking.firewall.enable = true;
   services.displayManager.defaultSession = "cosmic";
@@ -53,7 +52,6 @@
     clamav.daemon = true;
   };
 
-  # Temporary bootstrap access; disable after SSH keys are provisioned.
   services.openssh.settings.PasswordAuthentication = lib.mkForce true;
 
   hardware.bluetooth.enable = true;
