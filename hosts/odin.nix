@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   imports = [
     ../profiles/workstation.nix
@@ -62,6 +62,9 @@
   };
 
   services.displayManager.defaultSession = "cosmic";
+
+  # Temporary bootstrap access; disable after SSH keys are provisioned.
+  services.openssh.settings.PasswordAuthentication = lib.mkForce true;
 
   networking.firewall.enable = true;
   hardware.bluetooth.enable = true;
