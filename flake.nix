@@ -79,6 +79,7 @@
           ./hosts/vanir.nix
         ];
       };
+      nixosConfigurations.odin = mkSystem { modules = [ ./hosts/odin.nix ]; };
       nixosConfigurations.testvm = mkSystem { modules = [ ./hosts/testvm.nix ]; };
       homeConfigurations.codyconfer = home-manager.lib.homeManagerConfiguration {
         pkgs = mkPkgs "x86_64-linux";
