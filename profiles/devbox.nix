@@ -8,7 +8,6 @@
       "go"
       "k3s"
       "k9s"
-      "kubectl"
       "llama.cpp"
       "nvim"
       "nvm"
