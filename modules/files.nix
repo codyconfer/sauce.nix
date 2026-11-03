@@ -169,6 +169,12 @@ in
           lib.optionalAttrs (builtins.elem "alacritty" cfg.guiApps) (directories [ "alacritty" ])
           // lib.optionalAttrs (builtins.elem "mpv" cfg.media || sway) (directories [ "mpv" ]);
       })
+      (lib.mkIf (desktop && builtins.elem "zed" cfg.guiApps) {
+        home.packages = [ pkgs.nil ];
+        xdg.configFile."zed/settings.json".text = builtins.toJSON {
+          lsp.nil.binary.path = lib.getExe pkgs.nil;
+        };
+      })
       (lib.mkIf (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) {
         xdg.configFile = directories [ "cosmic" ];
       })
