@@ -156,7 +156,7 @@ in
           "nix-command"
           "flakes"
         ];
-        nixpkgs.config.allowUnfree = lib.mkDefault true;
+        nixpkgs.config.allowUnfree = true;
         security.apparmor = {
           enable = true;
           packages = [ pkgs.apparmor-profiles ];

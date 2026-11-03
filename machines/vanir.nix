@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 {
   imports = [
     ../profiles/devbox.nix
@@ -20,6 +20,11 @@
 
   boot.kernelModules = [ "kvm-intel" ];
   hardware.bluetooth.enable = true;
+  services.xserver.videoDrivers = [ "modesetting" ];
+  hardware.graphics.extraPackages = with pkgs; [
+    intel-media-driver
+    vpl-gpu-rt
+  ];
 
   sauce.system = {
     user = "codyconfer";

@@ -70,6 +70,12 @@
           ./machines/vanir.nix
         ];
       };
+      nixosModules.odin = {
+        imports = [
+          self.nixosModules.default
+          ./machines/odin.nix
+        ];
+      };
       homeManagerModules.default = {
         imports = [ ./modules/home.nix ];
         nixpkgs.overlays = [ azureOverlay ];

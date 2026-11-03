@@ -18,6 +18,10 @@ let
     ../machines/vanir.nix
     { sauce.system.user = lib.mkForce "tester"; }
   ];
+  odin = evaluate [
+    ../machines/odin.nix
+    { sauce.system.user = lib.mkForce "tester"; }
+  ];
   serverRemote = evaluate [
     ../profiles/server.nix
     ../profiles/remote.nix
@@ -73,6 +77,12 @@ let
       == "/run/secrets/sauce-code-server.env";
     true;
 in
+assert workstation.nixpkgs.config.allowUnfree;
+assert workstation.services.xserver.videoDrivers == [ "modesetting" ];
+assert lib.all (name: lib.elem name (map lib.getName workstation.hardware.graphics.extraPackages)) [
+  "intel-media-driver"
+  "vpl-gpu-rt"
+];
 assert workstation.sauce.machineRole == "workstation";
 assert workstation.services.displayManager.defaultSession == "sway";
 assert workstation.services.desktopManager.cosmic.enable;
@@ -110,6 +120,31 @@ assert lib.all (name: lib.elem name workstation.sauce.flatpaks) [
   "easyeffects"
 ];
 assert workstation.programs.steam.enable;
+assert odin.networking.hostName == "odin";
+assert odin.sauce.machineRole == "workstation";
+assert odin.time.timeZone == workstation.time.timeZone;
+assert odin.sauce.desktopEnvironments == workstation.sauce.desktopEnvironments;
+assert odin.services.displayManager.defaultSession == "sway";
+assert odin.sauce.sway.terminal == "alacritty";
+assert odin.sauce.system.nvidia;
+assert odin.nixpkgs.config.allowUnfree;
+assert lib.elem "nvidia" odin.services.xserver.videoDrivers;
+assert lib.elem "modesetting" odin.services.xserver.videoDrivers;
+assert lib.all (name: lib.elem name (map lib.getName odin.hardware.graphics.extraPackages)) [
+  "intel-media-driver"
+  "vpl-gpu-rt"
+];
+assert odin.hardware.nvidia.modesetting.enable;
+assert lib.elem "--unsupported-gpu" odin.programs.sway.extraOptions;
+assert assertRemote odin;
+assert odin.services.openssh.enable;
+assert odin.services.xrdp.enable;
+assert !odin.services.xrdp.openFirewall;
+assert odin.services.caddy.enable;
+assert !odin.services.caddy.openFirewall;
+assert odin.services.caddy.virtualHosts.":80".listenAddresses == [ "{$TAILSCALE_IP}" ];
+assert lib.hasInfix "reverse_proxy 127.0.0.1:8080"
+  odin.services.caddy.virtualHosts.":80".extraConfig;
 assert assertRemote serverRemote;
 assert assertRemote mobileRemote;
 assert plasma.services.displayManager.defaultSession == "plasma";
@@ -140,6 +175,7 @@ builtins.deepSeq
     withoutMaintenance
     backup
     workstation
+    odin
   ])
   (
     pkgs.runCommand "sauce-nixos-configuration-tests" { } ''

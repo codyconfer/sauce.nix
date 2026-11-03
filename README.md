@@ -87,6 +87,24 @@ conflicting preference settings from that local file (for example its old
 The module includes remote access: provision the credentials below before
 switching. It does not enable SSH password authentication.
 
+### Odin selections
+
+Use `sauce.nixosModules.odin` in place of `sauce.nixosModules.vanir` for Odin.
+`machines/odin.nix` matches Vanir's profiles, Sway/COSMIC desktops, Alacritty,
+`codyconfer` user, and Denver timezone, but selects hostname `odin` and enables
+the proprietary NVIDIA driver (including Sway's `--unsupported-gpu` opt-in).
+Both machines enable Intel modesetting, the Intel VA-API media driver, and the
+oneVPL runtime, and inherit non-free package support from the shared module.
+Odin retains Vanir's Intel KVM module; change that locally for an AMD CPU.
+GPU-specific driver overrides and any PRIME bus IDs remain machine-local.
+
+The included remote profile enables SSH, XRDP, and Caddy proxying code-server,
+with inbound access restricted to Tailscale. Provision Tailscale, SSH keys,
+code-server credentials, and a local account password as described below before
+switching. XRDP opens a separate Xterm session, not the local Sway/COSMIC desktop.
+Keep storage, bootloader, authentication, and installed state versions local,
+as with Vanir.
+
 ## Home Manager
 
 Standalone consumers can import `sauce.homeManagerModules.default` plus chosen
