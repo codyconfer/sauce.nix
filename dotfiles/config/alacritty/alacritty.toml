@@ -4,8 +4,7 @@ TERM = "xterm-256color"
 [window]
 padding = { x = 8, y = 8 }
 dynamic_padding = false
-opacity = 0.85
-blur = true
+opacity = 1.0
 dimensions = { columns = 120, lines = 69 }
 
 [scrolling]
@@ -27,36 +26,36 @@ family = "Hack Nerd Font"
 style = "Italic"
 
 [colors.primary]
-background = "#01141D"
-foreground = "#CBE0E7"
+background = "#263238"
+foreground = "#eceff1"
 
 [colors.cursor]
-text = "#C8E0E7"
-cursor = "#C8E0E7"
+text = "#263238"
+cursor = "#eceff1"
 
 [colors.selection]
-text = "#01144D"
-background = "#C8E0E7"
+text = "#263238"
+background = "#03a9f4"
 
 [colors.normal]
-black = "#001E2C"
-red = "#DA4453"
-green = "#00AA7F"
-yellow = "#DA770E"
-blue = "#007CC8"
-magenta = "#FE557F"
-cyan = "#009AB5"
-white = "#C8E0E7"
+black = "#263238"
+red = "#ff9800"
+green = "#8bc34a"
+yellow = "#ffc107"
+blue = "#03a9f4"
+magenta = "#e91e63"
+cyan = "#009688"
+white = "#cfd8dc"
 
 [colors.bright]
-black = "#001E2C"
-red = "#DA4453"
-green = "#00AA7F"
-yellow = "#DA770E"
-blue = "#007CC8"
-magenta = "#FE557F"
-cyan = "#009AB5"
-white = "#C8E0E7"
+black = "#37474f"
+red = "#ffa74d"
+green = "#9ccc65"
+yellow = "#ffa000"
+blue = "#81d4fa"
+magenta = "#ad1457"
+cyan = "#26a69a"
+white = "#eceff1"
 
 [[keyboard.bindings]]
 key = "Return"

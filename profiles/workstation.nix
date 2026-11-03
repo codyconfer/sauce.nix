@@ -7,7 +7,7 @@
     guiApps = lib.mkDefault [
       "firefox"
       "sway"
-      "foot"
+      "alacritty"
       "sourcegit"
       "vscode"
       "zed"

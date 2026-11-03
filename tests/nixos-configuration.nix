@@ -93,7 +93,7 @@ assert lib.all (name: lib.elem name workstation.sauce.guiApps) [
   "obsidian"
   "bitwarden"
   "firefox"
-  "foot"
+  "alacritty"
 ];
 assert lib.all (name: lib.elem name workstation.sauce.flatpaks) [
   "discord"

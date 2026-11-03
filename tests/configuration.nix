@@ -25,7 +25,7 @@ assert !(builtins.hasAttr "cosmic" server.config.xdg.configFile);
 assert !(builtins.hasAttr "cosmic" mobile.config.xdg.configFile);
 assert lib.elem "lxqt" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "gnome" workstation.config.sauce.desktopEnvironments;
-assert lib.elem "foot" workstation.config.sauce.guiApps;
+assert lib.elem "alacritty" workstation.config.sauce.guiApps;
 assert lib.hasInfix "swayr switch-window" swayText;
 assert lib.hasInfix "set $term foot" swayText;
 assert lib.hasInfix "sway/workspaces" waybarSwayText;
