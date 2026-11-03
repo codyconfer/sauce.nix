@@ -1,8 +1,8 @@
-{ pkgs, ... }:
+{ lib, ... }:
 {
   imports = [
-    ../profiles/personal.nix
     ../profiles/devbox.nix
+    ../profiles/personal.nix
     ../profiles/cosmic.nix
     ../profiles/kde.nix
     ../profiles/remote.nix
@@ -12,14 +12,12 @@
   ];
 
   # Disk layout, bootloader, and installation state belong in /etc/nixos.
-  networking.hostName = "vanir";
+  networking.hostName = lib.mkForce "vanir";
   sauce.machineRole = "workstation";
   networking.firewall.enable = true;
-  services.displayManager.defaultSession = "cosmic";
   time.timeZone = "America/Denver";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelModules = [ "kvm-intel" ];
   hardware.bluetooth.enable = true;
 

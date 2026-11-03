@@ -132,9 +132,6 @@ in
         home.file.".gnupg/gpg-agent.conf".source = ../dotfiles/gnupg/gpg-agent.conf;
         programs.home-manager.enable = true;
       }
-      (lib.mkIf (cfg.machineRole == "workstation") {
-        wayland.windowManager.hyprland.systemd.enable = false;
-      })
     ]
   );
 }

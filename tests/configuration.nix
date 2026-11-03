@@ -7,31 +7,30 @@
 let
   inherit (pkgs) lib;
   swayText = workstation.config.xdg.configFile."sway/config".text;
-  hyprlandText = workstation.config.xdg.configFile."hypr/hyprland.conf".text;
-  waybarHyprlandText = workstation.config.xdg.configFile."waybar/config-hyprland.jsonc".text;
   waybarSwayText = workstation.config.xdg.configFile."waybar/config-sway.jsonc".text;
   footText = builtins.readFile (workstation.config.xdg.configFile.foot.source + "/foot.ini");
   flatpakText = lib.concatStringsSep " " workstation.config.systemd.user.services.sauce-flatpaks.Service.ExecStart;
   serverFiles = builtins.attrNames server.config.xdg.configFile;
 in
 assert workstation.config.sauce.machineRole == "workstation";
-assert workstation.config.wayland.windowManager.hyprland.systemd.enable == false;
 assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "cosmic" workstation.config.sauce.desktopEnvironments;
+assert workstation.config.xdg.configFile.cosmic.recursive;
+assert
+  builtins.readFile (
+    workstation.config.xdg.configFile.cosmic.source + "/com.system76.CosmicPanel.Dock/v1/anchor"
+  ) == "Left";
+assert !(builtins.hasAttr "cosmic" server.config.xdg.configFile);
+assert !(builtins.hasAttr "cosmic" mobile.config.xdg.configFile);
 assert lib.elem "lxqt" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "gnome" workstation.config.sauce.desktopEnvironments;
-assert lib.elem "hyprland" workstation.config.sauce.guiApps;
 assert lib.elem "foot" workstation.config.sauce.guiApps;
-assert lib.elem "sway" workstation.config.sauce.guiApps;
 assert lib.hasInfix "swayr switch-window" swayText;
 assert lib.hasInfix "set $term foot" swayText;
-assert lib.hasInfix "$terminal = foot" hyprlandText;
-assert lib.hasInfix "waybar/config-hyprland.jsonc" hyprlandText;
-assert lib.hasInfix "hyprland/workspaces" waybarHyprlandText;
 assert lib.hasInfix "sway/workspaces" waybarSwayText;
 assert lib.hasInfix "term=foot" footText;
-assert !(lib.hasInfix "40.6" (swayText + hyprlandText + waybarHyprlandText + waybarSwayText));
+assert !(lib.hasInfix "40.6" (swayText + waybarSwayText));
 assert lib.hasInfix "grimshot copy area" swayText;
 assert lib.hasInfix "sauce-power" swayText;
 assert !(lib.hasInfix "$bin/zofi" swayText);

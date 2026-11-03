@@ -19,13 +19,8 @@ PPD_OLD_PATH=/net/hadess/PowerProfiles
 CUR=""
 IDLE_PID=""
 declare -a IDLE_ARGS=()
-if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-    IDLE_SCREEN_OFF='hyprctl dispatch dpms off'
-    IDLE_SCREEN_ON='hyprctl dispatch dpms on'
-else
-    IDLE_SCREEN_OFF='swaymsg "output * power off"'
-    IDLE_SCREEN_ON='swaymsg "output * power on"'
-fi
+IDLE_SCREEN_OFF='swaymsg "output * power off"'
+IDLE_SCREEN_ON='swaymsg "output * power on"'
 
 die() {
     echo "❌ Error: sauce-power: $1" >&2
@@ -196,7 +191,7 @@ cleanup() {
 cmd_daemon() {
     command -v swayidle >/dev/null 2>&1 || die "swayidle is not installed."
     [ -n "${WAYLAND_DISPLAY:-}" ] || die "no WAYLAND_DISPLAY — sauce-power daemon must run inside a Wayland session."
-    if [ -z "${SWAYSOCK:-}" ] && [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    if [ -z "${SWAYSOCK:-}" ]; then
         echo "⚠️  sauce-power: no supported compositor session — idle dim, lock and suspend still work, but the screen will not be powered off." >&2
     fi
 

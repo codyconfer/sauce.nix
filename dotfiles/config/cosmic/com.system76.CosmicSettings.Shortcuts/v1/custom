@@ -1,0 +1,13 @@
+{
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "n",
+    ): Minimize,
+    (
+        modifiers: [
+            Super,
+        ],
+    ): System(AppLibrary),
+}

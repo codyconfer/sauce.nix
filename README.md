@@ -12,8 +12,9 @@ files at the same time.
 - `dotfiles/`: maintained user configuration copies.
 
 `machines/vanir.nix` contains committed profile, driver, and preference selections,
-exported as `nixosModules.vanir`. Disk identifiers, mounts, bootloader settings,
-and installation state versions remain machine-local.
+exported as `nixosModules.vanir`. It uses the workstation's default Sway session.
+Disk identifiers, mounts, bootloader settings, and installation state versions
+remain machine-local.
 
 ## Minimal install, then profiles
 
@@ -96,12 +97,21 @@ user files and packages, not system services or hardware.
 
 ## Desktop and selections
 
+The COSMIC profile installs the captured preferences from `dotfiles/config/cosmic`
+through Home Manager: left dock, top panel, dark green-accent theme, tiling,
+workspaces, touchpad/keyboard preferences, shortcuts, app groups/favorites, idle
+settings, and terminal appearance. No monitor identifiers or disk information
+are included. Favorites refer to app IDs; they do not install those applications.
+Back up `~/.config/cosmic` before first activation and move conflicting files aside
+(or use Home Manager's backup mechanism). Managed files are read-only symlinks;
+edit the repository copies rather than relying on Settings changes to persist.
+
+
 Machine roles (`workstation`, `mobile`, `server`) are independent of desktop
-sessions. The workstation includes Hyprland under UWSM and Ly, with Hyprland as
-its default session. Sway is also UWSM-managed; KDE, GNOME, COSMIC, and LXQt use
-their native Ly sessions. Combine session profiles as needed. Hyprland and Sway
-share Foot, Fuzzel, Waybar styling, the Mod-key/workspace/launch/lock workflows,
-and power controls; Waybar uses a session-specific module config. Location-based
+sessions. The workstation profile defaults to Sway under UWSM. KDE, GNOME,
+COSMIC, and LXQt use their native Ly sessions when selected alongside Sway.
+Combine session profiles as needed. Sway uses Foot, Fuzzel, Waybar styling, the Mod-key/workspace/launch/lock
+workflows, and power controls. Location-based
 weather and night-light features are disabled unless both coordinates are set in
 your local host configuration.
 
@@ -225,7 +235,7 @@ before deployment.
 ## Dotfiles and security
 
 The port includes shell helpers, tmux, GPG-agent, Neovim, Waybar, Foot, Fuzzel,
-Mako, Sway/Hyprland, clipboard, lock/power, and selected package/service
+Mako, Sway, clipboard, lock/power, and selected package/service
 integrations. Fuzzel/cliphist replace zofi; swayr replaces exposway/swaycycle;
 brightnessctl replaces lumactl/swaydim. These preserve workflows, not every
 source-built tool's exact behavior.

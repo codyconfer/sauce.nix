@@ -7,8 +7,7 @@
 let
   cfg = config.sauce;
   desktop = cfg.enable && cfg.machineRole != "server";
-  sway = desktop && builtins.elem "sway" cfg.guiApps && builtins.elem "sway" cfg.desktopEnvironments;
-  hyprland = desktop && cfg.machineRole == "workstation" && builtins.elem "hyprland" cfg.guiApps;
+  sway = desktop && builtins.elem "sway" cfg.desktopEnvironments;
   locationConfigured = cfg.sway.latitude != null && cfg.sway.longitude != null;
   location = "${toString cfg.sway.latitude},${toString cfg.sway.longitude}";
   source = ../dotfiles/config;
@@ -65,51 +64,12 @@ let
   waybarConfig =
     compositor:
     let
-      isHyprland = compositor == "hyprland";
-      compositorSource =
-        if isHyprland then
-          (builtins.removeAttrs waybarSource [
-            "sway/workspaces"
-            "sway/mode"
-            "sway/window"
-          ])
-          // {
-            "hyprland/workspaces" = {
-              "disable-scroll" = true;
-              "all-outputs" = true;
-              format = "{icon}";
-              "format-icons" = {
-                "1" = "1:󰆍";
-                "2" = "2:󰖟";
-                "3" = "3:󰅩";
-                "4" = "4:󰉋";
-                "5" = "5:󰭹";
-                "6" = "6:󰝚";
-                "7" = "7:󰕧";
-                "8" = "8:󰍹";
-                "9" = "9:󰺵";
-                "10" = "10:󰀻";
-                default = "󰈹";
-              };
-            };
-            "hyprland/submap".format = "{}";
-            "hyprland/window"."max-length" = 60;
-          }
-        else
-          waybarSource;
-      config = compositorSource // {
-        "modules-left" =
-          if isHyprland then
-            [
-              "hyprland/workspaces"
-              "hyprland/submap"
-            ]
-          else
-            [
-              "sway/workspaces"
-              "sway/mode"
-            ];
-        "modules-center" = [ (if isHyprland then "hyprland/window" else "sway/window") ];
+      config = waybarSource // {
+        "modules-left" = [
+          "sway/workspaces"
+          "sway/mode"
+        ];
+        "modules-center" = [ "sway/window" ];
         "modules-right" = [
           "tray"
         ]
@@ -137,11 +97,6 @@ let
           config;
     in
     builtins.toJSON withWeather;
-  hyprlandConfig =
-    builtins.readFile (source + /hypr/hyprland.conf)
-    + lib.optionalString locationConfigured ''
-      exec-once = uwsm app -s b -- wlsunset -l ${toString cfg.sway.latitude} -L ${toString cfg.sway.longitude}
-    '';
   power = pkgs.writeShellScriptBin "sauce-power" (builtins.readFile ../dotfiles/bin/sauce-power);
   askpass = pkgs.writeShellScriptBin "sauce-askpass" (
     builtins.readFile ../dotfiles/bin/sauce-askpass
@@ -177,13 +132,45 @@ in
         home.packages = with pkgs; [
           nerd-fonts.hack
           nerd-fonts.terminess-ttf
+          nerd-fonts.fira-code
+          nerd-fonts.zed-mono
+          nerd-fonts.jetbrains-mono
+          nerd-fonts.ubuntu-mono
+          nerd-fonts.shure-tech-mono
+          nerd-fonts.sauce-code-pro
+          (google-fonts.override {
+            fonts = [
+              "Bilbo"
+              "Homemade Apple"
+              "Over the Rainbow"
+              "Grape Nuts"
+              "Permanent Marker"
+              "Lavishly Yours"
+              "Italianno"
+              "Quantico"
+              "Titillium Web"
+              "Playfair Display"
+              "Newsreader"
+              "Instrument Serif"
+              "Forum"
+            ];
+          })
+          rubik
+          roboto
+          cabin
+          quicksand
+          lato
+          paratype-pt-serif
           font-awesome
         ];
         xdg.configFile =
           lib.optionalAttrs (builtins.elem "alacritty" cfg.guiApps) (directories [ "alacritty" ])
-          // lib.optionalAttrs (builtins.elem "mpv" cfg.media || sway || hyprland) (directories [ "mpv" ]);
+          // lib.optionalAttrs (builtins.elem "mpv" cfg.media || sway) (directories [ "mpv" ]);
       })
-      (lib.mkIf (sway || hyprland) {
+      (lib.mkIf (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) {
+        xdg.configFile = directories [ "cosmic" ];
+      })
+      (lib.mkIf sway {
         home.packages =
           with pkgs;
           [
@@ -264,12 +251,6 @@ in
           "waybar/style.css".source = source + /waybar/style.css;
           "xdg-desktop-portal/sway-portals.conf".source = source + /xdg-desktop-portal/sway-portals.conf;
           "uwsm/env-sway".source = source + /uwsm/env-sway;
-        };
-      })
-      (lib.mkIf hyprland {
-        xdg.configFile = {
-          "hypr/hyprland.conf".text = hyprlandConfig;
-          "waybar/config-hyprland.jsonc".text = waybarConfig "hyprland";
         };
       })
     ]

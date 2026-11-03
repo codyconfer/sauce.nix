@@ -30,7 +30,6 @@
   guiApps = {
     firefox = [ "firefox" ];
     sway = [ "sway" ];
-    hyprland = [ "hyprland" ];
     alacritty = [ "alacritty" ];
     foot = [ "foot" ];
     gnuradio = [ "gnuradio" ];

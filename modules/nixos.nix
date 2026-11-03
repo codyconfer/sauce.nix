@@ -10,8 +10,7 @@ let
   sys = cfg.system;
   desktop = cfg.machineRole != "server";
   workstation = desktop && cfg.machineRole == "workstation";
-  sway = desktop && builtins.elem "sway" cfg.desktopEnvironments && builtins.elem "sway" cfg.guiApps;
-  hyprland = workstation && builtins.elem "hyprland" cfg.guiApps;
+  sway = desktop && builtins.elem "sway" cfg.desktopEnvironments;
   kde = desktop && builtins.elem "kde" cfg.desktopEnvironments;
   cosmic = desktop && builtins.elem "cosmic" cfg.desktopEnvironments;
   gnome = desktop && builtins.elem "gnome" cfg.desktopEnvironments;
@@ -166,8 +165,8 @@ in
             "wheel"
             "networkmanager"
           ]
-          ++ lib.optional (sway || hyprland) "video"
-          ++ lib.optional (sway || hyprland) "render"
+          ++ lib.optional sway "video"
+          ++ lib.optional sway "render"
           ++ lib.optional sway "i2c"
           ++ lib.optional (builtins.elem "docker" cfg.tools) "docker"
           ++ lib.optional (emulator "qemu") "libvirtd"
@@ -193,7 +192,6 @@ in
             lib.unique (
               [ pkgs.xdg-desktop-portal-gtk ]
               ++ lib.optional sway pkgs.xdg-desktop-portal-wlr
-              ++ lib.optional hyprland pkgs.xdg-desktop-portal-hyprland
               ++ lib.optional kde pkgs.kdePackages.xdg-desktop-portal-kde
               ++ lib.optional gnome pkgs.xdg-desktop-portal-gnome
               ++ lib.optional cosmic pkgs.xdg-desktop-portal-cosmic
@@ -201,10 +199,6 @@ in
           );
           config = {
             common.default = [ "gtk" ];
-            hyprland.default = [
-              "hyprland"
-              "gtk"
-            ];
             kde.default = [
               "kde"
               "gtk"
@@ -224,9 +218,7 @@ in
             };
           };
         };
-        programs.hyprland.enable = hyprland;
-        programs.hyprland.withUWSM = hyprland;
-        programs.uwsm.enable = desktop && (workstation || sway);
+        programs.uwsm.enable = sway;
         services.tailscale.enable = sys.tailscale;
         services.resilio.enable = sys.rslsync;
         services.fwupd.enable = sys.fwupd;
@@ -411,10 +403,8 @@ in
           defaultWindowManager = if kde then "startplasma-x11" else "${pkgs.xterm}/bin/xterm";
         };
       })
-      (mkIf hyprland {
-        services.displayManager.defaultSession = lib.mkOverride 900 "hyprland-uwsm";
-      })
-      (mkIf (sway || hyprland) {
+      (mkIf sway {
+        services.displayManager.defaultSession = lib.mkOverride 900 "sway";
         security.pam.services.swaylock = { };
       })
       (mkIf sys.rslsync {
@@ -443,14 +433,35 @@ in
         fonts.packages = with pkgs; [
           nerd-fonts.hack
           nerd-fonts.terminess-ttf
-          font-awesome
-        ];
-      })
-      (mkIf hyprland {
-        security.polkit.enable = true;
-        fonts.packages = with pkgs; [
-          nerd-fonts.hack
-          nerd-fonts.terminess-ttf
+          nerd-fonts.fira-code
+          nerd-fonts.zed-mono
+          nerd-fonts.jetbrains-mono
+          nerd-fonts.ubuntu-mono
+          nerd-fonts.shure-tech-mono
+          nerd-fonts.sauce-code-pro
+          (google-fonts.override {
+            fonts = [
+              "Bilbo"
+              "Homemade Apple"
+              "Over the Rainbow"
+              "Grape Nuts"
+              "Permanent Marker"
+              "Lavishly Yours"
+              "Italianno"
+              "Quantico"
+              "Titillium Web"
+              "Playfair Display"
+              "Newsreader"
+              "Instrument Serif"
+              "Forum"
+            ];
+          })
+          rubik
+          roboto
+          cabin
+          quicksand
+          lato
+          paratype-pt-serif
           font-awesome
         ];
       })

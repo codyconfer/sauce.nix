@@ -26,13 +26,10 @@ let
     ../profiles/mobile.nix
     ../profiles/remote.nix
   ];
-  hyprland = evaluate [ ../profiles/workstation.nix ];
-  withoutHyprland = evaluate [
+  plasma = evaluate [
     ../profiles/workstation.nix
     ../profiles/kde.nix
-    {
-      sauce.guiApps = lib.mkForce [ "foot" ];
-    }
+    { sauce.desktopEnvironments = lib.mkForce [ "kde" ]; }
   ];
   backup = evaluate [
     ../profiles/server.nix
@@ -77,10 +74,11 @@ let
     true;
 in
 assert workstation.sauce.machineRole == "workstation";
-assert workstation.services.displayManager.defaultSession == "cosmic";
+assert workstation.services.displayManager.defaultSession == "sway";
 assert workstation.services.desktopManager.cosmic.enable;
 assert workstation.services.desktopManager.plasma6.enable;
-assert workstation.programs.hyprland.enable;
+assert workstation.programs.sway.enable;
+assert workstation.programs.uwsm.enable;
 assert workstation.sauce.system.tailscale;
 assert assertRemote workstation;
 assert lib.all (name: lib.elem name workstation.sauce.tools) [
@@ -95,7 +93,7 @@ assert lib.all (name: lib.elem name workstation.sauce.guiApps) [
   "obsidian"
   "bitwarden"
   "firefox"
-  "hyprland"
+  "foot"
 ];
 assert lib.all (name: lib.elem name workstation.sauce.flatpaks) [
   "discord"
@@ -107,13 +105,7 @@ assert lib.all (name: lib.elem name workstation.sauce.flatpaks) [
 assert workstation.programs.steam.enable;
 assert assertRemote serverRemote;
 assert assertRemote mobileRemote;
-assert builtins.hasAttr "swaylock" hyprland.security.pam.services;
-assert hyprland.programs.hyprland.enable;
-assert hyprland.services.displayManager.defaultSession == "hyprland-uwsm";
-assert !(withoutHyprland.programs.hyprland.enable);
-assert withoutHyprland.services.displayManager.defaultSession == "plasma";
-assert
-  !(builtins.hasAttr "hypr/hyprland.conf" withoutHyprland.home-manager.users.tester.xdg.configFile);
+assert plasma.services.displayManager.defaultSession == "plasma";
 assert serverRemote.nix.gc.automatic;
 assert serverRemote.nix.gc.options == "--delete-older-than 30d";
 assert serverRemote.nix.optimise.automatic;
@@ -137,8 +129,7 @@ builtins.deepSeq
   (map (c: c.system.build.toplevel.drvPath) [
     serverRemote
     mobileRemote
-    hyprland
-    withoutHyprland
+    plasma
     withoutMaintenance
     backup
     workstation

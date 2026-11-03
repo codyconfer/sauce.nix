@@ -3,10 +3,11 @@
   sauce = {
     machineRole = lib.mkDefault "workstation";
     enable = lib.mkDefault true;
+    desktopEnvironments = lib.mkDefault [ "sway" ];
     guiApps = lib.mkDefault [
       "firefox"
+      "sway"
       "foot"
-      "hyprland"
       "sourcegit"
       "vscode"
       "zed"
