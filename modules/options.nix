@@ -46,6 +46,11 @@ in
     guiApps = selection "guiApps" [ ];
     emulators = selection "emulators" [ ];
     flatpaks = selection "flatpaks" [ ];
+    signalKeyring = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Use Secret Service for the Signal Flatpak's local database key.";
+    };
     media = selection "media" [ ];
     netTools = mkOption {
       type = types.bool;

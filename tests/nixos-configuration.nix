@@ -78,6 +78,11 @@ let
     true;
 in
 assert workstation.nixpkgs.config.allowUnfree;
+assert workstation.sauce.signalKeyring;
+assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret"
+  workstation.home-manager.users.tester.xdg.dataFile."flatpak/overrides/org.signal.Signal".text;
+assert !(builtins.hasAttr "flatpak/overrides/org.signal.Signal"
+  serverRemote.home-manager.users.tester.xdg.dataFile);
 assert workstation.services.xserver.videoDrivers == [ "modesetting" ];
 assert lib.all (name: lib.elem name (map lib.getName workstation.hardware.graphics.extraPackages)) [
   "intel-media-driver"
