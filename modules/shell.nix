@@ -65,8 +65,8 @@ in
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
       history = {
-        size = 500;
-        save = 500;
+        size = 5000;
+        save = 5000;
         share = true;
         ignoreAllDups = true;
         ignoreSpace = true;
