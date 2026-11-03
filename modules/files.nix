@@ -20,6 +20,7 @@ let
   swayConfig =
     lib.replaceStrings
       [
+        "set $term foot"
         "set $bin ~/.local/bin"
         "exec $app $bin/zofi clipd"
         "exec mkdir -p $EXPOSWAYDIR && $app $bin/exposwayd"
@@ -40,6 +41,7 @@ let
         "include sway-font-awesome/icons-x11"
       ]
       [
+        "set $term ${cfg.sway.terminal}"
         "set $bin ${config.home.profileDirectory}/bin"
         "exec $app wl-paste --watch cliphist store"
         "exec $app swayrd"
@@ -204,7 +206,7 @@ in
             power
             askpass
           ]
-          ++ lib.optionals (!(builtins.elem "foot" cfg.guiApps)) [ pkgs.foot ]
+          ++ lib.optionals (!(builtins.elem cfg.sway.terminal cfg.guiApps)) [ pkgs.${cfg.sway.terminal} ]
           ++ lib.optionals locationConfigured [
             pkgs.wlsunset
             pkgs.wttrbar
@@ -225,14 +227,16 @@ in
         };
         xdg.configFile =
           directories [
-            "foot"
-            "fuzzel"
             "mako"
             "swayimg"
             "swaylock"
             "waylogout"
           ]
+          // lib.optionalAttrs (cfg.sway.terminal == "foot") (directories [ "foot" ])
           // {
+            "fuzzel/fuzzel.ini".text =
+              lib.replaceStrings [ "terminal=foot -e" ] [ "terminal=${cfg.sway.terminal} -e" ]
+                (builtins.readFile (source + /fuzzel/fuzzel.ini));
             "uwsm/env".source = source + /uwsm/env;
             "waybar/style.css".source = source + /waybar/style.css;
           };

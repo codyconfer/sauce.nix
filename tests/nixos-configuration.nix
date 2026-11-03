@@ -76,7 +76,14 @@ in
 assert workstation.sauce.machineRole == "workstation";
 assert workstation.services.displayManager.defaultSession == "sway";
 assert workstation.services.desktopManager.cosmic.enable;
-assert workstation.services.desktopManager.plasma6.enable;
+assert !workstation.services.desktopManager.plasma6.enable;
+assert workstation.sauce.sway.terminal == "alacritty";
+assert !(lib.elem "foot" workstation.sauce.guiApps);
+assert !(builtins.hasAttr "foot" workstation.home-manager.users.tester.xdg.configFile);
+assert lib.hasInfix "set $term alacritty"
+  workstation.home-manager.users.tester.xdg.configFile."sway/config".text;
+assert lib.hasInfix "terminal=alacritty -e"
+  workstation.home-manager.users.tester.xdg.configFile."fuzzel/fuzzel.ini".text;
 assert workstation.programs.sway.enable;
 assert workstation.programs.uwsm.enable;
 assert workstation.sauce.system.tailscale;

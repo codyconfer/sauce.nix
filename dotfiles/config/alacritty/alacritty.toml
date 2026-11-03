@@ -4,7 +4,7 @@ TERM = "xterm-256color"
 [window]
 padding = { x = 8, y = 8 }
 dynamic_padding = false
-opacity = 1.0
+opacity = 0.8
 dimensions = { columns = 120, lines = 69 }
 
 [scrolling]
@@ -25,37 +25,38 @@ style = "Bold"
 family = "Hack Nerd Font"
 style = "Italic"
 
+# Match the COSMIC dark desktop palette and green accent.
 [colors.primary]
-background = "#263238"
-foreground = "#eceff1"
+background = "#1b1b1b"
+foreground = "#f5f5f5"
 
 [colors.cursor]
-text = "#263238"
-cursor = "#eceff1"
+text = "#1b1b1b"
+cursor = "#92cf9c"
 
 [colors.selection]
-text = "#263238"
-background = "#03a9f4"
+text = "#1b1b1b"
+background = "#92cf9c"
 
 [colors.normal]
-black = "#263238"
-red = "#ff9800"
-green = "#8bc34a"
-yellow = "#ffc107"
-blue = "#03a9f4"
-magenta = "#e91e63"
-cyan = "#009688"
-white = "#cfd8dc"
+black = "#1b1b1b"
+red = "#fda1a0"
+green = "#92cf9c"
+yellow = "#f7e062"
+blue = "#a1c0eb"
+magenta = "#e79cfe"
+cyan = "#63d0df"
+white = "#dedede"
 
 [colors.bright]
-black = "#37474f"
-red = "#ffa74d"
-green = "#9ccc65"
-yellow = "#ffa000"
-blue = "#81d4fa"
-magenta = "#ad1457"
-cyan = "#26a69a"
-white = "#eceff1"
+black = "#636363"
+red = "#ffa09a"
+green = "#5edb8c"
+yellow = "#fedb40"
+blue = "#a1c0eb"
+magenta = "#e79cfe"
+cyan = "#63d0df"
+white = "#ffffff"
 
 [[keyboard.bindings]]
 key = "Return"

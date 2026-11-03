@@ -4,7 +4,6 @@
     ../profiles/devbox.nix
     ../profiles/personal.nix
     ../profiles/cosmic.nix
-    ../profiles/kde.nix
     ../profiles/remote.nix
     ../profiles/workstation.nix
     ../profiles/gaming.nix
@@ -14,6 +13,7 @@
   # Disk layout, bootloader, and installation state belong in /etc/nixos.
   networking.hostName = lib.mkForce "vanir";
   sauce.machineRole = "workstation";
+  sauce.sway.terminal = "alacritty";
   networking.firewall.enable = true;
   time.timeZone = "America/Denver";
   i18n.defaultLocale = "en_US.UTF-8";

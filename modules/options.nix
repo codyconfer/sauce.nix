@@ -68,6 +68,14 @@ in
       description = "Additional user packages.";
     };
     sway = {
+      terminal = mkOption {
+        type = types.enum [
+          "foot"
+          "alacritty"
+        ];
+        default = "foot";
+        description = "Terminal used by Sway and Fuzzel.";
+      };
       extraPackages = mkOption {
         type = types.listOf types.package;
         default = [ ];

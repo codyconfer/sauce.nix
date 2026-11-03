@@ -3,6 +3,12 @@
         modifiers: [
             Super,
         ],
+        key: "Return",
+    ): System(Terminal),
+    (
+        modifiers: [
+            Super,
+        ],
         key: "n",
     ): Minimize,
     (
