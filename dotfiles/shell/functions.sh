@@ -174,7 +174,7 @@ update() {
   local repo="${SAUCE_REPO:-$HOME/sauce.nix}"
   local flake="${SAUCE_NIX_FLAKE:-/etc/nixos}"
   git -C "$repo" pull --ff-only &&
-    sudo nix flake update "$flake" &&
+    sudo nix flake update --flake "$flake" &&
     sudo nixos-rebuild build --flake "$flake#${SAUCE_NIX_HOST:-$(hostname)}" "$@" &&
     sudo nixos-rebuild switch --flake "$flake#${SAUCE_NIX_HOST:-$(hostname)}" "$@"
 }
