@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="480" height="140" viewBox="0 0 480 140">
-  <g fill="none" stroke="#7ebae4" stroke-linecap="round" stroke-linejoin="round" stroke-width="8">
-    <path d="M70 70 38 15M70 70 102 15M70 70 134 70M70 70 102 125M70 70 38 125M70 70 6 70"/>
-    <path d="M38 15v24l20 12M102 15v24L82 51M134 70h-24L98 90M102 125v-24L82 89M38 125v-24L58 89M6 70h24l12 20"/>
-  </g>
-  <circle cx="70" cy="70" r="10" fill="#7ebae4"/>
-  <text x="165" y="101" fill="#f5f7fa" font-family="DejaVu Sans, sans-serif" font-size="76" font-weight="600" letter-spacing="-3">NixOS</text>
-</svg>
