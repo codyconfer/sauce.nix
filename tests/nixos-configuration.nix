@@ -1,7 +1,6 @@
 {
   pkgs,
   mkSystem,
-  vanirConfig,
 }:
 let
   inherit (pkgs) lib;
@@ -15,6 +14,20 @@ let
     sauce.system.user = "tester";
   };
   evaluate = modules: (mkSystem { modules = [ base ] ++ modules; }).config;
+  workstation = evaluate [
+    ../profiles/personal.nix
+    ../profiles/devbox.nix
+    ../profiles/cosmic.nix
+    ../profiles/kde.nix
+    ../profiles/remote.nix
+    ../profiles/workstation.nix
+    ../profiles/gaming.nix
+    ../profiles/mobile.nix
+    {
+      sauce.machineRole = "workstation";
+      services.displayManager.defaultSession = "cosmic";
+    }
+  ];
   serverRemote = evaluate [
     ../profiles/server.nix
     ../profiles/remote.nix
@@ -73,14 +86,14 @@ let
       == "/run/secrets/sauce-code-server.env";
     true;
 in
-assert vanirConfig.sauce.machineRole == "workstation";
-assert vanirConfig.services.displayManager.defaultSession == "cosmic";
-assert vanirConfig.services.desktopManager.cosmic.enable;
-assert vanirConfig.services.desktopManager.plasma6.enable;
-assert vanirConfig.programs.hyprland.enable;
-assert vanirConfig.sauce.system.tailscale;
-assert assertRemote vanirConfig;
-assert lib.all (name: lib.elem name vanirConfig.sauce.tools) [
+assert workstation.sauce.machineRole == "workstation";
+assert workstation.services.displayManager.defaultSession == "cosmic";
+assert workstation.services.desktopManager.cosmic.enable;
+assert workstation.services.desktopManager.plasma6.enable;
+assert workstation.programs.hyprland.enable;
+assert workstation.sauce.system.tailscale;
+assert assertRemote workstation;
+assert lib.all (name: lib.elem name workstation.sauce.tools) [
   "bitwarden-cli"
   "wrangler"
   "nvim"
@@ -88,20 +101,20 @@ assert lib.all (name: lib.elem name vanirConfig.sauce.tools) [
   "rustup"
   "pi"
 ];
-assert lib.all (name: lib.elem name vanirConfig.sauce.guiApps) [
+assert lib.all (name: lib.elem name workstation.sauce.guiApps) [
   "obsidian"
   "bitwarden"
   "firefox"
   "hyprland"
 ];
-assert lib.all (name: lib.elem name vanirConfig.sauce.flatpaks) [
+assert lib.all (name: lib.elem name workstation.sauce.flatpaks) [
   "discord"
   "signal"
   "lutris"
   "retroarch"
   "easyeffects"
 ];
-assert vanirConfig.programs.steam.enable;
+assert workstation.programs.steam.enable;
 assert assertRemote serverRemote;
 assert assertRemote mobileRemote;
 assert builtins.hasAttr "swaylock" hyprland.security.pam.services;
@@ -138,7 +151,7 @@ builtins.deepSeq
     withoutHyprland
     withoutMaintenance
     backup
-    vanirConfig
+    workstation
   ])
   (
     pkgs.runCommand "sauce-nixos-configuration-tests" { } ''

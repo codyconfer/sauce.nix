@@ -5,76 +5,75 @@ not install Nix, repartition disks, or switch the running system by itself. Keep
 this configuration and any live chezmoi-managed dotfiles from managing the same
 files at the same time.
 
-## Hosts and layout
+## Layout
 
-- `hosts/vanir.nix`: NixOS machine host; uses LUKS and ext4.
-- `hosts/testvm.nix`: disposable GNOME/QEMU test host; no physical disk, LUKS,
-  or Secure Boot configuration.
-- `hosts/codyconfer.nix`: standalone Home Manager configuration for the
-  `codyconfer` account.
-- `profiles/`: workstation/mobile/server roles, desktop sessions, and optional
-  capabilities such as `devbox`, `gaming`, `hypervisor`, `remote`, `personal`,
-  and `work`.
-- `modules/`, `lib/catalog.nix`: NixOS/Home Manager integration and package
-  selections. `dotfiles/` contains the maintained config copies.
+- `profiles/`: reusable roles, desktops, and optional capabilities.
+- `modules/`, `lib/catalog.nix`: NixOS/Home Manager integration and packages.
+- `dotfiles/`: maintained user configuration copies.
 
-## NixOS host
+There are no machine configurations or hardware definitions in this repository.
 
-Requires Nix with `nix-command` and `flakes`. The host filesystem UUIDs are
-placeholders in `hosts/vanir.nix`; replace `<LUKS-UUID>` and `<EFI-UUID>` with
-local values before building. This avoids publishing device identifiers.
+## Minimal install, then profiles
 
-**Migration warning:** the root is configured as ext4 inside LUKS. Formatting
-`/dev/mapper/cryptroot` destroys the existing Btrfs root, home data, and
-subvolumes. Back up first and do not format unless you intend to erase them.
+Install NixOS using the official minimal ISO. Keep the generated
+`/etc/nixos/configuration.nix` and `hardware-configuration.nix` on that machine:
+they own disks, bootloader, hardware, hostname, accounts, and state version.
+Do not copy them into this repository.
 
-Build and inspect before switching:
+After the headless installation boots, enable `nix-command` and `flakes` and
+create a machine-local `/etc/nixos/flake.nix` (replace the repository path and user):
 
-```sh
-nix flake check --no-build --all-systems "path:$PWD"
-sudo nixos-rebuild build --flake "path:$PWD#vanir"
-# Switch only after reviewing the build and local hardware/account settings.
-sudo nixos-rebuild switch --flake "path:$PWD#vanir"
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    sauce.url = "path:/absolute/path/to/sauce.nix";
+    sauce.inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  outputs = { nixpkgs, sauce, ... }: {
+    nixosConfigurations.local = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux"; # or aarch64-linux
+      modules = [
+        ./configuration.nix
+        sauce.nixosModules.default
+        sauce.nixosModules.profiles.server
+        {
+          sauce.system.user = "your-user";
+          sauce.system.homeStateVersion = "25.11";
+        }
+      ];
+    };
+  };
+}
 ```
 
-`vanir` imports its platform hardware module and latest kernel, plus `personal`,
-`devbox`, `cosmic`, `kde`, `remote`, `workstation`, `gaming`, and `mobile` profiles.
-It explicitly retains the workstation role and mobile firewall/Tailscale defaults;
-COSMIC is the default desktop, with KDE and Hyprland also available. Profile
-selection lists are merged, so development and personal tools are not masked by
-a host-level tools override. Provision the remote credentials described below
-before switching. Set the desired local timezone in its host file. The account is created
-without a usable password; provision authentication before relying on login.
-Lanzaboote is included but Secure Boot remains opt-in: provision and enroll your
-own keys first, then set `boot.lanzaboote.enable = true;` and
-`boot.lanzaboote.pkiBundle = "/var/lib/sb";`. Keep Secure Boot disabled until the
-signed boot path is verified and retain a recovery path. Do not change
-`system.stateVersion` or `homeStateVersion` during routine updates.
-
-### Disposable desktop VM
+The generated configuration normally imports the local hardware configuration;
+keep that import. Use your existing login user and retain its authentication.
+Set the Home Manager state version on first use, then keep it unchanged; also
+retain the installed system's `system.stateVersion`.
 
 ```sh
-nixos-rebuild build-vm --flake "path:$PWD#testvm"
-./result/bin/run-*-vm
+cd /etc/nixos
+sudo nixos-rebuild build --flake .#local
+# Review changes and keep console/recovery access before switching.
+sudo nixos-rebuild switch --flake .#local
 ```
 
-The VM has 4 GiB RAM, 4 CPUs, and a passwordless test account with auto-login.
-It imports the workstation role and GNOME; Ly also offers the workstation's
-Hyprland session. It is only a session smoke test, not hardware validation.
+Start with `server` for headless use. For a desktop, replace it with
+`workstation` and optionally add `sauce.nixosModules.profiles.gnome` (or another
+desktop). Add capability profiles such as `devbox` independently. Provision
+credentials below before enabling `remote`; it changes firewall and login
+services. Hardware-specific options and Secure Boot remain machine-local.
+Update the local lockfile explicitly with `nix flake update` to pick up changes.
 
 ## Home Manager
 
-`homeConfigurations.codyconfer` imports workstation and Sway profiles. Build or
-switch it on an existing Linux system with:
-
-```sh
-home-manager build --flake "path:$PWD#codyconfer"
-home-manager switch -b before-nix --flake "path:$PWD#codyconfer"
-```
-
-Back up conflicting files first. Standalone Home Manager manages user files and
-packages, not host services, kernels, display managers, portals/PAM, or system
-Flatpak integration.
+Standalone consumers can import `sauce.homeManagerModules.default` plus chosen
+profiles from `sauce.nixosModules.profiles` in their own Home Manager flake.
+Set `home.username`, `home.homeDirectory`, and `home.stateVersion` locally.
+Back up conflicting files before activation. Standalone Home Manager manages
+user files and packages, not system services or hardware.
 
 ## Desktop and selections
 
@@ -149,7 +148,7 @@ Backups are **opt-in**, not silently enabled without a destination. Configure:
 ```nix
 sauce.system.backup = {
   enable = true;
-  repository = "sftp:backup@backup-host:/backups/vanir";
+  repository = "sftp:backup@backup-host:/backups/my-machine";
   passwordFile = "/run/secrets/sauce-restic-password";
   # Optional remote-provider credentials, provisioned at runtime:
   # environmentFile = "/run/secrets/sauce-restic.env";
@@ -193,8 +192,6 @@ nix fmt -- --check $(git ls-files '*.nix')
 nix flake check --no-build --all-systems --no-update-lock-file
 nix build .#checks.x86_64-linux.nixos-configuration
 nix build -L .#checks.x86_64-linux.nixos-smoke
-nix build .#checks.x86_64-linux.nixos-vanir
-nix build .#checks.x86_64-linux.nixos-testvm
 ```
 
 CI checks formatting, evaluates all supported systems without modifying the
@@ -202,10 +199,9 @@ lockfile, and builds Home Manager and NixOS regression checks. The VM test check
 runtime credentials, SSH key login, code-server authentication, tailnet-only
 firewall access, and encrypted backup/restore. It simulates tailnet ingress with
 network namespaces; it does not test actual Tailscale enrollment/ACLs, graphical
-unlocking, or physical hardware. Full host closures can be built through the
-manual GitHub Actions workflow; their derivations are evaluated on every push/PR.
+unlocking, or physical hardware. Profile combinations are evaluated without physical host definitions.
 The VM test requires KVM. Test locking/unlocking in each real desktop session
-before deployment. Vanir's placeholder UUIDs still require local configuration.
+before deployment.
 
 ## Dotfiles and security
 

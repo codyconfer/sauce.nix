@@ -12,10 +12,6 @@
       url = "github:nix-community/lanzaboote/v0.4.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixos-hardware = {
-      url = "github:NixOS/nixos-hardware";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -25,7 +21,6 @@
       nixpkgs-stable,
       home-manager,
       lanzaboote,
-      nixos-hardware,
       ...
     }:
     let
@@ -73,21 +68,18 @@
         imports = [ ./modules/home.nix ];
         nixpkgs.overlays = [ azureOverlay ];
       };
-      nixosConfigurations.vanir = mkSystem {
-        modules = [
-          nixos-hardware.nixosModules.framework-intel-core-ultra-series3
-          ./hosts/vanir.nix
-        ];
-      };
-      nixosConfigurations.odin = mkSystem { modules = [ ./hosts/odin.nix ]; };
-      nixosConfigurations.testvm = mkSystem { modules = [ ./hosts/testvm.nix ]; };
-      homeConfigurations.codyconfer = home-manager.lib.homeManagerConfiguration {
-        pkgs = mkPkgs "x86_64-linux";
-        modules = [
-          self.homeManagerModules.default
-          ./hosts/codyconfer.nix
-        ];
-      };
+      nixosModules.profiles = builtins.listToAttrs (
+        map
+          (file: {
+            name = nixpkgs.lib.removeSuffix ".nix" file;
+            value = ./profiles + "/${file}";
+          })
+          (
+            builtins.filter (name: nixpkgs.lib.hasSuffix ".nix" name) (
+              builtins.attrNames (builtins.readDir ./profiles)
+            )
+          )
+      );
       formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt);
       checks = eachSystem (
         system:
@@ -112,11 +104,8 @@
           server = (home ./profiles/server.nix).activationPackage;
         }
         // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
-          nixos-vanir = self.nixosConfigurations.vanir.config.system.build.toplevel;
-          nixos-testvm = self.nixosConfigurations.testvm.config.system.build.toplevel;
           nixos-configuration = import ./tests/nixos-configuration.nix {
             inherit pkgs mkSystem;
-            vanirConfig = self.nixosConfigurations.vanir.config;
           };
           nixos-smoke = import ./tests/nixos-smoke.nix {
             inherit pkgs;
