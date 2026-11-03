@@ -22,11 +22,7 @@ assert workstation.config.sauce.machineRole == "workstation";
 assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "cosmic" workstation.config.sauce.desktopEnvironments;
-assert workstation.config.xdg.configFile.cosmic.recursive;
-assert
-  builtins.readFile (
-    workstation.config.xdg.configFile.cosmic.source + "/com.system76.CosmicPanel.Dock/v1/anchor"
-  ) == "Left";
+assert !(builtins.hasAttr "cosmic" workstation.config.xdg.configFile);
 assert !(builtins.hasAttr "cosmic" server.config.xdg.configFile);
 assert !(builtins.hasAttr "cosmic" mobile.config.xdg.configFile);
 assert lib.elem "lxqt" workstation.config.sauce.desktopEnvironments;

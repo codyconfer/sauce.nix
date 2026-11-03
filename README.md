@@ -115,15 +115,7 @@ user files and packages, not system services or hardware.
 
 ## Desktop and selections
 
-The COSMIC profile installs the captured preferences from `dotfiles/config/cosmic`
-through Home Manager: left dock, top panel, dark green-accent theme, tiling,
-workspaces, touchpad/keyboard preferences, shortcuts, app groups/favorites, idle
-settings, and terminal appearance. No monitor identifiers or disk information
-are included. Favorites refer to app IDs; they do not install those applications.
-Back up `~/.config/cosmic` before first activation and move conflicting files aside
-(or use Home Manager's backup mechanism). Managed files are read-only symlinks;
-edit the repository copies rather than relying on Settings changes to persist.
-
+The COSMIC profile enables the desktop without managing its user preferences.
 
 Machine roles (`workstation`, `mobile`, `server`) are independent of desktop
 sessions. The workstation profile defaults to Sway under UWSM. KDE, GNOME,

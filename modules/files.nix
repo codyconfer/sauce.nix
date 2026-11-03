@@ -183,9 +183,6 @@ in
           lsp.nixd.binary.path = lib.getExe pkgs.nixd;
         };
       })
-      (lib.mkIf (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) {
-        xdg.configFile = directories [ "cosmic" ];
-      })
       (lib.mkIf sway {
         home.packages =
           with pkgs;
