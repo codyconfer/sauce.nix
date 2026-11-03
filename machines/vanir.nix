@@ -19,10 +19,14 @@
   networking.hostName = lib.mkForce "vanir";
   sauce.machineRole = "workstation";
   sauce.sway.terminal = "alacritty";
-  networking.firewall = {
-    enable = true;
-    interfaces.wlp0s20f3.allowedTCPPorts = [ 9000 ];
-    interfaces.tailscale0.allowedTCPPorts = [ 9000 ];
+  networking.firewall.enable = true;
+  services.firewalld.zones = {
+    resilio-lan = {
+      target = "DROP";
+      interfaces = [ "wlp0s20f3" ];
+      ports = [ { port = 9000; protocol = "tcp"; } ];
+    };
+    tailscale.ports = [ { port = 9000; protocol = "tcp"; } ];
   };
   services.resilio = {
     enableWebUI = true;
