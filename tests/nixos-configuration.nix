@@ -15,18 +15,8 @@ let
   };
   evaluate = modules: (mkSystem { modules = [ base ] ++ modules; }).config;
   workstation = evaluate [
-    ../profiles/personal.nix
-    ../profiles/devbox.nix
-    ../profiles/cosmic.nix
-    ../profiles/kde.nix
-    ../profiles/remote.nix
-    ../profiles/workstation.nix
-    ../profiles/gaming.nix
-    ../profiles/mobile.nix
-    {
-      sauce.machineRole = "workstation";
-      services.displayManager.defaultSession = "cosmic";
-    }
+    ../machines/vanir.nix
+    { sauce.system.user = lib.mkForce "tester"; }
   ];
   serverRemote = evaluate [
     ../profiles/server.nix

@@ -11,7 +11,9 @@ files at the same time.
 - `modules/`, `lib/catalog.nix`: NixOS/Home Manager integration and packages.
 - `dotfiles/`: maintained user configuration copies.
 
-There are no machine configurations or hardware definitions in this repository.
+`machines/vanir.nix` contains committed profile, driver, and preference selections,
+exported as `nixosModules.vanir`. Disk identifiers, mounts, bootloader settings,
+and installation state versions remain machine-local.
 
 ## Minimal install, then profiles
 
@@ -66,6 +68,23 @@ desktop). Add capability profiles such as `devbox` independently. Provision
 credentials below before enabling `remote`; it changes firewall and login
 services. Hardware-specific options and Secure Boot remain machine-local.
 Update the local lockfile explicitly with `nix flake update` to pick up changes.
+
+### Vanir selections
+
+To use the committed Vanir selections, replace `sauce.nixosModules.default`,
+the individual profile entries, and the inline `sauce.system` settings in the
+example above with:
+
+```nix
+sauce.nixosModules.vanir
+```
+
+Keep `./configuration.nix` in the module list. Keep its hardware import, storage,
+bootloader, account authentication, and `system.stateVersion` local. Remove
+conflicting preference settings from that local file (for example its old
+`networking.hostName = "nixos"`); Vanir selects hostname `vanir` and Denver time.
+The module includes remote access: provision the credentials below before
+switching. It does not enable SSH password authentication.
 
 ## Home Manager
 
