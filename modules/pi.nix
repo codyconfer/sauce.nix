@@ -31,7 +31,12 @@ in
           maxRepoSizeMB = 350;
         };
       };
-      ".pi/agent/mcp.json".text = builtins.toJSON cfg.pi.mcp;
+      ".pi/agent/mcp.json".text = builtins.toJSON {
+        mcpServers = cfg.pi.mcp.mcpServers or { };
+      };
+      ".pi/agent/mcp-adapter.json".text = builtins.toJSON {
+        settings = cfg.pi.mcp.settings or { };
+      };
     }
     // lib.optionalAttrs (desktop && builtins.elem "lmstudio" cfg.guiApps) {
       ".pi/agent/lmstudio.json".text = builtins.toJSON {
