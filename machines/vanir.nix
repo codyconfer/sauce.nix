@@ -71,6 +71,11 @@
     clamav.daemon = true;
   };
 
+  systemd.tmpfiles.rules = [
+    "d /srv/sync 2770 rslsync rslsync -"
+    "d /srv/sync/downloads 2770 rslsync rslsync -"
+  ];
+
   services.fail2ban.enable = true;
   security.auditd.enable = true;
 }

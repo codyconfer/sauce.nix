@@ -74,6 +74,12 @@ in
             message = ".sauce supports Linux only.";
           }
         ];
+        home.activation.createHomeDirectories = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          mkdir -p "$HOME/repos"
+          if [ ! -e "$HOME/sync" ] && [ ! -L "$HOME/sync" ]; then
+            ln -s /srv/sync "$HOME/sync"
+          fi
+        '';
         home.packages =
           with pkgs;
           [
