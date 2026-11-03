@@ -170,7 +170,12 @@ if ! command -v prime-run >/dev/null 2>&1; then
   }
 fi
 
-update() { sauce-rebuild "$@"; }
+update() {
+  local flake="${SAUCE_NIX_FLAKE:-$HOME/.sauce/nix}"
+  nix flake update --flake "$flake" &&
+    git -C "$flake" pull --ff-only &&
+    sauce-rebuild "$@"
+}
 
 alias docker-containers='list_docker_containers'
 alias sauce='sauce-rebuild'

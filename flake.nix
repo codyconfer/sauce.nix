@@ -151,6 +151,13 @@
           mobile = (home ./profiles/mobile.nix).activationPackage;
           configuration = import ./tests/configuration.nix {
             inherit pkgs;
+            personal = home {
+              imports = [
+                ./profiles/workstation.nix
+                ./profiles/personal.nix
+                ./profiles/cosmic.nix
+              ];
+            };
             workstation = home {
               imports = [
                 ./profiles/workstation.nix

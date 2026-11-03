@@ -133,6 +133,13 @@ workflows, and power controls. Location-based
 weather and night-light features are disabled unless both coordinates are set in
 your local host configuration.
 
+In Bash and Zsh, `update` refreshes Nix packages with `nix flake update`, pulls
+.sauce with `git pull --ff-only`, then builds and switches via `sauce-rebuild`.
+It uses `SAUCE_NIX_FLAKE` (default `~/.sauce/nix`) and forwards arguments to the
+rebuild step. Each step must succeed before the next runs. The lock file remains
+locally updated; if upstream changes conflict with it, resolve them and rerun.
+Use `sauce` to build and switch without updating.
+
 Selection lists (`tools`, `guiApps`, `media`, `flatpaks`, `emulators`) use keys
 from `lib/catalog.nix`; `extraPackages` and `packageOverrides` extend/replace
 packages. The server role suppresses GUI/emulator/Flatpak selections even if set.
@@ -140,6 +147,17 @@ The workstation defaults include development tools, desktop applications, and
 media. NixOS workstations also default to the NixOS Plymouth theme; other roles
 default to no theme. Add capability profiles only when needed. Tailscale defaults
 on for mobile and `remote` profiles; Resilio Sync defaults on for workstations.
+
+The `personal` profile opts Signal's Flatpak into keyring-backed local database
+key storage (`SIGNAL_PASSWORD_STORE=gnome-libsecret`) using a per-app user override.
+COSMIC and GNOME on NixOS already enable GNOME Keyring; other setups need an
+unlocked Secret Service provider. Flathub labels encrypted backends experimental
+and warns of possible data loss. Quit Signal and back up
+`~/.var/app/org.signal.Signal` before activating this change. Preserve the keyring
+as well: losing it can make the database unreadable. Restart Signal after activation.
+If `~/.local/share/flatpak/overrides/org.signal.Signal` already exists, merge any
+needed overrides into the profile and move the file aside before Home Manager
+activation. This protects the database key, not all local files or an unlocked session.
 
 The `remote` profile enables SSH, Firewalld, Caddy, browser-based code-server,
 and XRDP. Firewalld drops inbound traffic by default and permits SSH, HTTP, and

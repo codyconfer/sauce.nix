@@ -1,6 +1,7 @@
 {
   pkgs,
   workstation,
+  personal,
   server,
   mobile,
 }:
@@ -12,6 +13,11 @@ let
   flatpakText = lib.concatStringsSep " " workstation.config.systemd.user.services.sauce-flatpaks.Service.ExecStart;
   serverFiles = builtins.attrNames server.config.xdg.configFile;
 in
+assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
+  personal.config.xdg.dataFile."flatpak/overrides/org.signal.Signal".text
+);
+assert !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" workstation.config.xdg.dataFile);
+assert !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" server.config.xdg.dataFile);
 assert workstation.config.sauce.machineRole == "workstation";
 assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
