@@ -171,10 +171,12 @@ if ! command -v prime-run >/dev/null 2>&1; then
 fi
 
 update() {
-  local flake="${SAUCE_NIX_FLAKE:-$HOME/.sauce/nix}"
-  nix flake update --flake "$flake" &&
-    git -C "$flake" pull --ff-only &&
-    sauce-rebuild "$@"
+  local repo="${SAUCE_REPO:-$HOME/sauce.nix}"
+  local flake="${SAUCE_NIX_FLAKE:-/etc/nixos}"
+  git -C "$repo" pull --ff-only &&
+    sudo nix flake update "$flake" &&
+    sudo nixos-rebuild build --flake "$flake#${SAUCE_NIX_HOST:-$(hostname)}" "$@" &&
+    sudo nixos-rebuild switch --flake "$flake#${SAUCE_NIX_HOST:-$(hostname)}" "$@"
 }
 
 alias docker-containers='list_docker_containers'

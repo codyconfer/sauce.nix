@@ -133,12 +133,13 @@ workflows, and power controls. Location-based
 weather and night-light features are disabled unless both coordinates are set in
 your local host configuration.
 
-In Bash and Zsh, `update` refreshes Nix packages with `nix flake update`, pulls
-.sauce with `git pull --ff-only`, then builds and switches via `sauce-rebuild`.
-It uses `SAUCE_NIX_FLAKE` (default `~/.sauce/nix`) and forwards arguments to the
-rebuild step. Each step must succeed before the next runs. The lock file remains
-locally updated; if upstream changes conflict with it, resolve them and rerun.
-Use `sauce` to build and switch without updating.
+In Bash and Zsh, `update` pulls the sauce repository (`SAUCE_REPO`, default
+`~/sauce.nix`), updates the NixOS flake inputs (`SAUCE_NIX_FLAKE`, default
+`/etc/nixos`), then builds and switches the selected host. `SAUCE_NIX_HOST`
+defaults to the machine hostname. Each step must succeed before the next runs;
+arguments are forwarded to both build and switch. The lock file is updated
+locally. `sauce` only builds and switches. These defaults do not use the legacy
+`~/.sauce` path.
 
 Selection lists (`tools`, `guiApps`, `media`, `flatpaks`, `emulators`) use keys
 from `lib/catalog.nix`; `extraPackages` and `packageOverrides` extend/replace

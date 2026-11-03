@@ -29,11 +29,11 @@ let
     text =
       if osConfig != null then
         ''
-          exec sudo nixos-rebuild switch --flake "''${SAUCE_NIX_FLAKE:-$HOME/.sauce/nix}#''${SAUCE_NIX_HOST:-${osConfig.networking.hostName}}" "$@"
+          exec sudo nixos-rebuild switch --flake "''${SAUCE_NIX_FLAKE:-/etc/nixos}#''${SAUCE_NIX_HOST:-${osConfig.networking.hostName}}" "$@"
         ''
       else
         ''
-          exec home-manager switch --flake "''${SAUCE_NIX_FLAKE:-$HOME/.sauce/nix}#''${SAUCE_NIX_HOME:-${config.home.username}}" "$@"
+          exec home-manager switch --flake "''${SAUCE_NIX_FLAKE:-$HOME/.config/home-manager}#''${SAUCE_NIX_HOME:-${config.home.username}}" "$@"
         '';
   };
 in

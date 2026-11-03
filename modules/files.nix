@@ -175,6 +175,10 @@ in
           pkgs.nixd
         ];
         xdg.configFile."zed/settings.json".text = builtins.toJSON {
+          theme = "Tokyo Night";
+          vim_mode = true;
+          buffer_font_size = 11;
+          buffer_font_family = "Hack Nerd Font";
           lsp.nil.binary.path = lib.getExe pkgs.nil;
           lsp.nixd.binary.path = lib.getExe pkgs.nixd;
         };

@@ -37,6 +37,26 @@ assert lib.elem pkgs.nixd workstation.config.home.packages;
 assert
   (builtins.fromJSON (
     builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
+  )).theme
+  == "Tokyo Night";
+assert
+  (builtins.fromJSON (
+    builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
+  )).vim_mode
+  == true;
+assert
+  (builtins.fromJSON (
+    builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
+  )).buffer_font_size
+  == 11;
+assert
+  (builtins.fromJSON (
+    builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
+  )).buffer_font_family
+  == "Hack Nerd Font";
+assert
+  (builtins.fromJSON (
+    builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
   )).lsp.nil.binary.path
   == lib.getExe pkgs.nil;
 assert
