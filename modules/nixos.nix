@@ -262,6 +262,10 @@ in
           useUserPackages = true;
           users.${sys.user} = {
             imports = [ ./home.nix ];
+            services.tailscale-systray = {
+              enable = desktop && sys.tailscale;
+              theme = "dark:nobg";
+            };
             sauce = builtins.removeAttrs cfg [ "system" ];
             home = {
               username = sys.user;

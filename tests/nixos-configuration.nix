@@ -97,6 +97,10 @@ assert lib.hasInfix "terminal=alacritty -e"
 assert workstation.programs.sway.enable;
 assert workstation.programs.uwsm.enable;
 assert workstation.sauce.system.tailscale;
+assert workstation.home-manager.users.tester.services.tailscale-systray.enable;
+assert workstation.home-manager.users.tester.services.tailscale-systray.theme == "dark:nobg";
+assert lib.any (lib.hasInfix "--theme dark:nobg")
+  workstation.home-manager.users.tester.systemd.user.services.tailscale-systray.Service.ExecStart;
 assert assertRemote workstation;
 assert lib.all (name: lib.elem name workstation.sauce.tools) [
   "bitwarden-cli"
@@ -127,6 +131,7 @@ assert odin.sauce.desktopEnvironments == workstation.sauce.desktopEnvironments;
 assert odin.services.displayManager.defaultSession == "sway";
 assert odin.sauce.sway.terminal == "alacritty";
 assert odin.sauce.system.nvidia;
+assert odin.home-manager.users.tester.services.tailscale-systray.enable;
 assert odin.nixpkgs.config.allowUnfree;
 assert lib.elem "nvidia" odin.services.xserver.videoDrivers;
 assert lib.elem "modesetting" odin.services.xserver.videoDrivers;
@@ -146,6 +151,9 @@ assert odin.services.caddy.virtualHosts.":80".listenAddresses == [ "{$TAILSCALE_
 assert lib.hasInfix "reverse_proxy 127.0.0.1:8080"
   odin.services.caddy.virtualHosts.":80".extraConfig;
 assert assertRemote serverRemote;
+assert !serverRemote.home-manager.users.tester.services.tailscale-systray.enable;
+assert mobileRemote.home-manager.users.tester.services.tailscale-systray.enable;
+assert !plasma.home-manager.users.tester.services.tailscale-systray.enable;
 assert assertRemote mobileRemote;
 assert plasma.services.displayManager.defaultSession == "plasma";
 assert serverRemote.nix.gc.automatic;
