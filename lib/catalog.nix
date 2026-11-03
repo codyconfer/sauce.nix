@@ -15,7 +15,7 @@
     kubectl = [ "kubectl" ];
     loglit = null;
     nvim = [ "neovim" ];
-    nvm = [ "fnm" ];
+    nvm = null; # Shell integration is provided by modules/shell.nix.
     opencode = [ "opencode" ];
     pi = [ "pi-coding-agent" ];
     poetry = [ "poetry" ];

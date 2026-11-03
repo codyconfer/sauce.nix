@@ -258,7 +258,10 @@ integrations. Fuzzel/cliphist replace zofi; swayr replaces exposway/swaycycle;
 brightnessctl replaces lumactl/swaydim. These preserve workflows, not every
 source-built tool's exact behavior.
 
-- `nvm` is provided by fnm; old installed Node versions are not migrated.
+- `nvm` loads pinned upstream nvm in Bash and Zsh, with Node versions stored in
+  `~/.nvm`. After switching, open a new shell and run `nvm install --lts`.
+  Previously installed fnm Node versions are not migrated. On NixOS, downloaded
+  Node binaries rely on `sauce.system.nixLd` (enabled by default).
 - Flatpak selections install additively through `sauce-flatpaks`; removing a
   selection does not uninstall its app.
 - `sauce-pi-extensions` runs explicitly; activation does not fetch extensions.

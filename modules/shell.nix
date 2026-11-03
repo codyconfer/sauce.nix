@@ -8,6 +8,17 @@
 let
   cfg = config.sauce;
   has = name: builtins.elem name cfg.tools;
+  nvmSource = pkgs.fetchFromGitHub {
+    owner = "nvm-sh";
+    repo = "nvm";
+    rev = "v0.40.3";
+    hash = "sha256-s36EQojnNKm4x410nllC3nbnzzwcLZCKSP3DkJPpjjo=";
+  };
+  nvmInit = lib.optionalString (has "nvm") ''
+    export NVM_DIR="$HOME/.nvm"
+    mkdir -p "$NVM_DIR"
+    source ${nvmSource}/nvm.sh
+  '';
   common = ''
     source "$HOME/.config/sauce/functions.sh"
     _sauce_print_header
@@ -44,9 +55,7 @@ in
       };
       initExtra =
         common
-        + lib.optionalString (has "nvm") ''
-          eval "$(fnm env --use-on-cd --shell bash)"
-        ''
+        + nvmInit
         + lib.optionalString (has "pyenv") ''
           eval "$(pyenv init - bash)"
         ''
@@ -84,9 +93,7 @@ in
           zstyle ':completion:*' group-name ""
           zstyle ':completion:*:descriptions' format '%B%F{blue}%d%f%b'
         ''
-        + lib.optionalString (has "nvm") ''
-          eval "$(fnm env --use-on-cd --shell zsh)"
-        ''
+        + nvmInit
         + lib.optionalString (has "pyenv") ''
           eval "$(pyenv init - zsh)"
         ''

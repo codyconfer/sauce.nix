@@ -96,6 +96,12 @@ assert lib.hasInfix "terminal=alacritty -e"
   workstation.home-manager.users.tester.xdg.configFile."fuzzel/fuzzel.ini".text;
 assert workstation.programs.sway.enable;
 assert workstation.programs.uwsm.enable;
+assert lib.hasInfix "export NVM_DIR=\"$HOME/.nvm\""
+  workstation.home-manager.users.tester.programs.bash.initExtra;
+assert lib.hasInfix "/nvm.sh" workstation.home-manager.users.tester.programs.bash.initExtra;
+assert lib.hasInfix "/nvm.sh" workstation.home-manager.users.tester.programs.zsh.initContent;
+assert !(lib.hasInfix "fnm env" workstation.home-manager.users.tester.programs.bash.initExtra);
+assert !(lib.elem "fnm" (map lib.getName workstation.home-manager.users.tester.home.packages));
 assert workstation.sauce.system.tailscale;
 assert workstation.home-manager.users.tester.services.tailscale-systray.enable;
 assert workstation.home-manager.users.tester.services.tailscale-systray.theme == "dark:nobg";

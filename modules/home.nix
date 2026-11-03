@@ -113,7 +113,15 @@ in
             iputils
             iw
           ]
-          ++ packages "tools" (lib.filter (name: name != "nvim") cfg.tools)
+          ++ packages "tools" (
+            lib.filter (
+              name:
+              !(lib.elem name [
+                "nvim"
+                "nvm"
+              ])
+            ) cfg.tools
+          )
           ++ packages "media" (lib.filter (name: desktop || name == "ffmpeg") cfg.media)
           ++ lib.optionals desktop (packages "guiApps" cfg.guiApps ++ packages "emulators" cfg.emulators)
           ++ lib.optionals (desktop && builtins.elem "qemu" cfg.emulators) [ pkgs.virt-manager ]
