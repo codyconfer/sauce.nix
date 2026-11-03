@@ -33,11 +33,17 @@ assert lib.elem "lxqt" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "gnome" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "alacritty" workstation.config.sauce.guiApps;
 assert lib.elem pkgs.nil workstation.config.home.packages;
+assert lib.elem pkgs.nixd workstation.config.home.packages;
 assert
   (builtins.fromJSON (
     builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
   )).lsp.nil.binary.path
   == lib.getExe pkgs.nil;
+assert
+  (builtins.fromJSON (
+    builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
+  )).lsp.nixd.binary.path
+  == lib.getExe pkgs.nixd;
 assert !(builtins.hasAttr "zed/settings.json" server.config.xdg.configFile);
 assert !(lib.elem pkgs.nil server.config.home.packages);
 assert lib.hasInfix "swayr switch-window" swayText;

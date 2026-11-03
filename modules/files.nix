@@ -170,9 +170,13 @@ in
           // lib.optionalAttrs (builtins.elem "mpv" cfg.media || sway) (directories [ "mpv" ]);
       })
       (lib.mkIf (desktop && builtins.elem "zed" cfg.guiApps) {
-        home.packages = [ pkgs.nil ];
+        home.packages = [
+          pkgs.nil
+          pkgs.nixd
+        ];
         xdg.configFile."zed/settings.json".text = builtins.toJSON {
           lsp.nil.binary.path = lib.getExe pkgs.nil;
+          lsp.nixd.binary.path = lib.getExe pkgs.nixd;
         };
       })
       (lib.mkIf (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) {
