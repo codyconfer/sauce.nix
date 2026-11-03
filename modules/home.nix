@@ -25,7 +25,12 @@ let
   packages = category: names: map (resolve category) names;
   auth = pkgs.writeShellApplication {
     name = "sauce-auth";
-    runtimeInputs = [ pkgs.gh pkgs.git pkgs.tailscale pkgs.bitwarden-cli ];
+    runtimeInputs = [
+      pkgs.gh
+      pkgs.git
+      pkgs.tailscale
+      pkgs.bitwarden-cli
+    ];
     text = ''
       set -euo pipefail
       echo "Logging in to GitHub..."
