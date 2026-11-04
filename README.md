@@ -115,7 +115,9 @@ user files and packages, not system services or hardware.
 
 ## Desktop and selections
 
-The COSMIC profile enables the desktop without managing its user preferences.
+The COSMIC profile enables the desktop and manages three custom shortcuts:
+Super+Enter opens a terminal, Super+Backspace closes the focused window, and
+Super+N minimizes it. Other desktop preferences remain unmanaged.
 
 Machine roles (`workstation`, `mobile`, `server`) are independent of desktop
 sessions. The workstation profile defaults to Sway under UWSM. KDE, GNOME,

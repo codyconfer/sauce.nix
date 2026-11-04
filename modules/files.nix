@@ -252,6 +252,10 @@ in
             "waybar/style.css".source = source + /waybar/style.css;
           };
       })
+      (lib.mkIf (builtins.elem "cosmic" cfg.desktopEnvironments) {
+        xdg.configFile."cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom".source =
+          source + /cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom;
+      })
       (lib.mkIf sway {
         xdg.configFile = directories [ "way-displays" ] // {
           "sway/config".text =
