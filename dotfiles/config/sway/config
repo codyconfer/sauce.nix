@@ -129,6 +129,7 @@ bindsym $mod+z exec $bin/exposway
 bindsym $mod+Shift+r exec flatpak run io.github.seadve.Kooha
 bindsym $mod+a focus parent
 
+bindsym $mod+n move scratchpad
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
