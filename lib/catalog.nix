@@ -40,6 +40,7 @@
     codex = [ "codex" ];
     cursor = [ "code-cursor" ];
     docker = [ "docker" ];
+    podman-desktop = [ "podman-desktop" ];
     ghidra = [ "ghidra" ];
     jetbrains-toolbox = [ "jetbrains-toolbox" ];
     lmstudio = [ "lmstudio" ];

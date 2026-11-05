@@ -28,6 +28,8 @@ assert !(builtins.hasAttr "cosmic" mobile.config.xdg.configFile);
 assert lib.elem "lxqt" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "gnome" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "alacritty" workstation.config.sauce.guiApps;
+assert lib.elem "podman-desktop" workstation.config.sauce.guiApps;
+assert lib.elem pkgs.podman-desktop workstation.config.home.packages;
 assert lib.elem pkgs.nil workstation.config.home.packages;
 assert lib.elem pkgs.nixd workstation.config.home.packages;
 assert

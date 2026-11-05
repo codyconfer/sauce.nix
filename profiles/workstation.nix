@@ -12,6 +12,7 @@
       "vscode"
       "zed"
       "docker"
+      "podman-desktop"
       "ghidra"
       "jetbrains-toolbox"
       "lmstudio"
