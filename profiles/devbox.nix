@@ -1,7 +1,11 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 {
   sauce = {
     netTools = true;
+    extraPackages = with pkgs; [
+      libargon2
+      openssl
+    ];
     tools = lib.mkDefault [
       "adb"
       "dotnet"

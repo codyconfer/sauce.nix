@@ -35,15 +35,15 @@
   };
   systemd.services.resilio = {
     serviceConfig = {
-      EnvironmentFile = "/run/secrets/resilio-webui.env";
+      EnvironmentFile = "/var/lib/sauce/secrets/resilio-webui.env";
       ExecStart = lib.mkForce (
         let
           start = pkgs.writeShellScriptBin "resilio-start-authenticated" ''
             set -eu
-            : "''${RESILIO_WEBUI_LOGIN:?Set RESILIO_WEBUI_LOGIN in /run/secrets/resilio-webui.env}"
-            : "''${RESILIO_WEBUI_PASSWORD:?Set RESILIO_WEBUI_PASSWORD in /run/secrets/resilio-webui.env}"
+            : "''${RESILIO_WEBUI_LOGIN:?Set RESILIO_WEBUI_LOGIN in /var/lib/sauce/secrets/resilio-webui.env}"
+            : "''${RESILIO_WEBUI_PASSWORD_HASH:?Set RESILIO_WEBUI_PASSWORD_HASH in /var/lib/sauce/secrets/resilio-webui.env}"
             config=/run/rslsync/config.json
-            ${pkgs.jq}/bin/jq --arg login "$RESILIO_WEBUI_LOGIN" --arg password "$RESILIO_WEBUI_PASSWORD" '.webui.login = $login | .webui.password = $password' "$config" > "$config.authenticated"
+            ${pkgs.jq}/bin/jq '.webui.login = env.RESILIO_WEBUI_LOGIN | .webui.password_hash = env.RESILIO_WEBUI_PASSWORD_HASH | del(.webui.password, .webui.password_hash_unified)' "$config" > "$config.authenticated"
             chmod 0400 "$config.authenticated"
             exec ${config.services.resilio.package}/bin/rslsync --nodaemon --config "$config.authenticated"
           '';
@@ -66,6 +66,7 @@
   sauce.system = {
     user = "codyconfer";
     homeStateVersion = "26.05";
+    remote.codeServerEnvironmentFile = "/var/lib/sauce/secrets/code-server.env";
     tailscale = true;
     nvidia = false;
     clamav.daemon = true;
