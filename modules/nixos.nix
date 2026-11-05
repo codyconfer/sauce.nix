@@ -157,7 +157,7 @@ in
           "flakes"
         ];
         nixpkgs.config.allowUnfree = true;
-        boot.loader.systemd-boot.configurationLimit = 3;
+        boot.loader.systemd-boot.configurationLimit = lib.mkForce 3;
         security.apparmor = {
           enable = true;
           packages = [ pkgs.apparmor-profiles ];
