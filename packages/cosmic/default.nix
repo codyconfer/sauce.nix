@@ -43,37 +43,6 @@ in
       resources "dev.mariinkys.StarryDex" "resources"
         "icons/hicolor/scalable/apps/icon.svg";
   };
-  cosmic-ext-camera = mkApp "cosmic-ext-camera" {
-    nativeBuildInputs = [
-      pkgs.libcosmicAppHook
-      pkgs.cmake
-      pkgs.nasm
-      pkgs.rustPlatform.bindgenHook
-    ];
-    buildInputs = [
-      pkgs.openssl
-      pkgs.fontconfig
-      pkgs.dav1d
-      pkgs.libcamera
-      pkgs.udev
-    ]
-    ++ (with pkgs.gst_all_1; [
-      gstreamer
-      gst-plugins-base
-      gst-plugins-good
-      gst-plugins-bad
-      gst-libav
-    ]);
-    preFixup = ''
-      libcosmicAppWrapperArgs+=(--prefix GST_PLUGIN_SYSTEM_PATH_1_0 : "$GST_PLUGIN_SYSTEM_PATH_1_0")
-    '';
-    postInstall = ''
-      install -Dm644 resources/io.github.cosmic_utils.camera.desktop "$out/share/applications/io.github.cosmic_utils.camera.desktop"
-      install -Dm644 resources/io.github.cosmic_utils.camera.metainfo.xml "$out/share/metainfo/io.github.cosmic_utils.camera.metainfo.xml"
-      mkdir -p "$out/share/icons"
-      cp -r resources/icons/hicolor "$out/share/icons/"
-    '';
-  };
   clipboard-manager = mkApp "clipboard-manager" {
     env.CLIPBOARD_MANAGER_COMMIT = sources.clipboard-manager.rev;
     postInstall = ''

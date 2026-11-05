@@ -8,7 +8,6 @@ it does not modify panel configuration or automatically enable applets.
 | --- | --- | --- |
 | mariinkys/cedilla | cedilla | cedilla |
 | mariinkys/starrydex | starrydex | starrydex |
-| cosmic-utils/cosmic-ext-camera | cosmic-ext-camera | camera |
 | cosmic-utils/clipboard-manager | clipboard-manager | cosmic-ext-applet-clipboard-manager |
 | Ebbo/cosmic-applet-music-player | cosmic-applet-music-player | cosmic-ext-applet-music-player |
 | AceMythos/cosmic-power-monitor | cosmic-power-monitor | cosmic-power-monitor |
@@ -21,8 +20,7 @@ and `pkgs.cosmic-ext-applet-privacy-indicator`
 Sources and Cargo dependency trees are fixed by revision and SHA-256 in
 `sources.json`. No additional flake inputs or Rust toolchain changes are
 required. The libcosmic setup hook supplies graphics libraries and wraps
-applications with their data/icon paths; Camera also receives a GStreamer
-plugin search path.
+applications with their data/icon paths.
 
 ## Verification and updates
 
@@ -53,7 +51,8 @@ applications; a successful configuration evaluation alone does not establish
 that each upstream revision compiles or works in a live COSMIC session.
 
 Cupola and Compass were removed because their upstream tests blocked system
-updates. The package set now contains seven local applications plus the two
+updates. Camera was also removed. The package set now contains six local
+applications plus the two
 nixpkgs packages listed above.
 
 ## Initial verification (2026-11-04)
