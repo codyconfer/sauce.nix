@@ -1,5 +1,6 @@
 {
     (modifiers: [Super], key: "Return"): System(Terminal),
+    (modifiers: [Super], key: "space"): System(Launcher),
     (modifiers: [Super], key: "BackSpace"): Close,
     (modifiers: [Super], key: "n"): Minimize,
 }
