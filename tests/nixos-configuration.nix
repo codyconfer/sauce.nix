@@ -74,15 +74,15 @@ let
     assert c.services.code-server.host == "127.0.0.1";
     assert
       c.systemd.services.code-server.serviceConfig.EnvironmentFile
-      == "/run/secrets/sauce-code-server.env";
+      == c.sauce.system.remote.codeServerEnvironmentFile;
     true;
 in
 assert workstation.nixpkgs.config.allowUnfree;
 assert workstation.sauce.signalKeyring;
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret"
   workstation.home-manager.users.tester.xdg.dataFile."flatpak/overrides/org.signal.Signal".text;
-assert !(builtins.hasAttr "flatpak/overrides/org.signal.Signal"
-  serverRemote.home-manager.users.tester.xdg.dataFile);
+assert
+  !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" serverRemote.home-manager.users.tester.xdg.dataFile);
 assert workstation.services.xserver.videoDrivers == [ "modesetting" ];
 assert lib.all (name: lib.elem name (map lib.getName workstation.hardware.graphics.extraPackages)) [
   "intel-media-driver"
@@ -113,6 +113,9 @@ assert workstation.home-manager.users.tester.services.tailscale-systray.theme ==
 assert lib.any (lib.hasInfix "--theme dark:nobg")
   workstation.home-manager.users.tester.systemd.user.services.tailscale-systray.Service.ExecStart;
 assert assertRemote workstation;
+assert
+  workstation.sauce.system.remote.codeServerEnvironmentFile
+  == "/var/lib/sauce/secrets/code-server.env";
 assert lib.all (name: lib.elem name workstation.sauce.tools) [
   "bitwarden-cli"
   "wrangler"
@@ -162,6 +165,8 @@ assert odin.services.caddy.virtualHosts.":80".listenAddresses == [ "{$TAILSCALE_
 assert lib.hasInfix "reverse_proxy 127.0.0.1:8080"
   odin.services.caddy.virtualHosts.":80".extraConfig;
 assert assertRemote serverRemote;
+assert
+  serverRemote.sauce.system.remote.codeServerEnvironmentFile == "/run/secrets/sauce-code-server.env";
 assert !serverRemote.home-manager.users.tester.services.tailscale-systray.enable;
 assert mobileRemote.home-manager.users.tester.services.tailscale-systray.enable;
 assert !plasma.home-manager.users.tester.services.tailscale-systray.enable;

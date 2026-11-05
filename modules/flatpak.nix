@@ -20,14 +20,14 @@ let
 in
 {
   config = lib.mkIf enabled {
-    xdg.dataFile."flatpak/overrides/org.signal.Signal" = lib.mkIf (
-      cfg.signalKeyring && builtins.elem "signal" cfg.flatpaks
-    ) {
-      text = ''
-        [Environment]
-        SIGNAL_PASSWORD_STORE=gnome-libsecret
-      '';
-    };
+    xdg.dataFile."flatpak/overrides/org.signal.Signal" =
+      lib.mkIf (cfg.signalKeyring && builtins.elem "signal" cfg.flatpaks)
+        {
+          text = ''
+            [Environment]
+            SIGNAL_PASSWORD_STORE=gnome-libsecret
+          '';
+        };
     home.packages = [
       sync
       pkgs.flatpak

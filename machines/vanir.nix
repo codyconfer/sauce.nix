@@ -24,9 +24,19 @@
     resilio-lan = {
       target = "DROP";
       interfaces = [ "wlp0s20f3" ];
-      ports = [ { port = 9000; protocol = "tcp"; } ];
+      ports = [
+        {
+          port = 9000;
+          protocol = "tcp";
+        }
+      ];
     };
-    tailscale.ports = [ { port = 9000; protocol = "tcp"; } ];
+    tailscale.ports = [
+      {
+        port = 9000;
+        protocol = "tcp";
+      }
+    ];
   };
   services.resilio = {
     enableWebUI = true;
