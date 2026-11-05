@@ -6,11 +6,9 @@ it does not modify panel configuration or automatically enable applets.
 
 | Upstream repository | Local attribute | Installed executable |
 | --- | --- | --- |
-| cosmic-utils/cupola | cupola | cupola |
 | mariinkys/cedilla | cedilla | cedilla |
 | mariinkys/starrydex | starrydex | starrydex |
 | cosmic-utils/cosmic-ext-camera | cosmic-ext-camera | camera |
-| cosmic-utils/cosmic-ext-compass | cosmic-ext-compass | compass |
 | cosmic-utils/clipboard-manager | clipboard-manager | cosmic-ext-applet-clipboard-manager |
 | Ebbo/cosmic-applet-music-player | cosmic-applet-music-player | cosmic-ext-applet-music-player |
 | AceMythos/cosmic-power-monitor | cosmic-power-monitor | cosmic-power-monitor |
@@ -35,14 +33,14 @@ building an entire desktop closure:
 nix build --no-link path:.#checks.x86_64-linux.configuration
 ```
 
-To build a particular new package (replace `cupola` as appropriate):
+To build a particular package (replace `cedilla` as appropriate):
 
 ```sh
 nix build --no-link --impure --expr '
   let
     flake = builtins.getFlake (toString ./.);
     pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
-  in (import ./packages/cosmic { inherit pkgs; }).cupola
+  in (import ./packages/cosmic { inherit pkgs; }).cedilla
 '
 ```
 
@@ -54,9 +52,9 @@ paths, and rerun the configuration check. These are independent libcosmic
 applications; a successful configuration evaluation alone does not establish
 that each upstream revision compiles or works in a live COSMIC session.
 
-Compass needs compatible hardware plus host SensorProxy/GeoClue services.
-Installing the application does not enable those services or change location
-permissions.
+Cupola and Compass were removed because their upstream tests blocked system
+updates. The package set now contains seven local applications plus the two
+nixpkgs packages listed above.
 
 ## Initial verification (2026-11-04)
 

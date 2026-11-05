@@ -35,18 +35,6 @@ let
   '';
 in
 {
-  cupola = mkApp "cupola" {
-    nativeBuildInputs = [
-      pkgs.libcosmicAppHook
-      pkgs.cmake
-      pkgs.nasm
-    ];
-    postInstall = ''
-      install -Dm644 data/org.codeberg.bhh32.Cupola.desktop "$out/share/applications/org.codeberg.bhh32.Cupola.desktop"
-      install -Dm644 data/org.codeberg.bhh32.Cupola.svg "$out/share/icons/hicolor/scalable/apps/org.codeberg.bhh32.Cupola.svg"
-      install -Dm644 data/org.codeberg.bhh32.Cupola.meta.info.xml "$out/share/metainfo/org.codeberg.bhh32.Cupola.metainfo.xml"
-    '';
-  };
   cedilla = mkApp "cedilla" {
     postInstall = resources "dev.mariinkys.Cedilla" "resources" "icons/hicolor/scalable/apps/icon.svg";
   };
@@ -82,14 +70,6 @@ in
     postInstall = ''
       install -Dm644 resources/io.github.cosmic_utils.camera.desktop "$out/share/applications/io.github.cosmic_utils.camera.desktop"
       install -Dm644 resources/io.github.cosmic_utils.camera.metainfo.xml "$out/share/metainfo/io.github.cosmic_utils.camera.metainfo.xml"
-      mkdir -p "$out/share/icons"
-      cp -r resources/icons/hicolor "$out/share/icons/"
-    '';
-  };
-  cosmic-ext-compass = mkApp "cosmic-ext-compass" {
-    postInstall = ''
-      install -Dm644 resources/org.cosmic_utils.compass.desktop "$out/share/applications/org.cosmic_utils.compass.desktop"
-      install -Dm644 resources/org.cosmic_utils.compass.metainfo.xml "$out/share/metainfo/org.cosmic_utils.compass.metainfo.xml"
       mkdir -p "$out/share/icons"
       cp -r resources/icons/hicolor "$out/share/icons/"
     '';
