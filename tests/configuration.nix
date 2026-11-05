@@ -12,6 +12,10 @@ let
   footText = builtins.readFile (workstation.config.xdg.configFile.foot.source + "/foot.ini");
   flatpakText = lib.concatStringsSep " " workstation.config.systemd.user.services.sauce-flatpaks.Service.ExecStart;
   serverFiles = builtins.attrNames server.config.xdg.configFile;
+  cosmicPackages = builtins.attrValues (import ../packages/cosmic { inherit pkgs; }) ++ [
+    pkgs.forecast
+    pkgs.cosmic-ext-applet-privacy-indicator
+  ];
 in
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
   personal.config.xdg.dataFile."flatpak/overrides/org.signal.Signal".text
@@ -22,6 +26,10 @@ assert workstation.config.sauce.machineRole == "workstation";
 assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "cosmic" workstation.config.sauce.desktopEnvironments;
+assert builtins.length cosmicPackages == 11;
+assert lib.all (package: lib.elem package workstation.config.home.packages) cosmicPackages;
+assert lib.all (package: !(lib.elem package server.config.home.packages)) cosmicPackages;
+assert lib.all (package: !(lib.elem package mobile.config.home.packages)) cosmicPackages;
 assert !(builtins.hasAttr "cosmic" workstation.config.xdg.configFile);
 assert !(builtins.hasAttr "cosmic" server.config.xdg.configFile);
 assert !(builtins.hasAttr "cosmic" mobile.config.xdg.configFile);
@@ -35,33 +43,27 @@ assert lib.elem pkgs.nixd workstation.config.home.packages;
 assert
   (builtins.fromJSON (
     builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
-  )).theme
-  == "Tokyo Night";
+  )).theme == "Tokyo Night";
 assert
   (builtins.fromJSON (
     builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
-  )).vim_mode
-  == true;
+  )).vim_mode == true;
 assert
   (builtins.fromJSON (
     builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
-  )).buffer_font_size
-  == 11;
+  )).buffer_font_size == 11;
 assert
   (builtins.fromJSON (
     builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
-  )).buffer_font_family
-  == "Hack Nerd Font";
+  )).buffer_font_family == "Hack Nerd Font";
 assert
   (builtins.fromJSON (
     builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
-  )).lsp.nil.binary.path
-  == lib.getExe pkgs.nil;
+  )).lsp.nil.binary.path == lib.getExe pkgs.nil;
 assert
   (builtins.fromJSON (
     builtins.unsafeDiscardStringContext workstation.config.xdg.configFile."zed/settings.json".text
-  )).lsp.nixd.binary.path
-  == lib.getExe pkgs.nixd;
+  )).lsp.nixd.binary.path == lib.getExe pkgs.nixd;
 assert !(builtins.hasAttr "zed/settings.json" server.config.xdg.configFile);
 assert !(lib.elem pkgs.nil server.config.home.packages);
 assert lib.hasInfix "swayr switch-window" swayText;

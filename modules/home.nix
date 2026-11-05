@@ -7,6 +7,7 @@
 let
   cfg = config.sauce;
   catalog = import ../lib/catalog.nix;
+  cosmicApps = import ../packages/cosmic { inherit pkgs; };
   desktop = cfg.machineRole != "server";
   resolve =
     category: name:
@@ -131,6 +132,13 @@ in
           ++ packages "media" (lib.filter (name: desktop || name == "ffmpeg") cfg.media)
           ++ lib.optionals desktop (packages "guiApps" cfg.guiApps ++ packages "emulators" cfg.emulators)
           ++ lib.optionals (desktop && builtins.elem "qemu" cfg.emulators) [ pkgs.virt-manager ]
+          ++ lib.optionals (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) (
+            builtins.attrValues cosmicApps
+            ++ [
+              pkgs.forecast
+              pkgs.cosmic-ext-applet-privacy-indicator
+            ]
+          )
           ++ cfg.extraPackages;
 
         home.sessionPath = [
