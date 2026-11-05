@@ -22,6 +22,10 @@ let
     ../machines/odin.nix
     { sauce.system.user = lib.mkForce "tester"; }
   ];
+  tyr = evaluate [
+    ../machines/tyr.nix
+    { sauce.system.user = lib.mkForce "tester"; }
+  ];
   serverRemote = evaluate [
     ../profiles/server.nix
     ../profiles/remote.nix
@@ -164,6 +168,41 @@ assert !odin.services.caddy.openFirewall;
 assert odin.services.caddy.virtualHosts.":80".listenAddresses == [ "{$TAILSCALE_IP}" ];
 assert lib.hasInfix "reverse_proxy 127.0.0.1:8080"
   odin.services.caddy.virtualHosts.":80".extraConfig;
+assert tyr.networking.hostName == "tyr";
+assert tyr.sauce.machineRole == "workstation";
+assert tyr.time.timeZone == workstation.time.timeZone;
+assert tyr.sauce.desktopEnvironments == workstation.sauce.desktopEnvironments;
+assert tyr.services.displayManager.defaultSession == "sway";
+assert tyr.sauce.sway.terminal == "alacritty";
+assert tyr.sauce.system.nvidia;
+assert lib.elem "nvidia" tyr.services.xserver.videoDrivers;
+assert lib.elem "modesetting" tyr.services.xserver.videoDrivers;
+assert tyr.hardware.nvidia.modesetting.enable;
+assert lib.elem "--unsupported-gpu" tyr.programs.sway.extraOptions;
+assert lib.all (name: lib.elem name (map lib.getName tyr.hardware.graphics.extraPackages)) [
+  "intel-media-driver"
+  "vpl-gpu-rt"
+];
+assert tyr.sauce.system.tailscale;
+assert !tyr.services.openssh.enable;
+assert !tyr.services.xrdp.enable;
+assert !tyr.services.caddy.enable;
+assert !tyr.services.code-server.enable;
+assert lib.all (name: lib.elem name tyr.sauce.tools) [
+  "1password-cli"
+  "aws"
+  "azure-cli"
+  "gcloud"
+  "claude-code"
+];
+assert lib.all (name: lib.elem name tyr.sauce.guiApps) [
+  "1password"
+  "codex"
+];
+assert lib.all (name: lib.elem name tyr.sauce.flatpaks) [
+  "slack"
+  "zoom"
+];
 assert assertRemote serverRemote;
 assert
   serverRemote.sauce.system.remote.codeServerEnvironmentFile == "/run/secrets/sauce-code-server.env";

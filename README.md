@@ -105,6 +105,18 @@ switching. XRDP opens a separate Xterm session, not the local Sway/COSMIC deskto
 Keep storage, bootloader, authentication, and installed state versions local,
 as with Vanir.
 
+### Tyr selections
+
+Use `sauce.nixosModules.tyr` for Tyr. `machines/tyr.nix` uses Vanir's selections
+as its baseline: Sway/COSMIC, Alacritty, the `codyconfer` user, Denver timezone,
+Intel KVM and graphics, plus the proprietary NVIDIA driver (including Sway's
+`--unsupported-gpu` opt-in). It selects hostname `tyr` and adds the `work` profile.
+The `remote` profile is not enabled; Tailscale remains enabled.
+Adjust hardware selections locally if Tyr differs from this baseline.
+
+As with Vanir, keep storage, bootloader, account authentication, and installed
+state versions local.
+
 ## Home Manager
 
 Standalone consumers can import `sauce.homeManagerModules.default` plus chosen

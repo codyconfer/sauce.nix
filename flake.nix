@@ -76,6 +76,12 @@
           ./machines/odin.nix
         ];
       };
+      nixosModules.tyr = {
+        imports = [
+          self.nixosModules.default
+          ./machines/tyr.nix
+        ];
+      };
       homeManagerModules.default = {
         imports = [ ./modules/home.nix ];
         nixpkgs.overlays = [ azureOverlay ];
