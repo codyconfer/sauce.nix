@@ -48,7 +48,7 @@ M.palettes = {
         accent = "#61afef",
         border = "#3e4451",
         muted = "#7f848e",
-        text = "#abb2bf",
+        text = "#dedede",
         selected = "#e5c07b",
         success = "#89ca78",
         warning = "#d19a66",
@@ -135,7 +135,8 @@ function M.apply(key)
     vim.o.background = p.light and "light" or "dark"
     vim.g.colors_name = key
 
-    local bg = (p.bg ~= nil and p.bg ~= "") and p.bg or "NONE"
+    local bg = "NONE"
+    local contrast = (p.bg ~= nil and p.bg ~= "") and p.bg or "#1c1e26"
     local function hi(group, spec) vim.api.nvim_set_hl(0, group, spec) end
 
     hi("Normal", { fg = p.text, bg = bg })
@@ -152,11 +153,11 @@ function M.apply(key)
     hi("CursorColumn", { bg = p.border })
     hi("ColorColumn", { bg = p.border })
     hi("Visual", { bg = p.border })
-    hi("Search", { fg = bg, bg = p.selected })
-    hi("IncSearch", { fg = bg, bg = p.warning })
-    hi("CurSearch", { fg = bg, bg = p.warning })
+    hi("Search", { fg = contrast, bg = p.selected })
+    hi("IncSearch", { fg = contrast, bg = p.warning })
+    hi("CurSearch", { fg = contrast, bg = p.warning })
     hi("Pmenu", { fg = p.text, bg = p.border })
-    hi("PmenuSel", { fg = bg, bg = p.accent, bold = true })
+    hi("PmenuSel", { fg = contrast, bg = p.accent, bold = true })
     hi("PmenuSbar", { bg = p.border })
     hi("PmenuThumb", { bg = p.muted })
     hi("StatusLine", { fg = p.text, bg = p.border })
@@ -170,7 +171,7 @@ function M.apply(key)
     hi("NonText", { fg = p.muted })
     hi("Whitespace", { fg = p.muted })
     hi("SignColumn", { bg = bg })
-    hi("EndOfBuffer", { fg = bg })
+    hi("EndOfBuffer", { fg = p.muted, bg = bg })
     hi("WinBar", { fg = p.text, bg = bg })
     hi("WinBarNC", { fg = p.muted, bg = bg })
 
@@ -200,7 +201,7 @@ function M.apply(key)
     hi("Include", { fg = p.warning })
     hi("Define", { fg = p.warning })
     hi("Macro", { fg = p.warning })
-    hi("Todo", { fg = bg, bg = p.warning, bold = true })
+    hi("Todo", { fg = contrast, bg = p.warning, bold = true })
     hi("Error", { fg = p.failure })
     hi("Underlined", { fg = p.info, underline = true })
 
