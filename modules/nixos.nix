@@ -157,6 +157,9 @@ in
           "flakes"
         ];
         nixpkgs.config.allowUnfree = true;
+        sauce.packageOverrides.bitwarden = lib.mkDefault (
+          import ../packages/bitwarden.nix { inherit pkgs; }
+        );
         boot.loader.systemd-boot.configurationLimit = lib.mkForce 3;
         security.apparmor = {
           enable = true;
@@ -422,6 +425,11 @@ in
       (mkIf sway {
         services.displayManager.defaultSession = lib.mkOverride 900 "sway";
         security.pam.services.swaylock = { };
+      })
+      (mkIf (selected "bitwarden") {
+        security.polkit.enable = true;
+        # Home Manager's package alone does not register system-wide polkit actions.
+        environment.systemPackages = [ (cfg.packageOverrides.bitwarden or pkgs.bitwarden-desktop) ];
       })
       (mkIf sys.rslsync {
         systemd.tmpfiles.rules = [ "d /var/lib/resilio-sync/sync 2770 rslsync rslsync -" ];

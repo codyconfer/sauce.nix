@@ -83,6 +83,14 @@ let
 in
 assert workstation.nixpkgs.config.allowUnfree;
 assert workstation.sauce.signalKeyring;
+assert workstation.security.polkit.enable;
+assert lib.elem workstation.sauce.packageOverrides.bitwarden workstation.environment.systemPackages;
+assert lib.elem workstation.sauce.packageOverrides.bitwarden
+  workstation.home-manager.users.tester.home.packages;
+assert workstation.sauce.packageOverrides.bitwarden ? sauceTrayIcon;
+assert lib.elem "bitwarden-desktop" (map lib.getName workstation.environment.systemPackages);
+assert lib.elem "/share/polkit-1" workstation.environment.pathsToLink;
+assert !(lib.elem "bitwarden-desktop" (map lib.getName serverRemote.environment.systemPackages));
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret"
   workstation.home-manager.users.tester.xdg.dataFile."flatpak/overrides/org.signal.Signal".text;
 assert
@@ -144,6 +152,28 @@ assert lib.all (name: lib.elem name workstation.sauce.flatpaks) [
 assert workstation.programs.steam.enable;
 assert odin.networking.hostName == "odin";
 assert odin.sauce.machineRole == "workstation";
+assert
+  odin.sauce.system.remote.codeServerEnvironmentFile
+  == workstation.sauce.system.remote.codeServerEnvironmentFile;
+assert odin.services.resilio.enable;
+assert odin.services.resilio.enableWebUI;
+assert odin.services.resilio.httpListenAddr == workstation.services.resilio.httpListenAddr;
+assert odin.services.resilio.httpListenPort == workstation.services.resilio.httpListenPort;
+assert
+  odin.systemd.services.resilio.serviceConfig.EnvironmentFile
+  == workstation.systemd.services.resilio.serviceConfig.EnvironmentFile;
+assert
+  odin.systemd.services.resilio.serviceConfig.ExecStart
+  == workstation.systemd.services.resilio.serviceConfig.ExecStart;
+assert lib.elem {
+  port = 9000;
+  protocol = "tcp";
+} odin.services.firewalld.zones.tailscale.ports;
+assert !(builtins.hasAttr "resilio-lan" odin.services.firewalld.zones);
+assert lib.all (rule: lib.elem rule odin.systemd.tmpfiles.rules) [
+  "d /srv/sync 2770 rslsync rslsync -"
+  "d /srv/sync/downloads 2770 rslsync rslsync -"
+];
 assert odin.time.timeZone == workstation.time.timeZone;
 assert odin.sauce.desktopEnvironments == workstation.sauce.desktopEnvironments;
 assert odin.services.displayManager.defaultSession == "sway";

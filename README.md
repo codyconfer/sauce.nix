@@ -97,6 +97,18 @@ Both machines enable Intel modesetting, the Intel VA-API media driver, and the
 oneVPL runtime, and inherit non-free package support from the shared module.
 Odin retains Vanir's Intel KVM module; change that locally for an AMD CPU.
 GPU-specific driver overrides and any PRIME bus IDs remain machine-local.
+Odin is a workstation and does not import the mobile profile.
+
+Odin also matches Vanir's `/srv/sync` and `/srv/sync/downloads` directories and
+its authenticated Resilio web UI on port 9000. Unlike Vanir, Odin does not bind a
+LAN firewall zone to Vanir's Wi-Fi interface; access to the UI is allowed only via
+Tailscale. Add an explicit machine-local LAN zone if needed. Before switching,
+provision root-owned mode-0600 `/var/lib/sauce/secrets/resilio-webui.env` containing
+`RESILIO_WEBUI_LOGIN` and `RESILIO_WEBUI_PASSWORD_HASH` (a Resilio-compatible hash).
+The service refuses to start if the file or either value is missing. Keep these
+credentials outside Nix. Odin's code-server environment file also now uses the
+persistent `/var/lib/sauce/secrets/code-server.env`, matching Vanir; provision it
+with the format and permissions described below rather than `/run/secrets`.
 
 The included remote profile enables SSH, XRDP, and Caddy proxying code-server,
 with inbound access restricted to Tailscale. Provision Tailscale, SSH keys,
@@ -173,6 +185,39 @@ as well: losing it can make the database unreadable. Restart Signal after activa
 If `~/.local/share/flatpak/overrides/org.signal.Signal` already exists, merge any
 needed overrides into the profile and move the file aside before Home Manager
 activation. This protects the database key, not all local files or an unlocked session.
+
+### Bitwarden system authentication
+
+The default Bitwarden package uses a grayscale Linux tray icon in all desktops,
+including Sway and COSMIC. Its launcher and window icons stay unchanged.
+`packages/bitwarden.nix` builds a separate tray asset; a custom
+`sauce.packageOverrides.bitwarden` takes precedence. Rebuild and fully quit/reopen
+Bitwarden to pick up the change. This source override may require a local
+Bitwarden build instead of using the upstream binary cache.
+
+On NixOS, selecting `"bitwarden"` in `sauce.guiApps` (as the `personal` profile
+does) also installs the desktop package system-wide so its bundled polkit policy
+is registered, and enables polkit. The configured Sway session starts a polkit
+agent; KDE, GNOME, COSMIC, and LXQt provide their own. Custom sessions need a
+running authentication agent. No passwordless polkit authorization is added.
+Standalone Home Manager users must arrange the system policy and agent themselves.
+
+After rebuilding, follow [Bitwarden's biometric setup](https://bitwarden.com/help/biometrics/):
+
+1. Open Bitwarden, log in, and go to **File → Settings → Security**.
+2. Enable **Unlock with system authentication** and confirm the authentication prompt.
+3. For browser unlock, enable **Allow browser integration** in the desktop app
+   if required by your version. Keep it running and logged in, then enable
+   **Settings → Account security → Unlock with biometrics** in the extension.
+   Allow communication with native applications when prompted. Chromium browsers
+   may also need **Allow access to file URLs** in their extension settings.
+
+These settings are per-account and must be enabled interactively; vault state
+and credentials are not managed by Nix. After an app restart, first unlock with
+your master password or PIN before using system authentication. For actual
+fingerprint authentication on supported hardware, set `sauce.system.fingerprint = true;`
+in the machine-local NixOS configuration and enroll with `fprintd-enroll`.
+Otherwise polkit uses the system's configured authentication method.
 
 The `remote` profile enables SSH, Firewalld, Caddy, browser-based code-server,
 and XRDP. Firewalld drops inbound traffic by default and permits SSH, HTTP, and

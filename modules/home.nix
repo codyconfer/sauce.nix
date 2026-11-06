@@ -68,6 +68,9 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
+        sauce.packageOverrides.bitwarden = lib.mkDefault (
+          import ../packages/bitwarden.nix { inherit pkgs; }
+        );
         sauce.packageOverrides.loglit = lib.mkDefault (pkgs.callPackage ../packages/loglit.nix { });
         assertions = [
           {

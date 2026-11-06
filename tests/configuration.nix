@@ -20,6 +20,9 @@ in
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
   personal.config.xdg.dataFile."flatpak/overrides/org.signal.Signal".text
 );
+assert personal.config.sauce.packageOverrides.bitwarden ? sauceTrayIcon;
+assert lib.elem personal.config.sauce.packageOverrides.bitwarden personal.config.home.packages;
+assert !(lib.elem personal.config.sauce.packageOverrides.bitwarden server.config.home.packages);
 assert !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" workstation.config.xdg.dataFile);
 assert !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" server.config.xdg.dataFile);
 assert workstation.config.sauce.machineRole == "workstation";
