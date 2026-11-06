@@ -110,7 +110,7 @@ in
           "npm:pi-powerline-footer"
           "npm:pi-lens"
           "npm:pi-lmstudio"
-          "npm:pi-goal-x"
+          "npm:@juicesharp/rpiv-todo"
           "npm:pi-mermaid"
         ];
         description = "Pi packages offered by the explicit sauce-pi-extensions command (not fetched during activation).";
