@@ -95,6 +95,11 @@ assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret"
   workstation.home-manager.users.tester.xdg.dataFile."flatpak/overrides/org.signal.Signal".text;
 assert
   !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" serverRemote.home-manager.users.tester.xdg.dataFile);
+assert workstation.services.libinput.enable;
+assert lib.elem "xinput" (map lib.getName workstation.environment.systemPackages);
+assert mobileRemote.services.libinput.enable;
+assert lib.elem "xinput" (map lib.getName mobileRemote.environment.systemPackages);
+assert !(lib.elem "xinput" (map lib.getName serverRemote.environment.systemPackages));
 assert workstation.services.xserver.videoDrivers == [ "modesetting" ];
 assert lib.all (name: lib.elem name (map lib.getName workstation.hardware.graphics.extraPackages)) [
   "intel-media-driver"

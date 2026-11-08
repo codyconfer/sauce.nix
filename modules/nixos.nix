@@ -435,6 +435,8 @@ in
         systemd.tmpfiles.rules = [ "d /var/lib/resilio-sync/sync 2770 rslsync rslsync -" ];
       })
       (mkIf desktop {
+        services.libinput.enable = true;
+        environment.systemPackages = [ pkgs.xinput ];
         hardware.graphics.enable = true;
         security.rtkit.enable = true;
         services.pipewire = {
