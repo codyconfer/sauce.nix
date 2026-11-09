@@ -82,6 +82,9 @@ let
     true;
 in
 assert workstation.nixpkgs.config.allowUnfree;
+assert workstation.systemd.services.sauce-clamav-scan.restartIfChanged == false;
+assert workstation.systemd.services.sauce-clamav-scan.wantedBy == [ ];
+assert workstation.systemd.timers.sauce-clamav-scan.wantedBy == [ "timers.target" ];
 assert workstation.sauce.signalKeyring;
 assert workstation.security.polkit.enable;
 assert lib.elem workstation.sauce.packageOverrides.bitwarden workstation.environment.systemPackages;

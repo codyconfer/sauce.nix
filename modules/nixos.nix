@@ -282,6 +282,9 @@ in
       (mkIf (sys.clamav.enable) {
         systemd.services.sauce-clamav-scan = {
           description = "Report-only .sauce malware scan";
+          # Let the timer schedule scans; do not restart a running scan and
+          # block switch-to-configuration until the entire scan completes.
+          restartIfChanged = false;
           serviceConfig = {
             Type = "oneshot";
             ExecStart = "${pkgs.clamav}/bin/clamscan --recursive --infected ${lib.escapeShellArgs sys.clamav.scanPaths}";

@@ -88,6 +88,7 @@ in
           with pkgs;
           [
             git
+            gnupg
             auth
             curl
             wget
@@ -159,7 +160,9 @@ in
             DOTNET_ROOT = "${pkgs.dotnet-sdk}/share/dotnet";
           };
         fonts.fontconfig.enable = desktop;
-        home.file.".gnupg/gpg-agent.conf".source = ../dotfiles/gnupg/gpg-agent.conf;
+        home.file.".gnupg/gpg-agent.conf".text =
+          builtins.readFile ../dotfiles/gnupg/gpg-agent.conf
+          + "\npinentry-program ${if desktop then pkgs.pinentry-gnome3 else pkgs.pinentry-curses}/bin/pinentry\n";
         programs.home-manager.enable = true;
       }
     ]

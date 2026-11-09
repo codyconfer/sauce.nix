@@ -173,9 +173,16 @@ fi
 update() {
   local repo="${SAUCE_REPO:-$HOME/sauce.nix}"
   local flake="${SAUCE_NIX_FLAKE:-/etc/nixos}"
+  local unit="nixos-rebuild-switch-to-configuration.service"
+  case "$(systemctl show --property=ActiveState --value "$unit")" in
+  active|activating|reloading|deactivating)
+    printf 'A NixOS activation is still running. Wait for it before updating.\n' >&2
+    printf 'Inspect it with: systemctl status %s; systemctl list-jobs\n' "$unit" >&2
+    return 1
+    ;;
+  esac
   git -C "$repo" pull --ff-only &&
     sudo nix flake update --flake "$flake" &&
-    sudo nixos-rebuild build --flake "$flake#${SAUCE_NIX_HOST:-$(hostname)}" "$@" &&
     sudo nixos-rebuild switch --flake "$flake#${SAUCE_NIX_HOST:-$(hostname)}" "$@"
 }
 
