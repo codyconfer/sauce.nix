@@ -29,6 +29,11 @@ assert workstation.config.sauce.machineRole == "workstation";
 assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "cosmic" workstation.config.sauce.desktopEnvironments;
+assert
+  workstation.config.systemd.user.services.sauce-cosmic-scan-indicator.Install.WantedBy
+  == [ "graphical-session.target" ];
+assert !(builtins.hasAttr "sauce-cosmic-scan-indicator" server.config.systemd.user.services);
+assert !(builtins.hasAttr "sauce-cosmic-scan-indicator" mobile.config.systemd.user.services);
 assert builtins.length cosmicPackages == 7;
 assert lib.all (package: lib.elem package workstation.config.home.packages) cosmicPackages;
 assert lib.all (package: !(lib.elem package server.config.home.packages)) cosmicPackages;
@@ -90,5 +95,6 @@ assert mobile.config.sauce.machineRole == "mobile";
 assert mobile.config.fonts.fontconfig.enable;
 assert mobile.config.sauce.desktopEnvironments == [ ];
 pkgs.runCommand "sauce-configuration-tests" { } ''
+  ${pkgs.python3}/bin/python3 ${./cosmic-scan-indicator.py} ${../dotfiles/cosmic/scan-indicator.py}
   touch "$out"
 ''

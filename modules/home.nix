@@ -63,6 +63,7 @@ in
     ./editor.nix
     ./flatpak.nix
     ./pi.nix
+    ./cosmic-scan-indicator.nix
   ];
 
   config = lib.mkIf cfg.enable (
@@ -162,7 +163,9 @@ in
         fonts.fontconfig.enable = desktop;
         home.file.".gnupg/gpg-agent.conf".text =
           builtins.readFile ../dotfiles/gnupg/gpg-agent.conf
-          + "\npinentry-program ${if desktop then pkgs.pinentry-gnome3 else pkgs.pinentry-curses}/bin/pinentry\n";
+          + "\npinentry-program ${
+            if desktop then pkgs.pinentry-gnome3 else pkgs.pinentry-curses
+          }/bin/pinentry\n";
         programs.home-manager.enable = true;
       }
     ]

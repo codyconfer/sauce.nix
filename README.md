@@ -141,7 +141,12 @@ user files and packages, not system services or hardware.
 
 The COSMIC profile enables the desktop and manages three custom shortcuts:
 Super+Enter opens a terminal, Super+Backspace closes the focused window, and
-Super+N minimizes it. Other desktop preferences remain unmanaged.
+Super+N minimizes it. A Home Manager user service temporarily turns the standard
+panel and dock backgrounds opaque orange while `sauce-clamav-scan.service` runs,
+then restores their previous colors and opacity (including after a watcher restart).
+It checks every two seconds, handles scan failure/cancellation, and does not track
+manually launched `clamscan` processes. Backgrounds managed through symlinks are
+left untouched. Other desktop preferences remain unmanaged.
 For non-server roles selecting COSMIC, Home Manager also installs
 StarryDex, Forecast, Clipboard Manager, Privacy Indicator,
 Music Player (Ebbo), Power Monitor, and Eyedropper. Applets are
