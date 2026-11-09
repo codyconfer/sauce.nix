@@ -13,7 +13,6 @@
       "codex"
     ];
     flatpaks = lib.mkDefault [
-      "slack"
       "zoom"
     ];
   };

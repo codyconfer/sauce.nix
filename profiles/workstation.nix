@@ -20,6 +20,7 @@
       "qdmr"
     ];
     flatpaks = lib.mkDefault [
+      "slack"
       "easyeffects"
       "obs-studio"
       "zen"
