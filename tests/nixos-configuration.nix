@@ -206,6 +206,21 @@ assert !odin.services.caddy.openFirewall;
 assert odin.services.caddy.virtualHosts.":80".listenAddresses == [ "{$TAILSCALE_IP}" ];
 assert lib.hasInfix "reverse_proxy 127.0.0.1:8080"
   odin.services.caddy.virtualHosts.":80".extraConfig;
+assert odin.sauce.system.remote.lmstudio.enable;
+assert odin.services.caddy.virtualHosts."http://:1234".listenAddresses == [ "{$TAILSCALE_IP}" ];
+assert lib.hasInfix "reverse_proxy 127.0.0.1:1234"
+  odin.services.caddy.virtualHosts."http://:1234".extraConfig;
+assert lib.elem {
+  port = 1234;
+  protocol = "tcp";
+} odin.services.firewalld.zones.tailscale.ports;
+assert !(serverRemote.services.caddy.virtualHosts ? "http://:1234");
+assert
+  !(lib.elem {
+    port = 1234;
+    protocol = "tcp";
+  } serverRemote.services.firewalld.zones.tailscale.ports);
+assert !(tyr.services.caddy.virtualHosts ? "http://:1234");
 assert tyr.networking.hostName == "tyr";
 assert tyr.sauce.machineRole == "workstation";
 assert tyr.time.timeZone == workstation.time.timeZone;

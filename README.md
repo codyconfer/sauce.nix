@@ -235,6 +235,17 @@ combinations. XRDP uses Plasma X11
 when KDE is selected; JetBrains Gateway starts its backend over SSH. VS Code
 Tunnel is omitted because its Microsoft relay is not tailnet-only.
 
+Remote-access machines with `"lmstudio"` in `sauce.guiApps` also expose
+`http://<tailscale-ip>:1234` through Caddy, forwarding all API paths (including
+`/v1` and `/api/v1`) to `127.0.0.1:1234` with streaming enabled. Start LM Studio's
+local server on port 1234 and leave **Serve on Local Network** disabled so it
+binds only to loopback. Caddy does not start LM Studio or add API authentication;
+restrict port 1234 with Tailscale ACLs and enable LM Studio API authentication if
+needed. Set `sauce.system.remote.lmstudio.enable = false;` to disable the proxy,
+or `true` to opt in on another remote-access machine. Pi continues using the
+local loopback URL by default; remote clients use `http://<tailscale-ip>:1234/v1`
+for the OpenAI-compatible API. Rebuild the NixOS configuration to apply.
+
 ### Provision remote access before switching
 
 Enroll Tailscale and restrict SSH, HTTP, and RDP with tailnet ACLs. Provision your

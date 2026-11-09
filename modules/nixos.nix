@@ -125,6 +125,11 @@ in
       };
     };
     remote = {
+      lmstudio.enable = mkOption {
+        type = types.bool;
+        default = selected "lmstudio";
+        description = "Proxy loopback LM Studio on port 1234 through the Tailscale IPv4 address when remote access is enabled. Start LM Studio's local server separately; restrict access with tailnet ACLs.";
+      };
       sshAuthorizedKeysFile = mkOption {
         type = types.str;
         default = "/etc/ssh/sauce-authorized-keys/%u";
@@ -340,7 +345,11 @@ in
                   22
                   80
                   3389
-                ];
+                ]
+              ++ lib.optional sys.remote.lmstudio.enable {
+                port = 1234;
+                protocol = "tcp";
+              };
           };
         };
         services.openssh = {
@@ -357,11 +366,23 @@ in
           enable = true;
           openFirewall = false;
           environmentFile = "/run/sauce-caddy/tailscale.env";
-          virtualHosts.":80" = {
-            listenAddresses = [ "{$TAILSCALE_IP}" ];
-            extraConfig = ''
-              reverse_proxy 127.0.0.1:8080
-            '';
+          virtualHosts = {
+            ":80" = {
+              listenAddresses = [ "{$TAILSCALE_IP}" ];
+              extraConfig = ''
+                reverse_proxy 127.0.0.1:8080
+              '';
+            };
+          }
+          // lib.optionalAttrs sys.remote.lmstudio.enable {
+            "http://:1234" = {
+              listenAddresses = [ "{$TAILSCALE_IP}" ];
+              extraConfig = ''
+                reverse_proxy 127.0.0.1:1234 {
+                  flush_interval -1
+                }
+              '';
+            };
           };
         };
         systemd.services.sauce-caddy-tailscale-address = {

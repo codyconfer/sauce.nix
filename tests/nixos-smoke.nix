@@ -12,6 +12,7 @@ pkgs.testers.runNixOSTest {
     sauce.system = {
       user = "tester";
       tailscale = false;
+      remote.lmstudio.enable = true;
       fwupd = false;
       clamav.enable = false;
       backup = {
@@ -39,6 +40,11 @@ pkgs.testers.runNixOSTest {
           printf '%s\n' '100.64.0.1'
         '')
       ];
+    };
+    # Stand in for the user-started LM Studio server, bound only to loopback.
+    systemd.services.lmstudio-fixture = {
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig.ExecStart = "${pkgs.python3}/bin/python -m http.server 1234 --bind 127.0.0.1 --directory ${pkgs.writeTextDir "v1/models" ''{"object":"list","data":[]}''}";
     };
     systemd.services.caddy.wantedBy = lib.mkForce [ ];
     systemd.services.code-server.wantedBy = lib.mkForce [ ];
@@ -71,10 +77,15 @@ pkgs.testers.runNixOSTest {
             machine.succeed(f"ip -n {namespace} addr add {peer}/24 dev peer; ip -n {namespace} link set peer up; ip -n {namespace} link set lo up")
         machine.succeed("firewall-cmd --reload; systemctl start caddy.service")
         machine.wait_for_open_port(80, addr="100.64.0.1")
-        for port in [22, 80, 3389]:
+        machine.wait_for_open_port(1234, addr="100.64.0.1")
+        for port in [22, 80, 1234, 3389]:
             machine.succeed(f"ip netns exec tailnet nc -z -w 3 100.64.0.1 {port}")
             machine.fail(f"ip netns exec untrusted nc -z -w 3 192.0.2.1 {port}")
         machine.fail("ip netns exec tailnet nc -z -w 3 100.64.0.1 8080")
+
+    with subtest("LM Studio API is proxied only through the tailnet"):
+        machine.succeed("ip netns exec tailnet curl -fsS http://100.64.0.1:1234/v1/models | grep -q '\"object\":\"list\"'")
+        machine.fail("ip netns exec untrusted nc -z -w 3 100.64.0.1 1234")
 
     with subtest("Browser access requires authentication"):
         machine.succeed("ip netns exec tailnet curl -s -o /dev/null -w '%{http_code}' http://100.64.0.1/ | grep -qx 302")
