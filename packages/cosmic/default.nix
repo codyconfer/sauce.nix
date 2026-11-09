@@ -35,9 +35,6 @@ let
   '';
 in
 {
-  cedilla = mkApp "cedilla" {
-    postInstall = resources "dev.mariinkys.Cedilla" "resources" "icons/hicolor/scalable/apps/icon.svg";
-  };
   starrydex = mkApp "starrydex" {
     postInstall =
       resources "dev.mariinkys.StarryDex" "resources"

@@ -29,7 +29,7 @@ assert workstation.config.sauce.machineRole == "workstation";
 assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "cosmic" workstation.config.sauce.desktopEnvironments;
-assert builtins.length cosmicPackages == 8;
+assert builtins.length cosmicPackages == 7;
 assert lib.all (package: lib.elem package workstation.config.home.packages) cosmicPackages;
 assert lib.all (package: !(lib.elem package server.config.home.packages)) cosmicPackages;
 assert lib.all (package: !(lib.elem package mobile.config.home.packages)) cosmicPackages;

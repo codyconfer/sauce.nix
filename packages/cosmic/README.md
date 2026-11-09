@@ -6,7 +6,6 @@ it does not modify panel configuration or automatically enable applets.
 
 | Upstream repository | Local attribute | Installed executable |
 | --- | --- | --- |
-| mariinkys/cedilla | cedilla | cedilla |
 | mariinkys/starrydex | starrydex | starrydex |
 | cosmic-utils/clipboard-manager | clipboard-manager | cosmic-ext-applet-clipboard-manager |
 | Ebbo/cosmic-applet-music-player | cosmic-applet-music-player | cosmic-ext-applet-music-player |
@@ -31,14 +30,14 @@ building an entire desktop closure:
 nix build --no-link path:.#checks.x86_64-linux.configuration
 ```
 
-To build a particular package (replace `cedilla` as appropriate):
+To build a particular package (replace `starrydex` as appropriate):
 
 ```sh
 nix build --no-link --impure --expr '
   let
     flake = builtins.getFlake (toString ./.);
     pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
-  in (import ./packages/cosmic { inherit pkgs; }).cedilla
+  in (import ./packages/cosmic { inherit pkgs; }).starrydex
 '
 ```
 
@@ -51,7 +50,7 @@ applications; a successful configuration evaluation alone does not establish
 that each upstream revision compiles or works in a live COSMIC session.
 
 Cupola and Compass were removed because their upstream tests blocked system
-updates. Camera was also removed. The package set now contains six local
+updates. Camera was also removed. The package set now contains five local
 applications plus the two
 nixpkgs packages listed above.
 
@@ -64,7 +63,7 @@ nixpkgs packages listed above.
 - Each local package's asset-install phase was run against its pinned source;
   desktop entries, matching icons, and metainfo files were installed correctly.
 - Full binary builds were attempted, but stopped during lengthy compilation
-  (Cedilla and Power Monitor reached Rust compilation). Camera was also built
+  (Power Monitor reached Rust compilation). Camera was also built
   directly with a 180-second limit after adding its libcamera/libudev build
   dependencies; it reached Rust compilation before timing out. A separate
   pkg-config check using Camera's exact build inputs passes for libcamera,
