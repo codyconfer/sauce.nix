@@ -41,6 +41,11 @@ in
         "icons/hicolor/scalable/apps/icon.svg";
   };
   clipboard-manager = mkApp "clipboard-manager" {
+    buildInputs = [
+      pkgs.openssl
+      pkgs.fontconfig
+      pkgs.sqlite
+    ];
     env.CLIPBOARD_MANAGER_COMMIT = sources.clipboard-manager.rev;
     postInstall = ''
       install -Dm644 res/desktop_entry.desktop "$out/share/applications/io.github.cosmic_utils.cosmic-ext-applet-clipboard-manager.desktop"
