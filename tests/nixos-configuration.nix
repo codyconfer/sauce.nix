@@ -82,6 +82,9 @@ let
     true;
 in
 assert workstation.nixpkgs.config.allowUnfree;
+assert lib.elem pkgs.fontconfig workstation.programs.nix-ld.libraries;
+assert !(lib.elem pkgs.fontconfig serverRemote.programs.nix-ld.libraries);
+assert !(lib.elem pkgs.fontconfig mobileRemote.programs.nix-ld.libraries);
 assert workstation.systemd.services.sauce-clamav-scan.restartIfChanged == false;
 assert workstation.systemd.services.sauce-clamav-scan.wantedBy == [ ];
 assert workstation.systemd.timers.sauce-clamav-scan.wantedBy == [ "timers.target" ];

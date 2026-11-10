@@ -177,6 +177,7 @@ in
         };
         programs.zsh.enable = true;
         programs.nix-ld.enable = sys.nixLd;
+        programs.nix-ld.libraries = lib.optional workstation pkgs.fontconfig;
         users.users.${sys.user} = {
           isNormalUser = true;
           home = sys.homeDirectory;
