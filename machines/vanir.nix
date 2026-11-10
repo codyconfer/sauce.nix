@@ -78,6 +78,7 @@
     homeStateVersion = "26.05";
     remote.codeServerEnvironmentFile = "/var/lib/sauce/secrets/code-server.env";
     tailscale = true;
+    fingerprint = true;
     nvidia = false;
     clamav.daemon = true;
   };
