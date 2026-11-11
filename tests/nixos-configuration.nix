@@ -101,7 +101,8 @@ assert workstation.services.blueman.enable;
 assert workstation.services.pipewire.enable;
 assert workstation.services.pipewire.alsa.enable;
 assert workstation.services.pipewire.pulse.enable;
-assert workstation.services.pipewire.jack.enable;
+assert !(workstation.services.pipewire.jack.enable);
+assert lib.elem pkgs.pipewire.jack workstation.environment.systemPackages;
 assert workstation.services.pipewire.wireplumber.enable;
 assert workstation.security.rtkit.enable;
 assert lib.all (module: lib.elem module workstation.boot.kernelModules) [
@@ -123,6 +124,8 @@ assert lib.all (name: lib.elem name (map lib.getName workstation.environment.sys
 ];
 assert !(serverRemote.services.pipewire.jack.enable);
 assert !(mobileRemote.services.pipewire.jack.enable);
+assert !(lib.elem pkgs.pipewire.jack serverRemote.environment.systemPackages);
+assert !(lib.elem pkgs.pipewire.jack mobileRemote.environment.systemPackages);
 assert !(serverRemote.hardware.bluetooth.enable);
 assert !(mobileRemote.hardware.bluetooth.enable);
 assert !(serverRemote.services.pipewire.wireplumber.extraConfig ? "51-sauce-audio");

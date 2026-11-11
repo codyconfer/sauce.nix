@@ -474,10 +474,10 @@ in
         ];
         environment.systemPackages = with pkgs; [
           alsa-utils
+          pipewire.jack # Run JACK applications with pw-jack instead of a global LD_LIBRARY_PATH.
           qpwgraph
         ];
         services.pipewire = {
-          jack.enable = true;
           wireplumber = {
             enable = true;
             extraConfig."51-sauce-audio" = {
