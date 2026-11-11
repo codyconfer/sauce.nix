@@ -20,6 +20,25 @@ in
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
   personal.config.xdg.dataFile."flatpak/overrides/org.signal.Signal".text
 );
+assert lib.all (app: lib.elem app personal.config.sauce.guiApps) [
+  "reaper"
+  "gimp"
+];
+assert lib.all (package: lib.elem package personal.config.home.packages) [
+  pkgs.reaper
+  pkgs.gimp
+];
+assert lib.all (package: !(lib.elem package server.config.home.packages)) [
+  pkgs.reaper
+  pkgs.gimp
+];
+assert personal.config.home.activation ? seedPhotoGimp;
+assert !(workstation.config.home.activation ? seedPhotoGimp);
+assert !(server.config.home.activation ? seedPhotoGimp);
+assert lib.elem "affinity" personal.config.sauce.guiApps;
+assert lib.elem pkgs.affinity-v3 personal.config.home.packages;
+assert !(lib.elem pkgs.affinity-v3 workstation.config.home.packages);
+assert !(lib.elem pkgs.affinity-v3 server.config.home.packages);
 assert personal.config.sauce.packageOverrides.bitwarden ? sauceTrayIcon;
 assert lib.elem personal.config.sauce.packageOverrides.bitwarden personal.config.home.packages;
 assert !(lib.elem personal.config.sauce.packageOverrides.bitwarden server.config.home.packages);
@@ -46,6 +65,22 @@ assert lib.elem "gnome" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "alacritty" workstation.config.sauce.guiApps;
 assert lib.elem "podman-desktop" workstation.config.sauce.guiApps;
 assert lib.elem pkgs.podman-desktop workstation.config.home.packages;
+assert lib.all (app: lib.elem app workstation.config.sauce.guiApps) [
+  "sdrpp"
+  "gqrx"
+];
+assert lib.all (package: lib.elem package workstation.config.home.packages) [
+  pkgs.sdrpp
+  pkgs.gqrx
+];
+assert lib.all (package: !(lib.elem package server.config.home.packages)) [
+  pkgs.sdrpp
+  pkgs.gqrx
+];
+assert lib.all (package: !(lib.elem package mobile.config.home.packages)) [
+  pkgs.sdrpp
+  pkgs.gqrx
+];
 assert lib.elem pkgs.nil workstation.config.home.packages;
 assert lib.elem pkgs.nixd workstation.config.home.packages;
 assert
@@ -96,5 +131,26 @@ assert mobile.config.fonts.fontconfig.enable;
 assert mobile.config.sauce.desktopEnvironments == [ ];
 pkgs.runCommand "sauce-configuration-tests" { } ''
   ${pkgs.python3}/bin/python3 ${./cosmic-scan-indicator.py} ${../dotfiles/cosmic/scan-indicator.py}
+  init=${lib.getExe (import ../packages/photogimp.nix { inherit pkgs; })}
+  target="$TMPDIR/GIMP/3.2"
+  mkdir -p "$target"
+  echo original > "$target/gimprc"
+  "$init" "$target"
+  test -f "$target/shortcutsrc"
+  test -w "$target/gimprc"
+  grep -qx original "$target".photogimp-backup.*/gimprc
+  echo customized > "$target/gimprc"
+  "$init" "$target"
+  grep -qx customized "$target/gimprc"
+  "$init" "$TMPDIR/fresh/GIMP/3.2"
+  test -f "$TMPDIR/fresh/GIMP/3.2/.sauce-photogimp-initialized"
+  ln -s "$target" "$TMPDIR/symlink"
+  # A symlink without our marker must be rejected rather than overwritten.
+  mkdir "$TMPDIR/untouched"
+  ln -s "$TMPDIR/untouched" "$TMPDIR/unsafe"
+  if "$init" "$TMPDIR/unsafe"; then
+    echo "PhotoGIMP unexpectedly accepted a symlink" >&2
+    exit 1
+  fi
   touch "$out"
 ''

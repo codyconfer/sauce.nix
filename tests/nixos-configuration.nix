@@ -82,6 +82,51 @@ let
     true;
 in
 assert workstation.nixpkgs.config.allowUnfree;
+assert workstation.hardware.rtl-sdr.enable;
+assert lib.elem "plugdev" workstation.users.users.tester.extraGroups;
+assert lib.elem workstation.hardware.rtl-sdr.package workstation.services.udev.packages;
+assert lib.elem workstation.hardware.rtl-sdr.package workstation.environment.systemPackages;
+assert lib.all (module: lib.elem module workstation.boot.blacklistedKernelModules) [
+  "dvb_usb_rtl28xxu"
+  "e4000"
+  "rtl2832"
+];
+assert !(serverRemote.hardware.rtl-sdr.enable);
+assert !(mobileRemote.hardware.rtl-sdr.enable);
+assert !(lib.elem "plugdev" serverRemote.users.users.tester.extraGroups);
+assert !(lib.elem "plugdev" mobileRemote.users.users.tester.extraGroups);
+assert workstation.hardware.bluetooth.enable;
+assert workstation.hardware.bluetooth.powerOnBoot;
+assert workstation.services.blueman.enable;
+assert workstation.services.pipewire.enable;
+assert workstation.services.pipewire.alsa.enable;
+assert workstation.services.pipewire.pulse.enable;
+assert workstation.services.pipewire.jack.enable;
+assert workstation.services.pipewire.wireplumber.enable;
+assert workstation.security.rtkit.enable;
+assert lib.all (module: lib.elem module workstation.boot.kernelModules) [
+  "snd-seq"
+  "snd-rawmidi"
+];
+assert
+  workstation.services.pipewire.wireplumber.extraConfig."51-sauce-audio"."wireplumber.settings"."bluetooth.autoswitch-to-headset-profile";
+assert
+  workstation.services.pipewire.wireplumber.extraConfig."51-sauce-audio"."monitor.bluez.properties"."bluez5.enable-msbc";
+assert
+  workstation.services.pipewire.wireplumber.extraConfig."51-sauce-audio"."wireplumber.profiles".main."monitor.alsa-midi"
+  == "required";
+assert
+  workstation.services.pipewire.extraConfig.jack."20-sauce-midi"."jack.properties"."jack.show-midi";
+assert lib.all (name: lib.elem name (map lib.getName workstation.environment.systemPackages)) [
+  "alsa-utils"
+  "qpwgraph"
+];
+assert !(serverRemote.services.pipewire.jack.enable);
+assert !(mobileRemote.services.pipewire.jack.enable);
+assert !(serverRemote.hardware.bluetooth.enable);
+assert !(mobileRemote.hardware.bluetooth.enable);
+assert !(serverRemote.services.pipewire.wireplumber.extraConfig ? "51-sauce-audio");
+assert !(mobileRemote.services.pipewire.wireplumber.extraConfig ? "51-sauce-audio");
 assert lib.elem pkgs.fontconfig workstation.programs.nix-ld.libraries;
 assert !(lib.elem pkgs.fontconfig serverRemote.programs.nix-ld.libraries);
 assert !(lib.elem pkgs.fontconfig mobileRemote.programs.nix-ld.libraries);

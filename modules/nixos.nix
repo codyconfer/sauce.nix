@@ -459,6 +459,36 @@ in
       (mkIf sys.rslsync {
         systemd.tmpfiles.rules = [ "d /var/lib/resilio-sync/sync 2770 rslsync rslsync -" ];
       })
+      (mkIf workstation {
+        hardware.rtl-sdr.enable = lib.mkDefault true;
+        users.users.${sys.user}.extraGroups = lib.optional config.hardware.rtl-sdr.enable "plugdev";
+        hardware.bluetooth = {
+          enable = lib.mkDefault true;
+          powerOnBoot = lib.mkDefault true;
+        };
+        services.blueman.enable = lib.mkDefault true;
+        # USB MIDI devices use the kernel's snd-usb-audio driver automatically.
+        boot.kernelModules = [
+          "snd-seq"
+          "snd-rawmidi"
+        ];
+        environment.systemPackages = with pkgs; [
+          alsa-utils
+          qpwgraph
+        ];
+        services.pipewire = {
+          jack.enable = true;
+          wireplumber = {
+            enable = true;
+            extraConfig."51-sauce-audio" = {
+              "monitor.bluez.properties"."bluez5.enable-msbc" = true;
+              "wireplumber.settings"."bluetooth.autoswitch-to-headset-profile" = lib.mkDefault true;
+              "wireplumber.profiles".main."monitor.alsa-midi" = "required";
+            };
+          };
+          extraConfig.jack."20-sauce-midi"."jack.properties"."jack.show-midi" = true;
+        };
+      })
       (mkIf desktop {
         services.libinput.enable = true;
         environment.systemPackages = [ pkgs.xinput ];

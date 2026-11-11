@@ -51,6 +51,11 @@ in
       default = false;
       description = "Use Secret Service for the Signal Flatpak's local database key.";
     };
+    photoGimp = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Seed GIMP with PhotoGIMP's Photoshop-style layout and shortcuts once.";
+    };
     media = selection "media" [ ];
     netTools = mkOption {
       type = types.bool;
@@ -104,7 +109,6 @@ in
           "npm:pi-mcp-adapter"
           "npm:billion-context"
           "npm:pi-web-access"
-          "npm:pi-subagents"
           "npm:@langfuse/pi-observability-plugin"
           "npm:@juicesharp/rpiv-ask-user-question"
           "npm:pi-powerline-footer"

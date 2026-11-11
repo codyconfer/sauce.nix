@@ -33,6 +33,8 @@
     alacritty = [ "alacritty" ];
     foot = [ "foot" ];
     gnuradio = [ "gnuradio" ];
+    sdrpp = [ "sdrpp" ];
+    gqrx = [ "gqrx" ];
     qdmr = [ "qdmr" ];
     sourcegit = [ "sourcegit" ];
     vscode = [ "vscode" ];
@@ -45,6 +47,9 @@
     jetbrains-toolbox = [ "jetbrains-toolbox" ];
     lmstudio = [ "lmstudio" ];
     obsidian = [ "obsidian" ];
+    affinity = [ "affinity-v3" ];
+    reaper = [ "reaper" ];
+    gimp = [ "gimp" ];
     bitwarden = [ "bitwarden-desktop" ];
     "1password" = [ "_1password-gui" ];
   };

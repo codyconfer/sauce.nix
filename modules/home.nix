@@ -63,6 +63,7 @@ in
     ./editor.nix
     ./flatpak.nix
     ./pi.nix
+    ./photogimp.nix
     ./cosmic-scan-indicator.nix
   ];
 

@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
+    affinity-nix = {
+      url = "github:mrshmllow/affinity-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,12 +36,21 @@
             config.allowUnfree = true;
           }).azure-cli;
       };
+      affinityOverlay =
+        final: prev:
+        nixpkgs.lib.optionalAttrs (prev.stdenv.hostPlatform.system == "x86_64-linux") (
+          inputs.affinity-nix.overlays.default final prev
+        );
+      overlays = [
+        azureOverlay
+        affinityOverlay
+      ];
       mkPkgs =
         system:
         import nixpkgs {
           inherit system;
           config.allowUnfree = true;
-          overlays = [ azureOverlay ];
+          inherit overlays;
         };
       systems = [
         "x86_64-linux"
@@ -62,7 +75,7 @@
           home-manager.nixosModules.home-manager
           lanzaboote.nixosModules.lanzaboote
         ];
-        nixpkgs.overlays = [ azureOverlay ];
+        nixpkgs.overlays = overlays;
       };
       nixosModules.vanir = {
         imports = [
@@ -84,7 +97,7 @@
       };
       homeManagerModules.default = {
         imports = [ ./modules/home.nix ];
-        nixpkgs.overlays = [ azureOverlay ];
+        nixpkgs.overlays = overlays;
       };
       nixosModules.profiles = builtins.listToAttrs (
         map

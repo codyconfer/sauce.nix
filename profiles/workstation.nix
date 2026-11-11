@@ -17,6 +17,8 @@
       "jetbrains-toolbox"
       "lmstudio"
       "gnuradio"
+      "sdrpp"
+      "gqrx"
       "qdmr"
     ];
     flatpaks = lib.mkDefault [

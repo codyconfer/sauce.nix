@@ -191,6 +191,72 @@ If `~/.local/share/flatpak/overrides/org.signal.Signal` already exists, merge an
 needed overrides into the profile and move the file aside before Home Manager
 activation. This protects the database key, not all local files or an unlocked session.
 
+### Affinity on Linux
+
+The `personal` profile installs unified Affinity v3 on x86_64 Linux through
+[mrshmllow/affinity-nix](https://github.com/mrshmllow/affinity-nix), pinned in
+`flake.lock`. Other architectures skip it. Select `"affinity"` in `sauce.guiApps`
+to enable it elsewhere using this flake's NixOS or Home Manager module.
+Run `affinity-v3` or use its desktop launcher. This is unofficial Wine support;
+expect compatibility bugs and complete any required sign-in interactively.
+User data lives in `$XDG_DATA_HOME/affinity-v3/` (normally
+`~/.local/share/affinity-v3/`). Wine and its dependencies may require a large
+first build; see upstream's binary-cache instructions if needed.
+
+### Workstation audio, Bluetooth microphones, and MIDI
+
+NixOS workstations enable Bluetooth with Blueman for pairing, PipeWire's
+ALSA/PulseAudio/JACK interfaces, and RTKit. WirePlumber switches compatible
+Bluetooth headsets to HFP/HSP microphone mode when an app starts recording;
+mSBC wideband speech is enabled when supported. Pair/trust the headset using
+your desktop Bluetooth settings or `blueman-manager`, then select its microphone
+in the recording app. Headset mode can reduce playback quality. For low-latency
+recording, prefer a wired/USB audio interface over Bluetooth.
+
+In native Linux REAPER select **JACK** (through PipeWire) or **ALSA**, not ASIO.
+Windows ASIO drivers and WineASIO are not installed. Tune the buffer in the DAW
+for your interface; no globally forced low-latency buffer is imposed.
+ALSA sequencer/raw MIDI modules are loaded, and WirePlumber bridges ALSA MIDI
+ports into PipeWire, including JACK clients. USB class-compliant audio/MIDI
+devices use Linux's built-in drivers; vendor-only Windows drivers are not
+supported. Enable MIDI inputs in REAPER's preferences. `qpwgraph` provides
+routing, and `aconnect -l` / `aseqdump -l` (from `alsa-utils`) list MIDI ports.
+Rebuild NixOS and reboot to load the modules and restart the audio session.
+Standalone Home Manager cannot configure system drivers or Bluetooth; configure
+these on the host OS. Mobile and server roles do not receive these additions.
+
+### Workstation RTL-SDR
+
+The workstation profile installs SDR++ (`sdrpp`) and Gqrx (`gqrx`) alongside
+GNU Radio. NixOS workstations also enable `hardware.rtl-sdr`: this installs the
+RTL-SDR library/tools and USB udev rules, and blacklists conflicting DVB TV
+kernel modules. The managed user joins `plugdev` for unprivileged device access.
+Rebuild NixOS, reboot, and reconnect the dongle, then run `rtl_test` (Ctrl+C to
+stop) before choosing an RTL-SDR source in SDR++ or Gqrx. Do not run receivers as
+root; only one program can access the dongle at a time.
+
+Standalone Home Manager installs the GUIs only; configure RTL-SDR permissions
+and the conflicting DVB driver on the host OS. This setup dedicates compatible
+dongles to SDR rather than DVB TV reception. To opt out on a NixOS workstation,
+set `hardware.rtl-sdr.enable = false;`. Mobile/server roles do not enable the
+device support by default.
+
+### Personal audio and image editing
+
+The `personal` profile also installs REAPER (`reaper`) and GIMP (`gimp`). REAPER
+is proprietary; manage your evaluation or license inside the app.
+GIMP receives the pinned [PhotoGIMP](https://github.com/Diolinux/PhotoGIMP)
+Photoshop-style layout, shortcuts, splash screen, and UI adjustments.
+Close GIMP before the first activation. Existing settings are backed up beside
+`~/.config/GIMP/<major.minor>` in a `*.photogimp-backup.*` directory before the
+patch is copied. Settings remain writable, and a
+`.sauce-photogimp-initialized` marker prevents later activations from overwriting
+customizations. Custom XDG config locations are respected. The patch is only
+applied when the personal profile selects GIMP on a non-server role.
+To restore old settings, close GIMP, move the patched version directory aside,
+and restore its backup; remove `"gimp"` from the selection first to prevent
+reapplying the patch on activation.
+
 ### Bitwarden system authentication
 
 The default Bitwarden package uses a grayscale Linux tray icon in all desktops,
