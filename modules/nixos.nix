@@ -101,6 +101,11 @@ in
       default = if cfg.machineRole == "workstation" then "bgrt" else "none";
       description = "none, grafana, bgrt, spinner, or a separately installed theme.";
     };
+    plymouthScale = mkOption {
+      type = types.ints.positive;
+      default = 2;
+      description = "Plymouth device scale.";
+    };
     nixLd = mkOption {
       type = types.bool;
       default = true;
@@ -266,6 +271,7 @@ in
           enable = sys.plymouthTheme != "none";
           theme = lib.mkIf (sys.plymouthTheme != "none") sys.plymouthTheme;
           themePackages = lib.optional (sys.plymouthTheme == "grafana") themes;
+          extraConfig = "DeviceScale=${toString sys.plymouthScale}";
         };
         home-manager = {
           useGlobalPkgs = true;

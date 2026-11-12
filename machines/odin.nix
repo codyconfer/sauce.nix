@@ -67,6 +67,7 @@
     remote.codeServerEnvironmentFile = "/var/lib/sauce/secrets/code-server.env";
     tailscale = true;
     nvidia = true;
+    plymouthScale = 1;
     clamav.daemon = true;
   };
 

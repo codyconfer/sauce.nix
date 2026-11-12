@@ -65,9 +65,6 @@
   time.timeZone = "America/Denver";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # Ly delegates authentication to the login PAM stack.
-  security.pam.services.login.rules.auth.fprintd.settings.timeout = 7;
-
   boot.kernelModules = [ "kvm-intel" ];
   hardware.bluetooth.enable = true;
   services.xserver.videoDrivers = [ "modesetting" ];
