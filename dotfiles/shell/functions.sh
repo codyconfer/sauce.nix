@@ -48,7 +48,7 @@ get_ips() {
   for ip in "${allips[@]}"; do
     if [[ $ip != 127* ]] && [[ $ip != 172* ]]; then
       if [[ $ip == 10.* ]]; then
-        ips="${ips}LAN:        ${cyan}${ip}${blue}"${linebreak}
+        ips="${ips}local IP:   ${cyan}${ip}${blue}"${linebreak}
       fi
     fi
   done
