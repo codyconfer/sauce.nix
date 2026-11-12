@@ -466,7 +466,6 @@ in
           enable = lib.mkDefault true;
           powerOnBoot = lib.mkDefault true;
         };
-        services.blueman.enable = lib.mkDefault true;
         # USB MIDI devices use the kernel's snd-usb-audio driver automatically.
         boot.kernelModules = [
           "snd-seq"

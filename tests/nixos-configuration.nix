@@ -97,7 +97,7 @@ assert !(lib.elem "plugdev" serverRemote.users.users.tester.extraGroups);
 assert !(lib.elem "plugdev" mobileRemote.users.users.tester.extraGroups);
 assert workstation.hardware.bluetooth.enable;
 assert workstation.hardware.bluetooth.powerOnBoot;
-assert workstation.services.blueman.enable;
+assert !(workstation.services.blueman.enable);
 assert workstation.services.pipewire.enable;
 assert workstation.services.pipewire.alsa.enable;
 assert workstation.services.pipewire.pulse.enable;
