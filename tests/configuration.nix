@@ -22,18 +22,26 @@ assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
 );
 assert lib.all (app: lib.elem app personal.config.sauce.guiApps) [
   "libreoffice"
+  "typora"
   "ardour"
   "lmms"
   "zrythm"
   "qtractor"
   "helio"
   "reaper"
+  "nam"
+  "guitarix"
+  "byod"
   "gimp"
   "kdenlive"
   "shotcut"
   "davinci-resolve"
 ];
 assert lib.all (package: lib.elem package personal.config.home.packages) [
+  pkgs.typora
+  pkgs.neural-amp-modeler-lv2
+  pkgs.guitarix
+  personal.config.sauce.packageOverrides.byod
   pkgs.zrythm
   pkgs.qtractor
   pkgs.helio-workstation
@@ -47,6 +55,10 @@ assert lib.all (package: lib.elem package personal.config.home.packages) [
   pkgs.davinci-resolve
 ];
 assert lib.all (package: !(lib.elem package server.config.home.packages)) [
+  pkgs.typora
+  pkgs.neural-amp-modeler-lv2
+  pkgs.guitarix
+  personal.config.sauce.packageOverrides.byod
   pkgs.zrythm
   pkgs.qtractor
   pkgs.helio-workstation
@@ -146,6 +158,14 @@ assert lib.hasInfix "sauce-power" swayText;
 assert !(lib.hasInfix "$bin/zofi" swayText);
 assert !(lib.hasInfix "$bin/lumactl" swayText);
 assert lib.hasInfix "sauce-flatpaks" flatpakText;
+assert lib.hasInfix "com.github.wwmm.easyeffects --gapplication-service" (
+  lib.concatStringsSep " " workstation.config.systemd.user.services.sauce-easyeffects.Service.ExecStart
+);
+assert workstation.config.systemd.user.services.sauce-easyeffects.Install.WantedBy == [
+  "graphical-session.target"
+];
+assert !(builtins.hasAttr "sauce-easyeffects" server.config.systemd.user.services);
+assert !(builtins.hasAttr "sauce-easyeffects" mobile.config.systemd.user.services);
 assert server.config.sauce.machineRole == "server";
 assert builtins.elem "sway" server.config.sauce.guiApps;
 assert server.config.sauce.flatpaks == [ "signal" ];

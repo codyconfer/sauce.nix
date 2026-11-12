@@ -74,6 +74,7 @@ in
           import ../packages/bitwarden.nix { inherit pkgs; }
         );
         sauce.packageOverrides.loglit = lib.mkDefault (pkgs.callPackage ../packages/loglit.nix { });
+        sauce.packageOverrides.byod = lib.mkDefault (pkgs.callPackage ../packages/byod.nix { });
         assertions = [
           {
             assertion = pkgs.stdenv.hostPlatform.isLinux;

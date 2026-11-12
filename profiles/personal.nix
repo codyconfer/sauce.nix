@@ -12,9 +12,12 @@
     guiApps = lib.mkDefault (
       [
         "obsidian"
+        "typora"
         "libreoffice"
         "bitwarden"
         "reaper"
+        "nam"
+        "guitarix"
         "ardour"
         "lmms"
         "zrythm"
@@ -25,6 +28,7 @@
         "shotcut"
       ]
       ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
+        "byod"
         "affinity"
         "davinci-resolve"
       ]

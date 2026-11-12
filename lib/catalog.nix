@@ -47,9 +47,13 @@
     jetbrains-toolbox = [ "jetbrains-toolbox" ];
     lmstudio = [ "lmstudio" ];
     obsidian = [ "obsidian" ];
+    typora = [ "typora" ];
     libreoffice = [ "libreoffice" ];
     affinity = [ "affinity-v3" ];
     reaper = [ "reaper" ];
+    nam = [ "neural-amp-modeler-lv2" ];
+    guitarix = [ "guitarix" ];
+    byod = null; # Provided by a local package override.
     ardour = [ "ardour" ];
     lmms = [ "lmms" ];
     zrythm = [ "zrythm" ];

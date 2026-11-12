@@ -15,6 +15,9 @@ let
     text = ''
       flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
       flatpak install --user --noninteractive --or-update flathub ${lib.escapeShellArgs ids}
+      ${lib.optionalString (builtins.elem "easyeffects" cfg.flatpaks) ''
+        flatpak permission-set background background ${catalog.flatpaks.easyeffects} yes
+      ''}
     '';
   };
 in
@@ -37,6 +40,24 @@ in
       "/var/lib/flatpak/exports/bin"
     ];
     systemd.user.startServices = lib.mkDefault "sd-switch";
+    systemd.user.services.sauce-easyeffects = lib.mkIf (builtins.elem "easyeffects" cfg.flatpaks) {
+      Unit = {
+        Description = "EasyEffects background audio processing";
+        PartOf = [ "graphical-session.target" ];
+        Wants = [ "sauce-flatpaks.service" ];
+        After = [
+          "graphical-session.target"
+          "sauce-flatpaks.service"
+        ];
+      };
+      Service = {
+        # Compatible with both GTK and Qt EasyEffects releases; starts hidden.
+        ExecStart = "${pkgs.flatpak}/bin/flatpak run ${catalog.flatpaks.easyeffects} --gapplication-service";
+        Restart = "on-failure";
+        RestartSec = 10;
+      };
+      Install.WantedBy = [ "graphical-session.target" ];
+    };
     systemd.user.services.sauce-flatpaks = {
       Unit = {
         Description = "Install selected .sauce Flathub applications";
