@@ -6,6 +6,7 @@
     desktopEnvironments = lib.mkDefault [ "sway" ];
     guiApps = lib.mkDefault [
       "firefox"
+      "remmina"
       "sway"
       "alacritty"
       "sourcegit"

@@ -29,6 +29,7 @@
   };
   guiApps = {
     firefox = [ "firefox" ];
+    remmina = [ "remmina" ];
     sway = [ "sway" ];
     alacritty = [ "alacritty" ];
     foot = [ "foot" ];
