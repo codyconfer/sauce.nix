@@ -21,14 +21,32 @@ assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
   personal.config.xdg.dataFile."flatpak/overrides/org.signal.Signal".text
 );
 assert lib.all (app: lib.elem app personal.config.sauce.guiApps) [
+  "libreoffice"
+  "ardour"
+  "lmms"
+  "zrythm"
+  "qtractor"
+  "helio"
   "reaper"
   "gimp"
 ];
 assert lib.all (package: lib.elem package personal.config.home.packages) [
+  pkgs.zrythm
+  pkgs.qtractor
+  pkgs.helio-workstation
+  pkgs.lmms
+  pkgs.ardour
+  pkgs.libreoffice
   pkgs.reaper
   pkgs.gimp
 ];
 assert lib.all (package: !(lib.elem package server.config.home.packages)) [
+  pkgs.zrythm
+  pkgs.qtractor
+  pkgs.helio-workstation
+  pkgs.lmms
+  pkgs.ardour
+  pkgs.libreoffice
   pkgs.reaper
   pkgs.gimp
 ];

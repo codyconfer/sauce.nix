@@ -47,8 +47,14 @@
     jetbrains-toolbox = [ "jetbrains-toolbox" ];
     lmstudio = [ "lmstudio" ];
     obsidian = [ "obsidian" ];
+    libreoffice = [ "libreoffice" ];
     affinity = [ "affinity-v3" ];
     reaper = [ "reaper" ];
+    ardour = [ "ardour" ];
+    lmms = [ "lmms" ];
+    zrythm = [ "zrythm" ];
+    qtractor = [ "qtractor" ];
+    helio = [ "helio-workstation" ];
     gimp = [ "gimp" ];
     bitwarden = [ "bitwarden-desktop" ];
     "1password" = [ "_1password-gui" ];
