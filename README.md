@@ -241,10 +241,13 @@ dongles to SDR rather than DVB TV reception. To opt out on a NixOS workstation,
 set `hardware.rtl-sdr.enable = false;`. Mobile/server roles do not enable the
 device support by default.
 
-### Personal audio and image editing
+### Personal audio, video, and image editing
 
 The `personal` profile also installs REAPER (`reaper`) and GIMP (`gimp`). REAPER
 is proprietary; manage your evaluation or license inside the app.
+It also installs Kdenlive (`kdenlive`) and Shotcut (`shotcut`), plus the free
+(non-Studio) edition of DaVinci Resolve (`davinci-resolve`) on x86_64 Linux.
+DaVinci Resolve requires compatible GPU drivers and OpenCL support.
 GIMP receives the pinned [PhotoGIMP](https://github.com/Diolinux/PhotoGIMP)
 Photoshop-style layout, shortcuts, splash screen, and UI adjustments.
 Close GIMP before the first activation. Existing settings are backed up beside

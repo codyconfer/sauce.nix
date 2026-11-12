@@ -21,8 +21,13 @@
         "qtractor"
         "helio"
         "gimp"
+        "kdenlive"
+        "shotcut"
       ]
-      ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [ "affinity" ]
+      ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
+        "affinity"
+        "davinci-resolve"
+      ]
     );
     photoGimp = lib.mkDefault true;
     signalKeyring = lib.mkDefault true;

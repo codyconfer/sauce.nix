@@ -56,6 +56,12 @@
     qtractor = [ "qtractor" ];
     helio = [ "helio-workstation" ];
     gimp = [ "gimp" ];
+    kdenlive = [
+      "kdePackages"
+      "kdenlive"
+    ];
+    shotcut = [ "shotcut" ];
+    davinci-resolve = [ "davinci-resolve" ];
     bitwarden = [ "bitwarden-desktop" ];
     "1password" = [ "_1password-gui" ];
   };

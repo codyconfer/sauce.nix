@@ -29,6 +29,9 @@ assert lib.all (app: lib.elem app personal.config.sauce.guiApps) [
   "helio"
   "reaper"
   "gimp"
+  "kdenlive"
+  "shotcut"
+  "davinci-resolve"
 ];
 assert lib.all (package: lib.elem package personal.config.home.packages) [
   pkgs.zrythm
@@ -39,6 +42,9 @@ assert lib.all (package: lib.elem package personal.config.home.packages) [
   pkgs.libreoffice
   pkgs.reaper
   pkgs.gimp
+  pkgs.kdePackages.kdenlive
+  pkgs.shotcut
+  pkgs.davinci-resolve
 ];
 assert lib.all (package: !(lib.elem package server.config.home.packages)) [
   pkgs.zrythm
@@ -49,6 +55,9 @@ assert lib.all (package: !(lib.elem package server.config.home.packages)) [
   pkgs.libreoffice
   pkgs.reaper
   pkgs.gimp
+  pkgs.kdePackages.kdenlive
+  pkgs.shotcut
+  pkgs.davinci-resolve
 ];
 assert personal.config.home.activation ? seedPhotoGimp;
 assert !(workstation.config.home.activation ? seedPhotoGimp);
