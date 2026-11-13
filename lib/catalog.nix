@@ -1,6 +1,5 @@
 {
   tools = {
-    "1password-cli" = [ "_1password-cli" ];
     aws = [ "awscli2" ];
     azure-cli = [ "azure-cli" ];
     bitwarden-cli = [ "bitwarden-cli" ];
@@ -68,7 +67,6 @@
     shotcut = [ "shotcut" ];
     davinci-resolve = [ "davinci-resolve" ];
     bitwarden = [ "bitwarden-desktop" ];
-    "1password" = [ "_1password-gui" ];
   };
   media = {
     vlc = [ "vlc" ];

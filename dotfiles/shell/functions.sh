@@ -5,7 +5,6 @@ source "$HOME/.config/sauce/styles.sh"
 _sauce_tool_registered() {
   case "$1" in
   bitwarden-cli) command -v bw >/dev/null 2>&1 ;;
-  1password-cli) command -v op >/dev/null 2>&1 ;;
   *) return 1 ;;
   esac
 }
@@ -26,15 +25,7 @@ get_secret() {
     fi
   fi
 
-  if _sauce_tool_registered 1password-cli && command -v op >/dev/null 2>&1; then
-    value=$(op item get "$item" --fields "$field" --reveal 2>/dev/null) || value=""
-    if [ -n "$value" ]; then
-      printf '%s\n' "$value"
-      return 0
-    fi
-  fi
-
-  echo "get_secret: secret '$item' (field '$field') not found in Bitwarden or 1Password" >&2
+  echo "get_secret: secret '$item' (field '$field') not found in Bitwarden" >&2
   return 1
 }
 

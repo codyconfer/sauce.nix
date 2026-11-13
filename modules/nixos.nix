@@ -261,11 +261,6 @@ in
         programs.virt-manager.enable = emulator "qemu";
         programs.steam.enable = emulator "steam";
         services.flatpak.enable = desktop && cfg.flatpaks != [ ];
-        programs._1password.enable = builtins.elem "1password-cli" cfg.tools;
-        programs._1password-gui = {
-          enable = selected "1password";
-          polkitPolicyOwners = [ sys.user ];
-        };
         boot.plymouth = {
           enable = sys.plymouthTheme != "none";
           theme = lib.mkIf (sys.plymouthTheme != "none") sys.plymouthTheme;

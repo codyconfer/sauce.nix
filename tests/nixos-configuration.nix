@@ -306,14 +306,12 @@ assert !tyr.services.openssh.enable;
 assert !tyr.services.caddy.enable;
 assert !tyr.services.code-server.enable;
 assert lib.all (name: lib.elem name tyr.sauce.tools) [
-  "1password-cli"
   "aws"
   "azure-cli"
   "gcloud"
   "claude-code"
 ];
 assert lib.all (name: lib.elem name tyr.sauce.guiApps) [
-  "1password"
   "codex"
 ];
 assert lib.all (name: lib.elem name tyr.sauce.flatpaks) [
