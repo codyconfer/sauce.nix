@@ -14,7 +14,6 @@ let
   kde = desktop && builtins.elem "kde" cfg.desktopEnvironments;
   cosmic = desktop && builtins.elem "cosmic" cfg.desktopEnvironments;
   gnome = desktop && builtins.elem "gnome" cfg.desktopEnvironments;
-  lxqt = desktop && builtins.elem "lxqt" cfg.desktopEnvironments;
   selected = name: desktop && builtins.elem name cfg.guiApps;
   emulator = name: desktop && builtins.elem name cfg.emulators;
   # Keep upstream launchers available to UWSM, but show each compositor once in Ly.
@@ -61,8 +60,8 @@ in
     };
     tailscale = mkOption {
       type = types.bool;
-      default = cfg.machineRole == "mobile" || cfg.remoteAccess;
-      description = "Tailscale; enabled by default for mobile and remote-access profiles.";
+      default = cfg.ssh.enable || cfg.devbox.enable;
+      description = "Tailscale; enabled by default for SSH and devbox profiles.";
     };
     rslsync = mkOption {
       type = types.bool;
@@ -129,21 +128,23 @@ in
         description = "systemd OnCalendar expression.";
       };
     };
-    remote = {
-      lmstudio.enable = mkOption {
-        type = types.bool;
-        default = selected "lmstudio";
-        description = "Proxy loopback LM Studio on port 1234 through the Tailscale IPv4 address when remote access is enabled. Start LM Studio's local server separately; restrict access with tailnet ACLs.";
-      };
-      sshAuthorizedKeysFile = mkOption {
+    ssh = {
+      authorizedKeysFile = mkOption {
         type = types.str;
         default = "/etc/ssh/sauce-authorized-keys/%u";
-        description = "Runtime authorized_keys file; %u expands to the login name. Provision before enabling remote access.";
+        description = "Runtime authorized_keys file; %u expands to the login name. Provision before enabling SSH access.";
       };
+    };
+    devbox = {
       codeServerEnvironmentFile = mkOption {
         type = types.str;
         default = "/run/secrets/sauce-code-server.env";
         description = "Root-readable runtime EnvironmentFile containing HASHED_PASSWORD (preferred) or PASSWORD. Never use a Nix path literal for secrets.";
+      };
+      lmstudio.enable = mkOption {
+        type = types.bool;
+        default = builtins.elem "lmstudio" cfg.guiApps;
+        description = "Proxy loopback LM Studio on port 1234 through the Tailscale IPv4 address. Start LM Studio's local server separately; restrict access with tailnet ACLs.";
       };
     };
     k3s.enable = mkOption {
@@ -205,8 +206,6 @@ in
         services.desktopManager.plasma6.enable = kde;
         services.desktopManager.cosmic.enable = cosmic;
         services.desktopManager.gnome.enable = gnome;
-        services.xserver.enable = lxqt || (cfg.remoteAccess && kde);
-        services.xserver.desktopManager.lxqt.enable = lxqt;
         services.displayManager.ly = {
           enable = desktop && sys.displayManager;
           settings.waylandsessions = toString lyWaylandSessions;
@@ -316,18 +315,13 @@ in
           };
         };
       })
-      (mkIf (cfg.machineRole == "mobile") {
-        networking.firewall.enable = true;
-      })
-      (mkIf cfg.remoteAccess {
-        assertions = [
-          {
-            assertion =
-              lib.hasPrefix "/" sys.remote.codeServerEnvironmentFile
-              && !(lib.hasPrefix "/nix/store/" sys.remote.codeServerEnvironmentFile);
-            message = "sauce.system.remote.codeServerEnvironmentFile must be an absolute runtime path outside /nix/store.";
-          }
-        ];
+      (mkIf (cfg.ssh.enable || cfg.devbox.enable) {
+        assertions = lib.optional cfg.devbox.enable {
+          assertion =
+            lib.hasPrefix "/" sys.devbox.codeServerEnvironmentFile
+            && !(lib.hasPrefix "/nix/store/" sys.devbox.codeServerEnvironmentFile);
+          message = "sauce.system.devbox.codeServerEnvironmentFile must be an absolute runtime path outside /nix/store.";
+        };
         networking.nftables.enable = true;
         networking.firewall = {
           enable = true;
@@ -343,33 +337,27 @@ in
             target = "DROP";
             interfaces = [ "tailscale0" ];
             ports =
-              map
-                (port: {
-                  inherit port;
-                  protocol = "tcp";
-                })
-                [
-                  22
-                  80
-                  3389
-                ]
-              ++ lib.optional sys.remote.lmstudio.enable {
+              map (port: {
+                inherit port;
+                protocol = "tcp";
+              }) ((lib.optional cfg.ssh.enable 22) ++ (lib.optional cfg.devbox.enable 80))
+              ++ lib.optional (cfg.devbox.enable && sys.devbox.lmstudio.enable) {
                 port = 1234;
                 protocol = "tcp";
               };
           };
         };
         services.openssh = {
-          enable = true;
+          enable = cfg.ssh.enable;
           openFirewall = false;
-          authorizedKeysFiles = [ sys.remote.sshAuthorizedKeysFile ];
+          authorizedKeysFiles = [ sys.ssh.authorizedKeysFile ];
           settings = {
             PasswordAuthentication = false;
             KbdInteractiveAuthentication = false;
             PermitRootLogin = "no";
           };
         };
-        services.caddy = {
+        services.caddy = lib.mkIf cfg.devbox.enable {
           enable = true;
           openFirewall = false;
           environmentFile = "/run/sauce-caddy/tailscale.env";
@@ -381,7 +369,7 @@ in
               '';
             };
           }
-          // lib.optionalAttrs sys.remote.lmstudio.enable {
+          // lib.optionalAttrs sys.devbox.lmstudio.enable {
             "http://:1234" = {
               listenAddresses = [ "{$TAILSCALE_IP}" ];
               extraConfig = ''
@@ -392,9 +380,9 @@ in
             };
           };
         };
-        systemd.services.sauce-caddy-tailscale-address = {
+        systemd.services.sauce-caddy-tailscale-address = lib.mkIf cfg.devbox.enable {
           description = "Resolve the Tailscale address for Caddy";
-          wantedBy = [ "multi-user.target" ];
+          wantedBy = lib.optionals cfg.devbox.enable [ "multi-user.target" ];
           before = [ "caddy.service" ];
           onSuccess = [ "caddy.service" ];
           after = [ "tailscaled.service" ];
@@ -426,11 +414,11 @@ in
             exit 1
           '';
         };
-        systemd.services.caddy = {
+        systemd.services.caddy = lib.mkIf cfg.devbox.enable {
           requires = [ "sauce-caddy-tailscale-address.service" ];
           after = [ "sauce-caddy-tailscale-address.service" ];
         };
-        services.code-server = {
+        services.code-server = lib.mkIf cfg.devbox.enable {
           enable = true;
           user = sys.user;
           group = "users";
@@ -438,19 +426,14 @@ in
           port = 8080;
           auth = "password";
         };
-        systemd.services.code-server = {
-          serviceConfig.EnvironmentFile = sys.remote.codeServerEnvironmentFile;
+        systemd.services.code-server = lib.mkIf cfg.devbox.enable {
+          serviceConfig.EnvironmentFile = sys.devbox.codeServerEnvironmentFile;
           preStart = ''
             if [ -z "''${HASHED_PASSWORD:-}" ] && [ -z "''${PASSWORD:-}" ]; then
               echo "Provision HASHED_PASSWORD or PASSWORD in the configured runtime EnvironmentFile" >&2
               exit 1
             fi
           '';
-        };
-        services.xrdp = {
-          enable = true;
-          openFirewall = false;
-          defaultWindowManager = if kde then "startplasma-x11" else "${pkgs.xterm}/bin/xterm";
         };
       })
       (mkIf sway {

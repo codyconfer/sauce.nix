@@ -99,23 +99,60 @@
         imports = [ ./modules/home.nix ];
         nixpkgs.overlays = overlays;
       };
-      nixosModules.profiles = builtins.listToAttrs (
-        map
-          (file: {
-            name = nixpkgs.lib.removeSuffix ".nix" file;
-            value = ./profiles + "/${file}";
-          })
-          (
-            builtins.filter (name: nixpkgs.lib.hasSuffix ".nix" name) (
-              builtins.attrNames (builtins.readDir ./profiles)
+      nixosModules.profiles =
+        builtins.listToAttrs (
+          map
+            (file: {
+              name = nixpkgs.lib.removeSuffix ".nix" file;
+              value = ./profiles + "/${file}";
+            })
+            (
+              builtins.filter (name: nixpkgs.lib.hasSuffix ".nix" name) (
+                builtins.attrNames (builtins.readDir ./profiles)
+              )
             )
-          )
-      );
+        )
+        // {
+          headless = ./profiles/headless;
+          devbox = ./profiles/headless/devbox.nix;
+          hypervisor = ./profiles/headless/hypervisor.nix;
+          ssh = ./profiles/headless/ssh.nix;
+          work = ./profiles/work.nix;
+          gaming = ./profiles/workflows/gaming.nix;
+          workflows = {
+            default = ./profiles/workflows/default.nix;
+            dev = ./profiles/workflows/dev.nix;
+            radio = ./profiles/workflows/radio.nix;
+            video = ./profiles/workflows/video.nix;
+            music = ./profiles/workflows/music.nix;
+            photo = ./profiles/workflows/photo.nix;
+            gaming = ./profiles/workflows/gaming.nix;
+            remote-vnc = ./profiles/workflows/remote-vnc.nix;
+            client-vnc = ./profiles/workflows/client-vnc.nix;
+          };
+          desktops = {
+            cosmic = ./profiles/desktops/cosmic.nix;
+            gnome = ./profiles/desktops/gnome.nix;
+            kde = ./profiles/desktops/kde.nix;
+            sway = ./profiles/desktops/sway.nix;
+          };
+          cosmic = ./profiles/desktops/cosmic.nix;
+          gnome = ./profiles/desktops/gnome.nix;
+          kde = ./profiles/desktops/kde.nix;
+          sway = ./profiles/desktops/sway.nix;
+        };
       formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt);
       checks = eachSystem (
         system:
         let
           pkgs = mkPkgs system;
+          workstationDefaults = {
+            sauce = {
+              enable = true;
+              machineRole = "workstation";
+              desktopEnvironments = nixpkgs.lib.mkDefault [ "sway" ];
+            };
+          };
           home =
             profile:
             home-manager.lib.homeManagerConfiguration {
@@ -132,7 +169,6 @@
             };
         in
         {
-          server = (home ./profiles/server.nix).activationPackage;
         }
         // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           nixos-configuration = import ./tests/nixos-configuration.nix {
@@ -145,50 +181,66 @@
           workstation =
             (home {
               imports = [
-                ./profiles/workstation.nix
-                ./profiles/sway.nix
-                ./profiles/kde.nix
-                ./profiles/cosmic.nix
-                ./profiles/lxqt.nix
-                ./profiles/gnome.nix
+                workstationDefaults
+                ./profiles/workflows/default.nix
+                ./profiles/workflows/dev.nix
+                ./profiles/workflows/radio.nix
+                ./profiles/workflows/video.nix
+                ./profiles/workflows/music.nix
+                ./profiles/workflows/photo.nix
+                ./profiles/desktops/sway.nix
+                ./profiles/desktops/kde.nix
+                ./profiles/desktops/cosmic.nix
+                ./profiles/desktops/gnome.nix
               ];
             }).activationPackage;
-          lxqt =
-            (home {
-              imports = [
-                ./profiles/workstation.nix
-                ./profiles/lxqt.nix
-              ];
-            }).activationPackage;
+          remote-vnc = (home ./profiles/workflows/remote-vnc.nix).activationPackage;
+          client-vnc = (home ./profiles/workflows/client-vnc.nix).activationPackage;
           gnome =
             (home {
               imports = [
-                ./profiles/workstation.nix
-                ./profiles/gnome.nix
+                workstationDefaults
+                ./profiles/workflows/default.nix
+                ./profiles/workflows/dev.nix
+                ./profiles/workflows/radio.nix
+                ./profiles/workflows/video.nix
+                ./profiles/workflows/music.nix
+                ./profiles/workflows/photo.nix
+                ./profiles/desktops/gnome.nix
               ];
             }).activationPackage;
-          mobile = (home ./profiles/mobile.nix).activationPackage;
           configuration = import ./tests/configuration.nix {
             inherit pkgs;
             personal = home {
               imports = [
-                ./profiles/workstation.nix
+                workstationDefaults
+                ./profiles/workflows/default.nix
+                ./profiles/workflows/dev.nix
+                ./profiles/workflows/radio.nix
+                ./profiles/workflows/video.nix
+                ./profiles/workflows/music.nix
+                ./profiles/workflows/photo.nix
                 ./profiles/personal.nix
-                ./profiles/cosmic.nix
+                ./profiles/desktops/cosmic.nix
               ];
             };
             workstation = home {
               imports = [
-                ./profiles/workstation.nix
-                ./profiles/sway.nix
-                ./profiles/kde.nix
-                ./profiles/cosmic.nix
-                ./profiles/lxqt.nix
-                ./profiles/gnome.nix
+                workstationDefaults
+                ./profiles/workflows/default.nix
+                ./profiles/workflows/dev.nix
+                ./profiles/workflows/radio.nix
+                ./profiles/workflows/video.nix
+                ./profiles/workflows/music.nix
+                ./profiles/workflows/photo.nix
+                ./profiles/desktops/sway.nix
+                ./profiles/desktops/kde.nix
+                ./profiles/desktops/cosmic.nix
+                ./profiles/desktops/gnome.nix
               ];
             };
             server = home {
-              imports = [ ./profiles/server.nix ];
+              imports = [ ./profiles/headless ];
               sauce = {
                 desktopEnvironments = [ "sway" ];
                 guiApps = [ "sway" ];
@@ -199,7 +251,6 @@
                 ];
               };
             };
-            mobile = home ./profiles/mobile.nix;
           };
         }
       );

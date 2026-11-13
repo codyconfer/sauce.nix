@@ -3,13 +3,11 @@
   workstation,
   personal,
   server,
-  mobile,
 }:
 let
   inherit (pkgs) lib;
   swayText = workstation.config.xdg.configFile."sway/config".text;
   waybarSwayText = workstation.config.xdg.configFile."waybar/config-sway.jsonc".text;
-  footText = builtins.readFile (workstation.config.xdg.configFile.foot.source + "/foot.ini");
   flatpakText = lib.concatStringsSep " " workstation.config.systemd.user.services.sauce-flatpaks.Service.ExecStart;
   serverFiles = builtins.attrNames server.config.xdg.configFile;
   cosmicPackages = builtins.attrValues (import ../packages/cosmic { inherit pkgs; }) ++ [
@@ -20,63 +18,21 @@ in
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
   personal.config.xdg.dataFile."flatpak/overrides/org.signal.Signal".text
 );
-assert lib.all (app: lib.elem app personal.config.sauce.guiApps) [
-  "libreoffice"
-  "typora"
-  "ardour"
-  "lmms"
-  "zrythm"
-  "qtractor"
-  "helio"
-  "reaper"
-  "nam"
-  "guitarix"
-  "byod"
-  "gimp"
-  "kdenlive"
-  "shotcut"
-  "davinci-resolve"
-];
-assert lib.all (package: lib.elem package personal.config.home.packages) [
-  pkgs.typora
-  pkgs.neural-amp-modeler-lv2
-  pkgs.guitarix
-  personal.config.sauce.packageOverrides.byod
-  pkgs.zrythm
-  pkgs.qtractor
-  pkgs.helio-workstation
-  pkgs.lmms
-  pkgs.ardour
-  pkgs.libreoffice
-  pkgs.reaper
-  pkgs.gimp
-  pkgs.kdePackages.kdenlive
-  pkgs.shotcut
-  pkgs.davinci-resolve
-];
+assert lib.elem "gimp" workstation.config.sauce.guiApps;
+assert lib.elem pkgs.gimp workstation.config.home.packages;
 assert lib.all (package: !(lib.elem package server.config.home.packages)) [
-  pkgs.typora
-  pkgs.neural-amp-modeler-lv2
-  pkgs.guitarix
-  personal.config.sauce.packageOverrides.byod
-  pkgs.zrythm
-  pkgs.qtractor
-  pkgs.helio-workstation
-  pkgs.lmms
-  pkgs.ardour
-  pkgs.libreoffice
-  pkgs.reaper
   pkgs.gimp
+  personal.config.sauce.packageOverrides.byod
   pkgs.kdePackages.kdenlive
   pkgs.shotcut
   pkgs.davinci-resolve
 ];
+assert workstation.config.home.activation ? seedPhotoGimp;
 assert personal.config.home.activation ? seedPhotoGimp;
-assert !(workstation.config.home.activation ? seedPhotoGimp);
 assert !(server.config.home.activation ? seedPhotoGimp);
-assert lib.elem "affinity" personal.config.sauce.guiApps;
+assert lib.elem "affinity" workstation.config.sauce.guiApps;
+assert lib.elem pkgs.affinity-v3 workstation.config.home.packages;
 assert lib.elem pkgs.affinity-v3 personal.config.home.packages;
-assert !(lib.elem pkgs.affinity-v3 workstation.config.home.packages);
 assert !(lib.elem pkgs.affinity-v3 server.config.home.packages);
 assert personal.config.sauce.packageOverrides.bitwarden ? sauceTrayIcon;
 assert lib.elem personal.config.sauce.packageOverrides.bitwarden personal.config.home.packages;
@@ -91,32 +47,89 @@ assert
   workstation.config.systemd.user.services.sauce-cosmic-scan-indicator.Install.WantedBy
   == [ "graphical-session.target" ];
 assert !(builtins.hasAttr "sauce-cosmic-scan-indicator" server.config.systemd.user.services);
-assert !(builtins.hasAttr "sauce-cosmic-scan-indicator" mobile.config.systemd.user.services);
 assert builtins.length cosmicPackages == 7;
 assert lib.all (package: lib.elem package workstation.config.home.packages) cosmicPackages;
 assert lib.all (package: !(lib.elem package server.config.home.packages)) cosmicPackages;
-assert lib.all (package: !(lib.elem package mobile.config.home.packages)) cosmicPackages;
 assert !(builtins.hasAttr "cosmic" workstation.config.xdg.configFile);
 assert !(builtins.hasAttr "cosmic" server.config.xdg.configFile);
-assert !(builtins.hasAttr "cosmic" mobile.config.xdg.configFile);
-assert lib.elem "lxqt" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "gnome" workstation.config.sauce.desktopEnvironments;
-assert lib.elem "alacritty" workstation.config.sauce.guiApps;
-assert lib.elem "podman-desktop" workstation.config.sauce.guiApps;
+assert lib.all (app: lib.elem app workstation.config.sauce.guiApps) [
+  "firefox"
+  "sway"
+  "alacritty"
+  "reaper"
+  "nam"
+  "guitarix"
+  "ardour"
+  "lmms"
+  "zrythm"
+  "qtractor"
+  "helio"
+  "byod"
+  "gimp"
+  "affinity"
+  "kdenlive"
+  "shotcut"
+  "davinci-resolve"
+  "obsidian"
+  "typora"
+  "libreoffice"
+];
+assert lib.all (package: lib.elem package workstation.config.home.packages) [
+  pkgs.obsidian
+  pkgs.typora
+  pkgs.libreoffice
+  pkgs.neural-amp-modeler-lv2
+  pkgs.guitarix
+  pkgs.zrythm
+  pkgs.qtractor
+  pkgs.helio-workstation
+  pkgs.lmms
+  pkgs.ardour
+  pkgs.reaper
+  personal.config.sauce.packageOverrides.byod
+  pkgs.kdePackages.kdenlive
+  pkgs.shotcut
+  pkgs.davinci-resolve
+  pkgs.gimp
+  pkgs.affinity-v3
+];
+assert lib.all (app: lib.elem app workstation.config.sauce.flatpaks) [
+  "slack"
+  "easyeffects"
+  "zen"
+];
+assert lib.all (app: lib.elem app workstation.config.sauce.media) [
+  "vlc"
+  "audacious"
+  "quodlibet"
+  "ffmpeg"
+];
+assert lib.all (app: lib.elem app workstation.config.sauce.guiApps) [
+  "sourcegit"
+  "vscode"
+  "zed"
+  "docker"
+  "podman-desktop"
+  "ghidra"
+  "jetbrains-toolbox"
+  "lmstudio"
+];
 assert lib.elem pkgs.podman-desktop workstation.config.home.packages;
 assert lib.all (app: lib.elem app workstation.config.sauce.guiApps) [
+  "gnuradio"
   "sdrpp"
   "gqrx"
+  "qdmr"
 ];
+assert lib.elem "chirp" workstation.config.sauce.flatpaks;
+assert lib.elem "obs-studio" workstation.config.sauce.flatpaks;
+assert lib.elem "sonic-pi" workstation.config.sauce.flatpaks;
 assert lib.all (package: lib.elem package workstation.config.home.packages) [
   pkgs.sdrpp
   pkgs.gqrx
 ];
 assert lib.all (package: !(lib.elem package server.config.home.packages)) [
-  pkgs.sdrpp
-  pkgs.gqrx
-];
-assert lib.all (package: !(lib.elem package mobile.config.home.packages)) [
   pkgs.sdrpp
   pkgs.gqrx
 ];
@@ -149,9 +162,8 @@ assert
 assert !(builtins.hasAttr "zed/settings.json" server.config.xdg.configFile);
 assert !(lib.elem pkgs.nil server.config.home.packages);
 assert lib.hasInfix "swayr switch-window" swayText;
-assert lib.hasInfix "set $term foot" swayText;
+assert lib.hasInfix "set $term alacritty" swayText;
 assert lib.hasInfix "sway/workspaces" waybarSwayText;
-assert lib.hasInfix "term=foot" footText;
 assert !(lib.hasInfix "40.6" (swayText + waybarSwayText));
 assert lib.hasInfix "grimshot copy area" swayText;
 assert lib.hasInfix "sauce-power" swayText;
@@ -161,11 +173,11 @@ assert lib.hasInfix "sauce-flatpaks" flatpakText;
 assert lib.hasInfix "com.github.wwmm.easyeffects --gapplication-service" (
   lib.concatStringsSep " " workstation.config.systemd.user.services.sauce-easyeffects.Service.ExecStart
 );
-assert workstation.config.systemd.user.services.sauce-easyeffects.Install.WantedBy == [
-  "graphical-session.target"
-];
+assert
+  workstation.config.systemd.user.services.sauce-easyeffects.Install.WantedBy == [
+    "graphical-session.target"
+  ];
 assert !(builtins.hasAttr "sauce-easyeffects" server.config.systemd.user.services);
-assert !(builtins.hasAttr "sauce-easyeffects" mobile.config.systemd.user.services);
 assert server.config.sauce.machineRole == "server";
 assert builtins.elem "sway" server.config.sauce.guiApps;
 assert server.config.sauce.flatpaks == [ "signal" ];
@@ -173,9 +185,6 @@ assert !(builtins.elem "sway/config" serverFiles);
 assert !(builtins.hasAttr "sauce-flatpaks" server.config.systemd.user.services);
 assert !(builtins.elem pkgs.vlc server.config.home.packages);
 assert builtins.elem pkgs.ffmpeg server.config.home.packages;
-assert mobile.config.sauce.machineRole == "mobile";
-assert mobile.config.fonts.fontconfig.enable;
-assert mobile.config.sauce.desktopEnvironments == [ ];
 pkgs.runCommand "sauce-configuration-tests" { } ''
   ${pkgs.python3}/bin/python3 ${./cosmic-scan-indicator.py} ${../dotfiles/cosmic/scan-indicator.py}
   init=${lib.getExe (import ../packages/photogimp.nix { inherit pkgs; })}

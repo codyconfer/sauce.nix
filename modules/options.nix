@@ -17,17 +17,25 @@ in
       type = types.nullOr (
         types.enum [
           "workstation"
-          "mobile"
           "server"
         ]
       );
       default = null;
       description = "Machine role selected by a machine profile.";
     };
-    remoteAccess = mkOption {
-      type = types.bool;
-      default = false;
-      description = "Enable remote-access defaults such as Tailscale.";
+    ssh = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable SSH access over Tailscale.";
+      };
+    };
+    devbox = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable code-server and Caddy services exposed through Tailscale.";
+      };
     };
     desktopEnvironments = mkOption {
       type = types.listOf (
@@ -35,7 +43,6 @@ in
           "kde"
           "sway"
           "cosmic"
-          "lxqt"
           "gnome"
         ]
       );

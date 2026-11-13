@@ -6,18 +6,24 @@
 }:
 {
   imports = [
-    ../profiles/devbox.nix
+    ../profiles/desktops/sway.nix
+    ../profiles/desktops/cosmic.nix
+    ../profiles/headless/devbox.nix
+    ../profiles/headless/ssh.nix
+    ../profiles/workflows/default.nix
+    ../profiles/workflows/dev.nix
+    ../profiles/workflows/radio.nix
+    ../profiles/workflows/video.nix
+    ../profiles/workflows/music.nix
+    ../profiles/workflows/photo.nix
+    ../profiles/workflows/gaming.nix
     ../profiles/personal.nix
-    ../profiles/cosmic.nix
-    ../profiles/remote.nix
-    ../profiles/workstation.nix
-    ../profiles/gaming.nix
   ];
 
   # Disk layout, bootloader, and installation state belong in /etc/nixos.
   networking.hostName = lib.mkForce "odin";
+  sauce.enable = true;
   sauce.machineRole = "workstation";
-  sauce.sway.terminal = "alacritty";
   networking.firewall.enable = true;
   # Vanir's Wi-Fi interface is machine-specific; expose the UI only on Tailscale.
   services.firewalld.zones.tailscale.ports = [
@@ -64,7 +70,7 @@
   sauce.system = {
     user = "codyconfer";
     homeStateVersion = "26.05";
-    remote.codeServerEnvironmentFile = "/var/lib/sauce/secrets/code-server.env";
+    devbox.codeServerEnvironmentFile = "/var/lib/sauce/secrets/code-server.env";
     tailscale = true;
     nvidia = true;
     plymouthScale = 1;

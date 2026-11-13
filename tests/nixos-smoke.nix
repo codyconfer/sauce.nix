@@ -1,18 +1,19 @@
 { pkgs, sauceModule }:
 pkgs.testers.runNixOSTest {
-  name = "sauce-remote-and-backup";
+  name = "sauce-ssh-devbox-and-backup";
   node.pkgsReadOnly = false;
   nodes.machine = { lib, ... }: {
     imports = [
       sauceModule
-      ../profiles/server.nix
-      ../profiles/remote.nix
+      ../profiles/headless
+      ../profiles/headless/devbox.nix
+      ../profiles/headless/ssh.nix
     ];
     system.stateVersion = "25.11";
     sauce.system = {
       user = "tester";
       tailscale = false;
-      remote.lmstudio.enable = true;
+      devbox.lmstudio.enable = true;
       fwupd = false;
       clamav.enable = false;
       backup = {
@@ -54,7 +55,6 @@ pkgs.testers.runNixOSTest {
     machine.wait_for_unit("multi-user.target")
     machine.wait_for_unit("firewalld.service")
     machine.wait_for_unit("sshd.service")
-    machine.wait_for_unit("xrdp.service")
 
     with subtest("Runtime credentials are mandatory"):
         machine.fail("systemctl start code-server.service")
@@ -66,7 +66,7 @@ pkgs.testers.runNixOSTest {
         machine.succeed("systemctl reset-failed code-server.service; systemctl start code-server.service")
         machine.wait_for_open_port(8080)
 
-    with subtest("Only the simulated tailnet can reach remote services"):
+    with subtest("Only the simulated tailnet can reach SSH and devbox services"):
         for namespace, interface, host, peer in [
             ("tailnet", "tailscale0", "100.64.0.1", "100.64.0.2"),
             ("untrusted", "lan0", "192.0.2.1", "192.0.2.2"),
@@ -78,7 +78,7 @@ pkgs.testers.runNixOSTest {
         machine.succeed("firewall-cmd --reload; systemctl start caddy.service")
         machine.wait_for_open_port(80, addr="100.64.0.1")
         machine.wait_for_open_port(1234, addr="100.64.0.1")
-        for port in [22, 80, 1234, 3389]:
+        for port in [22, 80, 1234]:
             machine.succeed(f"ip netns exec tailnet nc -z -w 3 100.64.0.1 {port}")
             machine.fail(f"ip netns exec untrusted nc -z -w 3 192.0.2.1 {port}")
         machine.fail("ip netns exec tailnet nc -z -w 3 100.64.0.1 8080")

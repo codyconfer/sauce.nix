@@ -40,7 +40,7 @@ create a machine-local `/etc/nixos/flake.nix` (replace the repository path and u
       modules = [
         ./configuration.nix
         sauce.nixosModules.default
-        sauce.nixosModules.profiles.server
+        sauce.nixosModules.profiles.headless
         {
           sauce.system.user = "your-user";
           sauce.system.homeStateVersion = "25.11";
@@ -63,11 +63,12 @@ sudo nixos-rebuild build --flake .#local
 sudo nixos-rebuild switch --flake .#local
 ```
 
-Start with `server` for headless use. For a desktop, replace it with
-`workstation` and optionally add `sauce.nixosModules.profiles.gnome` (or another
-desktop). Add capability profiles such as `devbox` independently. Provision
-credentials below before enabling `remote`; it changes firewall and login
-services. Hardware-specific options and Secure Boot remain machine-local.
+Start with `headless` for a machine without a desktop. For a desktop, replace it
+with `workstation` and optionally add `sauce.nixosModules.profiles.gnome` (or
+another desktop). Add capability profiles such as `devbox` independently. Provision
+credentials below before enabling `headless/devbox` (development services)
+and/or `headless/ssh` (SSH access); these configure the tailnet firewall.
+Hardware-specific options and Secure Boot remain machine-local.
 Update the local lockfile explicitly with `nix flake update` to pick up changes.
 
 ### Vanir selections
@@ -84,8 +85,9 @@ Keep `./configuration.nix` in the module list. Keep its hardware import, storage
 bootloader, account authentication, and `system.stateVersion` local. Remove
 conflicting preference settings from that local file (for example its old
 `networking.hostName = "nixos"`); Vanir selects hostname `vanir` and Denver time.
-The module includes remote access: provision the credentials below before
-switching. It does not enable SSH password authentication.
+The machine imports headless SSH and devbox capabilities: provision SSH keys
+and code-server credentials as described below before switching. SSH password
+authentication is disabled.
 
 ### Odin selections
 
@@ -97,7 +99,6 @@ Both machines enable Intel modesetting, the Intel VA-API media driver, and the
 oneVPL runtime, and inherit non-free package support from the shared module.
 Odin retains Vanir's Intel KVM module; change that locally for an AMD CPU.
 GPU-specific driver overrides and any PRIME bus IDs remain machine-local.
-Odin is a workstation and does not import the mobile profile.
 
 Odin also matches Vanir's `/srv/sync` and `/srv/sync/downloads` directories and
 its authenticated Resilio web UI on port 9000. Unlike Vanir, Odin does not bind a
@@ -107,23 +108,23 @@ provision root-owned mode-0600 `/var/lib/sauce/secrets/resilio-webui.env` contai
 `RESILIO_WEBUI_LOGIN` and `RESILIO_WEBUI_PASSWORD_HASH` (a Resilio-compatible hash).
 The service refuses to start if the file or either value is missing. Keep these
 credentials outside Nix. Odin's code-server environment file also now uses the
-persistent `/var/lib/sauce/secrets/code-server.env`, matching Vanir; provision it
+persistent `/var/lib/sauce/secrets/code-server.env`, matching Vanir and Tyr; provision it
 with the format and permissions described below rather than `/run/secrets`.
 
-The included remote profile enables SSH, XRDP, and Caddy proxying code-server,
-with inbound access restricted to Tailscale. Provision Tailscale, SSH keys,
-code-server credentials, and a local account password as described below before
-switching. XRDP opens a separate Xterm session, not the local Sway/COSMIC desktop.
-Keep storage, bootloader, authentication, and installed state versions local,
-as with Vanir.
+The included `headless/ssh` profile enables SSH; the `headless/devbox` profile
+independently enables code-server and its Caddy proxy. Both are restricted to
+Tailscale. Provision Tailscale, SSH keys, and code-server credentials as
+described below before switching. Keep storage,
+bootloader, authentication, and installed state versions local, as with Vanir.
 
 ### Tyr selections
 
 Use `sauce.nixosModules.tyr` for Tyr. `machines/tyr.nix` uses Vanir's selections
 as its baseline: Sway/COSMIC, Alacritty, the `codyconfer` user, Denver timezone,
 Intel KVM and graphics, plus the proprietary NVIDIA driver (including Sway's
-`--unsupported-gpu` opt-in). It selects hostname `tyr` and adds the `work` profile.
-The `remote` profile is not enabled; Tailscale remains enabled.
+`--unsupported-gpu` opt-in). It selects hostname `tyr` and adds the
+`profiles/work.nix` profile, exported as `sauce.nixosModules.profiles.work`.
+The `headless/ssh` profile is not enabled; Tailscale remains enabled.
 Adjust hardware selections locally if Tyr differs from this baseline.
 
 As with Vanir, keep storage, bootloader, account authentication, and installed
@@ -156,11 +157,10 @@ local Rust packages in `packages/cosmic/` with pinned source and dependency
 hashes in `packages/cosmic/sources.json`. Cupola and Compass were removed
 because their upstream tests blocked system updates.
 
-Machine roles (`workstation`, `mobile`, `server`) are independent of desktop
-sessions. The workstation profile defaults to Sway under UWSM. KDE, GNOME,
-COSMIC, and LXQt use their native Ly sessions when selected alongside Sway.
-Combine session profiles as needed. Sway uses Foot, Fuzzel, Waybar styling, the Mod-key/workspace/launch/lock
-workflows, and power controls. Location-based
+Machine roles (`workstation`, `server`) are independent of desktop sessions.
+Built-in workstation machine configurations default to Sway under UWSM. KDE,
+GNOME and COSMIC use their native Ly sessions when selected alongside Sway. Combine session profiles as needed. Sway uses its configured terminal, Fuzzel, Waybar styling, the
+Mod-key/workspace/launch/lock workflows, and power controls. Location-based
 weather and night-light features are disabled unless both coordinates are set in
 your local host configuration.
 
@@ -174,11 +174,27 @@ locally. `sauce` only builds and switches. These defaults do not use the legacy
 
 Selection lists (`tools`, `guiApps`, `media`, `flatpaks`, `emulators`) use keys
 from `lib/catalog.nix`; `extraPackages` and `packageOverrides` extend/replace
-packages. The server role suppresses GUI/emulator/Flatpak selections even if set.
-The workstation defaults include development tools, desktop applications, and
-media. NixOS workstations also default to the NixOS Plymouth theme; other roles
-default to no theme. Add capability profiles only when needed. Tailscale defaults
-on for mobile and `remote` profiles; Resilio Sync defaults on for workstations.
+packages. The `sauce.nixosModules.profiles.workflows.default` profile supplies
+Firefox, Sway, Alacritty, Obsidian, Typora, LibreOffice, Slack, Easy Effects,
+Zen, and common media players/FFmpeg.
+The `sauce.nixosModules.profiles.workflows.dev` profile supplies SourceGit,
+VS Code, Zed, Docker, Podman Desktop, Ghidra, JetBrains Toolbox, and LM Studio.
+The `sauce.nixosModules.profiles.workflows.radio` profile supplies GNU Radio,
+SDR++, Gqrx, qdmr, and Chirp. The `sauce.nixosModules.profiles.workflows.video`
+profile supplies OBS Studio, Kdenlive, and Shotcut, plus DaVinci Resolve on
+x86_64 Linux. The `sauce.nixosModules.profiles.workflows.music` profile supplies
+Sonic Pi, REAPER, Neural Amp Modeler (`nam`), Guitarix, Ardour, LMMS, Zrythm,
+Qtractor, Helio, and (on x86_64 Linux) BYOD. The
+`sauce.nixosModules.profiles.workflows.photo` profile supplies GIMP with
+PhotoGIMP and Affinity on x86_64 Linux. The `workflows.remote-vnc` profile adds
+WayVNC for VNC serving from wlroots-based Wayland compositors such as Sway; it
+does not enable or configure a service. The `workflows.client-vnc` profile adds
+Remmina as a Wayland-capable VNC client. Built-in workstation machines import
+their standard workflows. The server
+role suppresses GUI/emulator/Flatpak selections even if set. NixOS workstations
+also default to the NixOS Plymouth theme; other roles default to no theme. Add
+capability profiles only when needed. Tailscale defaults
+on for `headless/ssh` and `headless/devbox` profiles; Resilio Sync defaults on for workstations.
 
 The `personal` profile opts Signal's Flatpak into keyring-backed local database
 key storage (`SIGNAL_PASSWORD_STORE=gnome-libsecret`) using a per-app user override.
@@ -193,7 +209,7 @@ activation. This protects the database key, not all local files or an unlocked s
 
 ### Affinity on Linux
 
-The `personal` profile installs unified Affinity v3 on x86_64 Linux through
+The `photo` workflow installs unified Affinity v3 on x86_64 Linux through
 [mrshmllow/affinity-nix](https://github.com/mrshmllow/affinity-nix), pinned in
 `flake.lock`. Other architectures skip it. Select `"affinity"` in `sauce.guiApps`
 to enable it elsewhere using this flake's NixOS or Home Manager module.
@@ -223,12 +239,13 @@ supported. Enable MIDI inputs in REAPER's preferences. `qpwgraph` provides
 routing, and `aconnect -l` / `aseqdump -l` (from `alsa-utils`) list MIDI ports.
 Rebuild NixOS and reboot to load the modules and restart the audio session.
 Standalone Home Manager cannot configure system drivers or Bluetooth; configure
-these on the host OS. Mobile and server roles do not receive these additions.
+these on the host OS. Server roles do not receive these additions.
 
-### Workstation RTL-SDR
+### Radio workflow and RTL-SDR
 
-The workstation profile installs SDR++ (`sdrpp`) and Gqrx (`gqrx`) alongside
-GNU Radio. NixOS workstations also enable `hardware.rtl-sdr`: this installs the
+The radio workflow installs GNU Radio (`gnuradio`), SDR++ (`sdrpp`), Gqrx (`gqrx`),
+and qdmr (`qdmr`); Chirp is provided as a Flatpak. NixOS workstations also enable
+`hardware.rtl-sdr`: this installs the
 RTL-SDR library/tools and USB udev rules, and blacklists conflicting DVB TV
 kernel modules. The managed user joins `plugdev` for unprivileged device access.
 Rebuild NixOS, reboot, and reconnect the dongle, then run `rtl_test` (Ctrl+C to
@@ -238,16 +255,13 @@ root; only one program can access the dongle at a time.
 Standalone Home Manager installs the GUIs only; configure RTL-SDR permissions
 and the conflicting DVB driver on the host OS. This setup dedicates compatible
 dongles to SDR rather than DVB TV reception. To opt out on a NixOS workstation,
-set `hardware.rtl-sdr.enable = false;`. Mobile/server roles do not enable the
-device support by default.
+set `hardware.rtl-sdr.enable = false;`. Server roles do not enable the device
+support by default.
 
-### Personal audio, video, and image editing
+### Personal video and image editing
 
-The `personal` profile also installs REAPER (`reaper`) and GIMP (`gimp`). REAPER
-is proprietary; manage your evaluation or license inside the app.
-It also installs Kdenlive (`kdenlive`) and Shotcut (`shotcut`), plus the free
-(non-Studio) edition of DaVinci Resolve (`davinci-resolve`) on x86_64 Linux.
-DaVinci Resolve requires compatible GPU drivers and OpenCL support.
+The `personal` profile installs GIMP (`gimp`). DaVinci Resolve requires
+compatible GPU drivers and OpenCL support.
 GIMP receives the pinned [PhotoGIMP](https://github.com/Diolinux/PhotoGIMP)
 Photoshop-style layout, shortcuts, splash screen, and UI adjustments.
 Close GIMP before the first activation. Existing settings are backed up beside
@@ -255,7 +269,7 @@ Close GIMP before the first activation. Existing settings are backed up beside
 patch is copied. Settings remain writable, and a
 `.sauce-photogimp-initialized` marker prevents later activations from overwriting
 customizations. Custom XDG config locations are respected. The patch is only
-applied when the personal profile selects GIMP on a non-server role.
+applied when the photo workflow selects GIMP on a non-server role.
 To restore old settings, close GIMP, move the patched version directory aside,
 and restore its backup; remove `"gimp"` from the selection first to prevent
 reapplying the patch on activation.
@@ -272,7 +286,7 @@ Bitwarden build instead of using the upstream binary cache.
 On NixOS, selecting `"bitwarden"` in `sauce.guiApps` (as the `personal` profile
 does) also installs the desktop package system-wide so its bundled polkit policy
 is registered, and enables polkit. The configured Sway session starts a polkit
-agent; KDE, GNOME, COSMIC, and LXQt provide their own. Custom sessions need a
+agent; KDE, GNOME, and COSMIC provide their own. Custom sessions need a
 running authentication agent. No passwordless polkit authorization is added.
 Standalone Home Manager users must arrange the system policy and agent themselves.
 
@@ -293,31 +307,30 @@ fingerprint authentication on supported hardware, set `sauce.system.fingerprint 
 in the machine-local NixOS configuration and enroll with `fprintd-enroll`.
 Otherwise polkit uses the system's configured authentication method.
 
-The `remote` profile enables SSH, Firewalld, Caddy, browser-based code-server,
-and XRDP. Firewalld drops inbound traffic by default and permits SSH, HTTP, and
-RDP only on `tailscale0`; configure Tailscale ACLs too. Caddy binds to the
-resolved Tailscale IPv4 address and proxies to code-server on loopback. Code-server
-also requires a password supplied through a runtime environment file. SSH accepts
+The `headless/ssh` profile enables SSH access only. The `headless/devbox` profile
+independently enables Firewalld and Caddy-proxied browser-based code-server;
+Firewalld drops inbound traffic by default and permits only the selected services
+on `tailscale0`. Configure Tailscale ACLs too. Caddy binds to the resolved
+Tailscale IPv4 address and proxies to code-server on loopback. Code-server
+requires a password supplied through a runtime environment file. SSH accepts
 keys only, with root login and keyboard-interactive authentication disabled.
-The firewall explicitly uses the Firewalld backend, including mobile + remote
-combinations. XRDP uses Plasma X11
-when KDE is selected; JetBrains Gateway starts its backend over SSH. VS Code
-Tunnel is omitted because its Microsoft relay is not tailnet-only.
+JetBrains Gateway starts its backend over SSH. VS Code Tunnel is omitted because
+its Microsoft relay is not tailnet-only.
 
-Remote-access machines with `"lmstudio"` in `sauce.guiApps` also expose
+Devbox machines with `"lmstudio"` in `sauce.guiApps` also expose
 `http://<tailscale-ip>:1234` through Caddy, forwarding all API paths (including
 `/v1` and `/api/v1`) to `127.0.0.1:1234` with streaming enabled. Start LM Studio's
 local server on port 1234 and leave **Serve on Local Network** disabled so it
 binds only to loopback. Caddy does not start LM Studio or add API authentication;
 restrict port 1234 with Tailscale ACLs and enable LM Studio API authentication if
-needed. Set `sauce.system.remote.lmstudio.enable = false;` to disable the proxy,
-or `true` to opt in on another remote-access machine. Pi continues using the
+needed. Set `sauce.system.devbox.lmstudio.enable = false;` to disable the proxy,
+or `true` to opt in on another devbox machine. Pi continues using the
 local loopback URL by default; remote clients use `http://<tailscale-ip>:1234/v1`
 for the OpenAI-compatible API. Rebuild the NixOS configuration to apply.
 
-### Provision remote access before switching
+### Provision SSH and devbox access before switching
 
-Enroll Tailscale and restrict SSH, HTTP, and RDP with tailnet ACLs. Provision your
+Enroll Tailscale and restrict SSH and HTTP with tailnet ACLs. Provision your
 SSH **public** key through the console or an existing administrative session:
 
 ```sh
@@ -326,7 +339,7 @@ sudo install -m 0644 /path/to/your-key.pub /etc/ssh/sauce-authorized-keys/codyco
 ```
 
 The directory and public key must be readable by the login user, but writable only
-by root. `sauce.system.remote.sshAuthorizedKeysFile` changes this runtime location
+by root. `sauce.system.ssh.authorizedKeysFile` changes this runtime location
 (`%u` expands to the login name). Existing `~/.ssh/authorized_keys` and declarative
 NixOS public keys remain supported. Keep console access until SSH is tested.
 
@@ -334,14 +347,13 @@ Provision `/run/secrets/sauce-code-server.env` with mode `0600`, owned by root,
 using your secret manager. Set `HASHED_PASSWORD` to a code-server-compatible
 Argon2 hash (preferred), or `PASSWORD` to a strong password, using systemd
 EnvironmentFile syntax. Set only one. The file is mandatory and an empty file
-fails closed. `sauce.system.remote.codeServerEnvironmentFile` changes its path.
+fails closed. `sauce.system.devbox.codeServerEnvironmentFile` changes its path.
 Never use a Nix path literal or `builtins.readFile` for credentials. `/run` is
 volatile: arrange provisioning on every boot before the service starts.
 
 Restart `code-server.service` after provisioning. Test that unauthenticated
-browser access reaches the login page and that SSH and RDP are unreachable from
-outside the tailnet. XRDP still requires a usable local account password; SSH
-password login remains disabled. The HTTP connection relies on WireGuard's
+browser access reaches the login page and that SSH is unreachable from outside
+the tailnet. SSH password login remains disabled. The HTTP connection relies on WireGuard's
 encryption, so do not expose the proxy outside the tailnet.
 
 ## Maintenance and recovery

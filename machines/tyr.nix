@@ -1,19 +1,22 @@
 { lib, pkgs, ... }:
 {
   imports = [
-    ../profiles/devbox.nix
-    ../profiles/personal.nix
-    ../profiles/cosmic.nix
+    ../profiles/desktops/sway.nix
+    ../profiles/desktops/cosmic.nix
+    ../profiles/workflows/default.nix
+    ../profiles/workflows/dev.nix
+    ../profiles/workflows/radio.nix
+    ../profiles/workflows/video.nix
+    ../profiles/workflows/music.nix
+    ../profiles/workflows/photo.nix
+    ../profiles/workflows/gaming.nix
     ../profiles/work.nix
-    ../profiles/workstation.nix
-    ../profiles/gaming.nix
-    ../profiles/mobile.nix
   ];
 
   # Disk layout, bootloader, and installation state belong in /etc/nixos.
   networking.hostName = lib.mkForce "tyr";
+  sauce.enable = true;
   sauce.machineRole = "workstation";
-  sauce.sway.terminal = "alacritty";
   networking.firewall.enable = true;
   time.timeZone = "America/Denver";
   i18n.defaultLocale = "en_US.UTF-8";

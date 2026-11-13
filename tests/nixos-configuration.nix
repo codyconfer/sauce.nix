@@ -26,21 +26,22 @@ let
     ../machines/tyr.nix
     { sauce.system.user = lib.mkForce "tester"; }
   ];
-  serverRemote = evaluate [
-    ../profiles/server.nix
-    ../profiles/remote.nix
-  ];
-  mobileRemote = evaluate [
-    ../profiles/mobile.nix
-    ../profiles/remote.nix
+  serverSsh = evaluate [
+    ../profiles/headless
+    ../profiles/headless/ssh.nix
   ];
   plasma = evaluate [
-    ../profiles/workstation.nix
-    ../profiles/kde.nix
-    { sauce.desktopEnvironments = lib.mkForce [ "kde" ]; }
+    ../profiles/desktops/kde.nix
+    {
+      sauce = {
+        enable = true;
+        machineRole = "workstation";
+        desktopEnvironments = lib.mkForce [ "kde" ];
+      };
+    }
   ];
   backup = evaluate [
-    ../profiles/server.nix
+    ../profiles/headless
     {
       sauce.system.backup = {
         enable = true;
@@ -49,21 +50,22 @@ let
     }
   ];
   withoutMaintenance = evaluate [
-    ../profiles/server.nix
+    ../profiles/headless
     { sauce.system.maintenance.enable = false; }
   ];
   invalidCredentials = evaluate [
-    ../profiles/server.nix
-    ../profiles/remote.nix
-    { sauce.system.remote.codeServerEnvironmentFile = "/nix/store/unsafe-env"; }
+    ../profiles/headless
+    ../profiles/headless/ssh.nix
+    ../profiles/headless/devbox.nix
+    { sauce.system.devbox.codeServerEnvironmentFile = "/nix/store/unsafe-env"; }
   ];
   invalidBackup = evaluate [
-    ../profiles/server.nix
+    ../profiles/headless
     {
       sauce.system.backup.enable = true;
     }
   ];
-  assertRemote =
+  assertSsh =
     c:
     assert c.networking.firewall.enable;
     assert c.networking.firewall.backend == "firewalld";
@@ -73,12 +75,18 @@ let
     assert c.services.openssh.settings.KbdInteractiveAuthentication == false;
     assert c.services.openssh.settings.PermitRootLogin == "no";
     assert c.services.openssh.openFirewall == false;
-    assert lib.elem "/etc/ssh/sauce-authorized-keys/%u" c.services.openssh.authorizedKeysFiles;
+    assert c.sauce.system.ssh.authorizedKeysFile == "/etc/ssh/sauce-authorized-keys/%u";
+    assert lib.elem c.sauce.system.ssh.authorizedKeysFile c.services.openssh.authorizedKeysFiles;
+    true;
+  assertDevbox =
+    c:
+    assert c.services.caddy.enable;
+    assert c.services.code-server.enable;
     assert c.services.code-server.auth == "password";
     assert c.services.code-server.host == "127.0.0.1";
     assert
       c.systemd.services.code-server.serviceConfig.EnvironmentFile
-      == c.sauce.system.remote.codeServerEnvironmentFile;
+      == c.sauce.system.devbox.codeServerEnvironmentFile;
     true;
 in
 assert workstation.nixpkgs.config.allowUnfree;
@@ -91,10 +99,8 @@ assert lib.all (module: lib.elem module workstation.boot.blacklistedKernelModule
   "e4000"
   "rtl2832"
 ];
-assert !(serverRemote.hardware.rtl-sdr.enable);
-assert !(mobileRemote.hardware.rtl-sdr.enable);
-assert !(lib.elem "plugdev" serverRemote.users.users.tester.extraGroups);
-assert !(lib.elem "plugdev" mobileRemote.users.users.tester.extraGroups);
+assert !(serverSsh.hardware.rtl-sdr.enable);
+assert !(lib.elem "plugdev" serverSsh.users.users.tester.extraGroups);
 assert workstation.hardware.bluetooth.enable;
 assert workstation.hardware.bluetooth.powerOnBoot;
 assert !(workstation.services.blueman.enable);
@@ -122,17 +128,12 @@ assert lib.all (name: lib.elem name (map lib.getName workstation.environment.sys
   "alsa-utils"
   "qpwgraph"
 ];
-assert !(serverRemote.services.pipewire.jack.enable);
-assert !(mobileRemote.services.pipewire.jack.enable);
-assert !(lib.elem pkgs.pipewire.jack serverRemote.environment.systemPackages);
-assert !(lib.elem pkgs.pipewire.jack mobileRemote.environment.systemPackages);
-assert !(serverRemote.hardware.bluetooth.enable);
-assert !(mobileRemote.hardware.bluetooth.enable);
-assert !(serverRemote.services.pipewire.wireplumber.extraConfig ? "51-sauce-audio");
-assert !(mobileRemote.services.pipewire.wireplumber.extraConfig ? "51-sauce-audio");
+assert !(serverSsh.services.pipewire.jack.enable);
+assert !(lib.elem pkgs.pipewire.jack serverSsh.environment.systemPackages);
+assert !(serverSsh.hardware.bluetooth.enable);
+assert !(serverSsh.services.pipewire.wireplumber.extraConfig ? "51-sauce-audio");
 assert lib.elem pkgs.fontconfig workstation.programs.nix-ld.libraries;
-assert !(lib.elem pkgs.fontconfig serverRemote.programs.nix-ld.libraries);
-assert !(lib.elem pkgs.fontconfig mobileRemote.programs.nix-ld.libraries);
+assert !(lib.elem pkgs.fontconfig serverSsh.programs.nix-ld.libraries);
 assert workstation.systemd.services.sauce-clamav-scan.restartIfChanged == false;
 assert workstation.systemd.services.sauce-clamav-scan.wantedBy == [ ];
 assert workstation.systemd.timers.sauce-clamav-scan.wantedBy == [ "timers.target" ];
@@ -144,16 +145,14 @@ assert lib.elem workstation.sauce.packageOverrides.bitwarden
 assert workstation.sauce.packageOverrides.bitwarden ? sauceTrayIcon;
 assert lib.elem "bitwarden-desktop" (map lib.getName workstation.environment.systemPackages);
 assert lib.elem "/share/polkit-1" workstation.environment.pathsToLink;
-assert !(lib.elem "bitwarden-desktop" (map lib.getName serverRemote.environment.systemPackages));
+assert !(lib.elem "bitwarden-desktop" (map lib.getName serverSsh.environment.systemPackages));
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret"
   workstation.home-manager.users.tester.xdg.dataFile."flatpak/overrides/org.signal.Signal".text;
 assert
-  !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" serverRemote.home-manager.users.tester.xdg.dataFile);
+  !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" serverSsh.home-manager.users.tester.xdg.dataFile);
 assert workstation.services.libinput.enable;
 assert lib.elem "xinput" (map lib.getName workstation.environment.systemPackages);
-assert mobileRemote.services.libinput.enable;
-assert lib.elem "xinput" (map lib.getName mobileRemote.environment.systemPackages);
-assert !(lib.elem "xinput" (map lib.getName serverRemote.environment.systemPackages));
+assert !(lib.elem "xinput" (map lib.getName serverSsh.environment.systemPackages));
 assert workstation.services.xserver.videoDrivers == [ "modesetting" ];
 assert lib.all (name: lib.elem name (map lib.getName workstation.hardware.graphics.extraPackages)) [
   "intel-media-driver"
@@ -183,9 +182,11 @@ assert workstation.home-manager.users.tester.services.tailscale-systray.enable;
 assert workstation.home-manager.users.tester.services.tailscale-systray.theme == "dark:nobg";
 assert lib.any (lib.hasInfix "--theme dark:nobg")
   workstation.home-manager.users.tester.systemd.user.services.tailscale-systray.Service.ExecStart;
-assert assertRemote workstation;
+assert assertSsh workstation;
+assert !workstation.services.caddy.enable;
+assert !workstation.services.code-server.enable;
 assert
-  workstation.sauce.system.remote.codeServerEnvironmentFile
+  workstation.sauce.system.devbox.codeServerEnvironmentFile
   == "/var/lib/sauce/secrets/code-server.env";
 assert lib.all (name: lib.elem name workstation.sauce.tools) [
   "bitwarden-cli"
@@ -197,6 +198,20 @@ assert lib.all (name: lib.elem name workstation.sauce.tools) [
 ];
 assert lib.all (name: lib.elem name workstation.sauce.guiApps) [
   "obsidian"
+  "reaper"
+  "nam"
+  "guitarix"
+  "ardour"
+  "lmms"
+  "zrythm"
+  "qtractor"
+  "helio"
+  "byod"
+  "kdenlive"
+  "shotcut"
+  "davinci-resolve"
+  "gimp"
+  "affinity"
   "bitwarden"
   "firefox"
   "alacritty"
@@ -212,8 +227,8 @@ assert workstation.programs.steam.enable;
 assert odin.networking.hostName == "odin";
 assert odin.sauce.machineRole == "workstation";
 assert
-  odin.sauce.system.remote.codeServerEnvironmentFile
-  == workstation.sauce.system.remote.codeServerEnvironmentFile;
+  odin.sauce.system.devbox.codeServerEnvironmentFile
+  == workstation.sauce.system.devbox.codeServerEnvironmentFile;
 assert odin.services.resilio.enable;
 assert odin.services.resilio.enableWebUI;
 assert odin.services.resilio.httpListenAddr == workstation.services.resilio.httpListenAddr;
@@ -248,16 +263,15 @@ assert lib.all (name: lib.elem name (map lib.getName odin.hardware.graphics.extr
 ];
 assert odin.hardware.nvidia.modesetting.enable;
 assert lib.elem "--unsupported-gpu" odin.programs.sway.extraOptions;
-assert assertRemote odin;
+assert assertSsh odin;
+assert assertDevbox odin;
 assert odin.services.openssh.enable;
-assert odin.services.xrdp.enable;
-assert !odin.services.xrdp.openFirewall;
 assert odin.services.caddy.enable;
 assert !odin.services.caddy.openFirewall;
 assert odin.services.caddy.virtualHosts.":80".listenAddresses == [ "{$TAILSCALE_IP}" ];
 assert lib.hasInfix "reverse_proxy 127.0.0.1:8080"
   odin.services.caddy.virtualHosts.":80".extraConfig;
-assert odin.sauce.system.remote.lmstudio.enable;
+assert odin.sauce.system.devbox.lmstudio.enable;
 assert odin.services.caddy.virtualHosts."http://:1234".listenAddresses == [ "{$TAILSCALE_IP}" ];
 assert lib.hasInfix "reverse_proxy 127.0.0.1:1234"
   odin.services.caddy.virtualHosts."http://:1234".extraConfig;
@@ -265,13 +279,13 @@ assert lib.elem {
   port = 1234;
   protocol = "tcp";
 } odin.services.firewalld.zones.tailscale.ports;
-assert !(serverRemote.services.caddy.virtualHosts ? "http://:1234");
+assert !(serverSsh.services.caddy.virtualHosts ? "http://:1234");
 assert
   !(lib.elem {
     port = 1234;
     protocol = "tcp";
-  } serverRemote.services.firewalld.zones.tailscale.ports);
-assert !(tyr.services.caddy.virtualHosts ? "http://:1234");
+  } serverSsh.services.firewalld.zones.tailscale.ports);
+assert !tyr.services.caddy.enable;
 assert tyr.networking.hostName == "tyr";
 assert tyr.sauce.machineRole == "workstation";
 assert tyr.time.timeZone == workstation.time.timeZone;
@@ -289,7 +303,6 @@ assert lib.all (name: lib.elem name (map lib.getName tyr.hardware.graphics.extra
 ];
 assert tyr.sauce.system.tailscale;
 assert !tyr.services.openssh.enable;
-assert !tyr.services.xrdp.enable;
 assert !tyr.services.caddy.enable;
 assert !tyr.services.code-server.enable;
 assert lib.all (name: lib.elem name tyr.sauce.tools) [
@@ -307,18 +320,25 @@ assert lib.all (name: lib.elem name tyr.sauce.flatpaks) [
   "slack"
   "zoom"
 ];
-assert assertRemote serverRemote;
+assert assertSsh serverSsh;
+assert !serverSsh.services.caddy.enable;
+assert !serverSsh.services.code-server.enable;
 assert
-  serverRemote.sauce.system.remote.codeServerEnvironmentFile == "/run/secrets/sauce-code-server.env";
-assert !serverRemote.home-manager.users.tester.services.tailscale-systray.enable;
-assert mobileRemote.home-manager.users.tester.services.tailscale-systray.enable;
+  serverSsh.services.firewalld.zones.tailscale.ports == [
+    {
+      port = 22;
+      protocol = "tcp";
+    }
+  ];
+assert
+  serverSsh.sauce.system.devbox.codeServerEnvironmentFile == "/run/secrets/sauce-code-server.env";
+assert !serverSsh.home-manager.users.tester.services.tailscale-systray.enable;
 assert !plasma.home-manager.users.tester.services.tailscale-systray.enable;
-assert assertRemote mobileRemote;
 assert plasma.services.displayManager.defaultSession == "plasma";
-assert serverRemote.nix.gc.automatic;
-assert serverRemote.nix.gc.options == "--delete-older-than 30d";
-assert serverRemote.nix.optimise.automatic;
-assert serverRemote.services.restic.backups == { };
+assert serverSsh.nix.gc.automatic;
+assert serverSsh.nix.gc.options == "--delete-older-than 30d";
+assert serverSsh.nix.optimise.automatic;
+assert serverSsh.services.restic.backups == { };
 assert backup.services.restic.backups.sauce.runCheck;
 assert backup.services.restic.backups.sauce.checkOpts == [ "--read-data-subset=1/10" ];
 assert lib.elem "--keep-monthly 12" backup.services.restic.backups.sauce.pruneOpts;
@@ -332,12 +352,11 @@ assert lib.any (
   !a.assertion
   &&
     a.message
-    == "sauce.system.remote.codeServerEnvironmentFile must be an absolute runtime path outside /nix/store."
+    == "sauce.system.devbox.codeServerEnvironmentFile must be an absolute runtime path outside /nix/store."
 ) invalidCredentials.assertions;
 builtins.deepSeq
   (map (c: c.system.build.toplevel.drvPath) [
-    serverRemote
-    mobileRemote
+    serverSsh
     plasma
     withoutMaintenance
     backup

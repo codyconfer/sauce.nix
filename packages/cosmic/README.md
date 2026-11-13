@@ -57,7 +57,7 @@ nixpkgs packages listed above.
 ## Initial verification (2026-11-04)
 
 - Configuration assertions pass, including installation of all 11 projects and
-  their absence from server/mobile selections; formatting and LSP checks pass.
+  their absence from server selections; formatting and LSP checks pass.
 - All nine local package derivations evaluate for x86_64-linux and
   aarch64-linux. Source fetching and all nine Cargo vendor builds succeed.
 - Each local package's asset-install phase was run against its pinned source;
