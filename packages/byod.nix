@@ -62,16 +62,18 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p "$out"
     cp -r usr/. "$out/"
     mkdir -p "$out/share/applications"
-    cp ${makeDesktopItem {
-      name = "byod";
-      desktopName = "BYOD";
-      comment = "Build Your Own Distortion";
-      exec = "BYOD";
-      categories = [
-        "AudioVideo"
-        "Audio"
-      ];
-    }}/share/applications/* "$out/share/applications/"
+    cp ${
+      makeDesktopItem {
+        name = "byod";
+        desktopName = "BYOD";
+        comment = "Build Your Own Distortion";
+        exec = "BYOD";
+        categories = [
+          "AudioVideo"
+          "Audio"
+        ];
+      }
+    }/share/applications/* "$out/share/applications/"
     runHook postInstall
   '';
   postFixup = ''
