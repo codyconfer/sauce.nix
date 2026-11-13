@@ -80,7 +80,6 @@
   sauce.system = {
     user = "codyconfer";
     homeStateVersion = "26.05";
-    devbox.codeServerEnvironmentFile = "/var/lib/sauce/secrets/code-server.env";
     tailscale = true;
     fingerprint = true;
     nvidia = false;
