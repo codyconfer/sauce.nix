@@ -33,11 +33,10 @@ jobs:
       fail-fast: false
       matrix:
         check:
-          - server
           - workstation
-          - lxqt
           - gnome
-          - mobile
+          - remote-vnc
+          - client-vnc
           - configuration
           - nixos-configuration
           - nixos-smoke
