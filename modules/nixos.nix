@@ -518,6 +518,7 @@ in
               "Newsreader"
               "Instrument Serif"
               "Forum"
+              "Alegreya Sans SC"
             ];
           })
           rubik
