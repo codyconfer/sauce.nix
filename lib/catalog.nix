@@ -28,6 +28,7 @@
   };
   guiApps = {
     firefox = [ "firefox" ];
+    winbox = [ "winbox" ];
     remmina = [ "remmina" ];
     sway = [ "sway" ];
     alacritty = [ "alacritty" ];
