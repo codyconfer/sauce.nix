@@ -30,20 +30,26 @@ get_secret() {
 }
 
 get_ips() {
-  local iface ip ips=""
+  local iface ip ips="" label_width=0
+  local ip_lines=()
   if command -v ip >/dev/null 2>&1; then
-    while read -r iface ip; do
-      if [[ $ip == 10.* ]]; then
-        ips="${ips}${iface} IP:    ${cyan}${ip}${blue}"${linebreak}
-      fi
-    done < <(ip -o -4 addr | awk '$3 == "inet" { split($4, address, "/"); print $2, address[1] }')
+    mapfile -t ip_lines < <(ip -o -4 addr | awk '$3 == "inet" { split($4, address, "/"); print $2, address[1] }')
   else
-    while read -r iface ip; do
-      if [[ $ip == 10.* ]]; then
-        ips="${ips}${iface} IP:    ${cyan}${ip}${blue}"${linebreak}
-      fi
-    done < <(ifconfig 2>/dev/null | awk '/^[^[:space:]]/ { iface=$1; sub(/:$/, "", iface) } /inet / { for (i=1; i<=NF; i++) if ($i == "inet") { print iface, $(i+1); break } }')
+    mapfile -t ip_lines < <(ifconfig 2>/dev/null | awk '/^[^[:space:]]/ { iface=$1; sub(/:$/, "", iface) } /inet / { for (i=1; i<=NF; i++) if ($i == "inet") { print iface, $(i+1); break } }')
   fi
+  for line in "${ip_lines[@]}"; do
+    read -r iface ip <<< "$line"
+    if [[ $ip == 10.* && ${#iface} -gt $label_width ]]; then
+      label_width=${#iface}
+    fi
+  done
+  for line in "${ip_lines[@]}"; do
+    read -r iface ip <<< "$line"
+    if [[ $ip == 10.* ]]; then
+      printf -v iface '%-*s' "$label_width" "$iface"
+      ips="${ips}${iface} IP:    ${cyan}${ip}${blue}"${linebreak}
+    fi
+  done
   if command -v tailscale >/dev/null 2>&1; then
     local ts_ip ts_domain
     ts_ip=$(tailscale ip --4 2>/dev/null | head -n1)
