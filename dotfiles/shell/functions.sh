@@ -30,19 +30,20 @@ get_secret() {
 }
 
 get_ips() {
-  local allips ip ips=""
+  local iface ip ips=""
   if command -v ip >/dev/null 2>&1; then
-    allips=($(ip -4 addr | grep -oE 'inet [0-9]+(\.[0-9]+){3}' | awk '{print $2}'))
-  else
-    allips=($(ifconfig 2>/dev/null | grep -oE 'inet [0-9]+(\.[0-9]+){3}' | awk '{print $2}'))
-  fi
-  for ip in "${allips[@]}"; do
-    if [[ $ip != 127* ]] && [[ $ip != 172* ]]; then
+    while read -r iface ip; do
       if [[ $ip == 10.* ]]; then
-        ips="${ips}local IP:   ${cyan}${ip}${blue}"${linebreak}
+        ips="${ips}${iface} IP:    ${cyan}${ip}${blue}"${linebreak}
       fi
-    fi
-  done
+    done < <(ip -o -4 addr | awk '$3 == "inet" { split($4, address, "/"); print $2, address[1] }')
+  else
+    while read -r iface ip; do
+      if [[ $ip == 10.* ]]; then
+        ips="${ips}${iface} IP:    ${cyan}${ip}${blue}"${linebreak}
+      fi
+    done < <(ifconfig 2>/dev/null | awk '/^[^[:space:]]/ { iface=$1; sub(/:$/, "", iface) } /inet / { for (i=1; i<=NF; i++) if ($i == "inet") { print iface, $(i+1); break } }')
+  fi
   if command -v tailscale >/dev/null 2>&1; then
     local ts_ip ts_domain
     ts_ip=$(tailscale ip --4 2>/dev/null | head -n1)
