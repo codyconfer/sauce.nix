@@ -47,11 +47,12 @@ get_ips() {
       label_width=${#iface}
     fi
   done
+  [ 10 -gt "$label_width" ] && label_width=10
   for line in "${ip_lines[@]}"; do
     read -r iface ip <<< "$line"
     if [[ $ip == 10.* ]]; then
       printf -v iface '%-*s' "$label_width" "$iface"
-      ips="${ips}${iface} IP:    ${cyan}${ip}${blue}"${linebreak}
+      ips="${ips}${iface}:    ${cyan}${ip}${blue}"${linebreak}
     fi
   done
   if command -v tailscale >/dev/null 2>&1; then
@@ -60,8 +61,9 @@ get_ips() {
     if [ -n "$ts_ip" ]; then
       ts_domain=$(tailscale whois "$ts_ip" 2>/dev/null |
         grep -oE "$(hostname)[^[:space:]]*\.ts\.net" | head -n1)
-      ips="${ips}tailnet:    ${cyan}${ts_ip} ${blue}"${linebreak}
-      [ -n "$ts_domain" ] && ips="${ips}            ${ts_domain}"${linebreak}
+      printf -v iface '%-*s' "$label_width" "tailscale0"
+      ips="${ips}${iface}:    ${cyan}${ts_ip} ${blue}"${linebreak}
+      [ -n "$ts_domain" ] && ips="${ips}$(printf '%*s' "$((label_width + 5))" '')${ts_domain}"${linebreak}
     fi
   fi
 
