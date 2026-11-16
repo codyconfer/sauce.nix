@@ -33,9 +33,13 @@ get_ips() {
   local iface ip ips="" label_width=0
   local ip_lines=()
   if command -v ip >/dev/null 2>&1; then
-    mapfile -t ip_lines < <(ip -o -4 addr | awk '$3 == "inet" { split($4, address, "/"); print $2, address[1] }')
+    while IFS= read -r line; do
+      ip_lines+=("$line")
+    done < <(ip -o -4 addr | awk '$3 == "inet" { split($4, address, "/"); print $2, address[1] }')
   else
-    mapfile -t ip_lines < <(ifconfig 2>/dev/null | awk '/^[^[:space:]]/ { iface=$1; sub(/:$/, "", iface) } /inet / { for (i=1; i<=NF; i++) if ($i == "inet") { print iface, $(i+1); break } }')
+    while IFS= read -r line; do
+      ip_lines+=("$line")
+    done < <(ifconfig 2>/dev/null | awk '/^[^[:space:]]/ { iface=$1; sub(/:$/, "", iface) } /inet / { for (i=1; i<=NF; i++) if ($i == "inet") { print iface, $(i+1); break } }')
   fi
   for line in "${ip_lines[@]}"; do
     read -r iface ip <<< "$line"
