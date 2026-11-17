@@ -163,10 +163,10 @@ in
             DOTNET_ROOT = "${pkgs.dotnet-sdk}/share/dotnet";
           };
         fonts.fontconfig.enable = desktop;
-        gtk.gtk3.extraConfig = lib.mkIf (builtins.elem "cosmic" cfg.desktopEnvironments) {
+        gtk.gtk3.extraConfig = lib.mkIf desktop {
           gtk-application-prefer-dark-theme = 1;
         };
-        gtk.gtk4.extraConfig = lib.mkIf (builtins.elem "cosmic" cfg.desktopEnvironments) {
+        gtk.gtk4.extraConfig = lib.mkIf desktop {
           gtk-application-prefer-dark-theme = 1;
         };
         home.file.".gnupg/gpg-agent.conf".text =
