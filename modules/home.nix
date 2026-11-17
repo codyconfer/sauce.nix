@@ -163,6 +163,7 @@ in
             DOTNET_ROOT = "${pkgs.dotnet-sdk}/share/dotnet";
           };
         fonts.fontconfig.enable = desktop;
+        gtk.theme.name = lib.mkIf desktop "Adwaita-dark";
         gtk.gtk3.extraConfig = lib.mkIf desktop {
           gtk-application-prefer-dark-theme = 1;
         };
