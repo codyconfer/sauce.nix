@@ -43,6 +43,23 @@ assert workstation.config.sauce.machineRole == "workstation";
 assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "cosmic" workstation.config.sauce.desktopEnvironments;
+assert lib.all (home: home.config.gtk.enable && home.config.gtk.colorScheme == "dark") [
+  workstation
+  personal
+];
+assert lib.all (
+  version:
+  lib.hasInfix "gtk-theme-name=Adwaita-dark" (
+    personal.config.xdg.configFile."gtk-${version}.0/settings.ini".text
+  )
+  && lib.hasInfix "gtk-application-prefer-dark-theme=1" (
+    personal.config.xdg.configFile."gtk-${version}.0/settings.ini".text
+  )
+) [ "3" "4" ];
+assert personal.config.dconf.settings."org/gnome/desktop/interface".color-scheme == "prefer-dark";
+assert !server.config.gtk.enable;
+assert !(builtins.hasAttr "gtk-3.0/settings.ini" server.config.xdg.configFile);
+assert !(builtins.hasAttr "gtk-4.0/settings.ini" server.config.xdg.configFile);
 assert
   workstation.config.systemd.user.services.sauce-cosmic-scan-indicator.Install.WantedBy
   == [ "graphical-session.target" ];

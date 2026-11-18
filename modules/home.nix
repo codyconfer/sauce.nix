@@ -163,6 +163,10 @@ in
             DOTNET_ROOT = "${pkgs.dotnet-sdk}/share/dotnet";
           };
         fonts.fontconfig.enable = desktop;
+        # GTK dialogs (including authentication prompts) need generated settings,
+        # not just theme values on an otherwise disabled Home Manager module.
+        gtk.enable = desktop;
+        gtk.colorScheme = lib.mkIf desktop "dark";
         gtk.theme.name = lib.mkIf desktop "Adwaita-dark";
         gtk.gtk3.extraConfig = lib.mkIf desktop {
           gtk-application-prefer-dark-theme = 1;

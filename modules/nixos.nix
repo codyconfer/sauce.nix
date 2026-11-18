@@ -251,6 +251,13 @@ in
         services.resilio.enable = sys.rslsync;
         services.fwupd.enable = sys.fwupd;
         services.fprintd.enable = sys.fingerprint;
+        # Ly authenticates through the login PAM stack. Let a valid password
+        # succeed without waiting for fprintd; an empty/incorrect password can
+        # fall through to fingerprint authentication. This also applies to TTYs.
+        security.pam.services.login.rules.auth.fprintd.order =
+          lib.mkIf (desktop && sys.displayManager && sys.fingerprint) (
+            config.security.pam.services.login.rules.auth.unix.order + 10
+          );
         services.upower.enable = sys.powerManagement;
         services.power-profiles-daemon.enable = sys.powerManagement;
         services.clamav.updater.enable = sys.clamav.enable;

@@ -90,6 +90,19 @@ let
     true;
 in
 assert workstation.nixpkgs.config.allowUnfree;
+assert workstation.services.displayManager.ly.enable;
+assert workstation.security.pam.services.ly.rules.auth.login.modulePath == "login";
+assert workstation.services.fprintd.enable;
+assert workstation.security.pam.services.login.rules.auth.unix.control == "sufficient";
+assert workstation.security.pam.services.login.rules.auth.fprintd.control == "sufficient";
+assert workstation.security.pam.services.login.rules.auth.fprintd.enable;
+assert
+  workstation.security.pam.services.login.rules.auth.unix.order
+  < workstation.security.pam.services.login.rules.auth.fprintd.order;
+assert
+  workstation.security.pam.services.login.rules.auth.fprintd.order
+  < workstation.security.pam.services.login.rules.auth.deny.order;
+assert !(serverSsh.services.fprintd.enable);
 assert workstation.hardware.rtl-sdr.enable;
 assert lib.elem "plugdev" workstation.users.users.tester.extraGroups;
 assert lib.elem workstation.hardware.rtl-sdr.package workstation.services.udev.packages;
