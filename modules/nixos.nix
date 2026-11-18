@@ -235,10 +235,14 @@ in
               "gnome"
               "gtk"
             ];
-            cosmic.default = [
-              "cosmic"
-              "gtk"
-            ];
+            cosmic = {
+              default = [
+                "cosmic"
+                "gtk"
+              ];
+              # Export GTK title-bar preferences to sandboxed applications.
+              "org.freedesktop.impl.portal.Settings" = [ "gtk" ];
+            };
             sway = {
               default = [ "gtk" ];
               "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
@@ -254,10 +258,9 @@ in
         # Ly authenticates through the login PAM stack. Let a valid password
         # succeed without waiting for fprintd; an empty/incorrect password can
         # fall through to fingerprint authentication. This also applies to TTYs.
-        security.pam.services.login.rules.auth.fprintd.order =
-          lib.mkIf (desktop && sys.displayManager && sys.fingerprint) (
-            config.security.pam.services.login.rules.auth.unix.order + 10
-          );
+        security.pam.services.login.rules.auth.fprintd.order = lib.mkIf (
+          desktop && sys.displayManager && sys.fingerprint
+        ) (config.security.pam.services.login.rules.auth.unix.order + 10);
         services.upower.enable = sys.powerManagement;
         services.power-profiles-daemon.enable = sys.powerManagement;
         services.clamav.updater.enable = sys.clamav.enable;

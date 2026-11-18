@@ -91,6 +91,9 @@ let
 in
 assert workstation.nixpkgs.config.allowUnfree;
 assert workstation.services.displayManager.ly.enable;
+assert workstation.xdg.portal.config.cosmic."org.freedesktop.impl.portal.Settings" == "gtk";
+assert workstation.xdg.portal.config.cosmic.default == "cosmic;gtk";
+assert lib.elem pkgs.xdg-desktop-portal-gtk workstation.xdg.portal.extraPortals;
 assert workstation.security.pam.services.ly.rules.auth.login.modulePath == "login";
 assert workstation.services.fprintd.enable;
 assert workstation.security.pam.services.login.rules.auth.unix.control == "sufficient";
@@ -199,8 +202,7 @@ assert assertSsh workstation;
 assert !workstation.services.caddy.enable;
 assert !workstation.services.code-server.enable;
 assert
-  workstation.sauce.system.devbox.codeServerEnvironmentFile
-  == "/var/lib/sauce/secrets/code-server.env";
+  workstation.sauce.system.devbox.codeServerEnvironmentFile == "/run/secrets/sauce-code-server.env";
 assert lib.all (name: lib.elem name workstation.sauce.tools) [
   "bitwarden-cli"
   "wrangler"
@@ -240,8 +242,7 @@ assert workstation.programs.steam.enable;
 assert odin.networking.hostName == "odin";
 assert odin.sauce.machineRole == "workstation";
 assert
-  odin.sauce.system.devbox.codeServerEnvironmentFile
-  == workstation.sauce.system.devbox.codeServerEnvironmentFile;
+  odin.sauce.system.devbox.codeServerEnvironmentFile == "/var/lib/sauce/secrets/code-server.env";
 assert odin.services.resilio.enable;
 assert odin.services.resilio.enableWebUI;
 assert odin.services.resilio.httpListenAddr == workstation.services.resilio.httpListenAddr;

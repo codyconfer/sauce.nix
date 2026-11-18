@@ -170,10 +170,16 @@ in
         gtk.theme.name = lib.mkIf desktop "Adwaita-dark";
         gtk.gtk3.extraConfig = lib.mkIf desktop {
           gtk-application-prefer-dark-theme = 1;
+          gtk-decoration-layout = lib.mkIf (builtins.elem "cosmic" cfg.desktopEnvironments) ":minimize,maximize,close";
         };
         gtk.gtk4.extraConfig = lib.mkIf desktop {
           gtk-application-prefer-dark-theme = 1;
+          gtk-decoration-layout = lib.mkIf (builtins.elem "cosmic" cfg.desktopEnvironments) ":minimize,maximize,close";
         };
+        # Export client-side title-bar controls through the GTK Settings portal.
+        dconf.settings."org/gnome/desktop/wm/preferences".button-layout = lib.mkIf (
+          desktop && builtins.elem "cosmic" cfg.desktopEnvironments
+        ) ":minimize,maximize,close";
         home.file.".gnupg/gpg-agent.conf".text =
           builtins.readFile ../dotfiles/gnupg/gpg-agent.conf
           + "\npinentry-program ${

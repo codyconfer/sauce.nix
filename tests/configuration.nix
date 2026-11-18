@@ -47,16 +47,44 @@ assert lib.all (home: home.config.gtk.enable && home.config.gtk.colorScheme == "
   workstation
   personal
 ];
-assert lib.all (
-  version:
-  lib.hasInfix "gtk-theme-name=Adwaita-dark" (
-    personal.config.xdg.configFile."gtk-${version}.0/settings.ini".text
+assert lib.all
+  (
+    version:
+    lib.hasInfix "gtk-theme-name=Adwaita-dark" (
+      personal.config.xdg.configFile."gtk-${version}.0/settings.ini".text
+    )
+    && lib.hasInfix "gtk-application-prefer-dark-theme=1" (
+      personal.config.xdg.configFile."gtk-${version}.0/settings.ini".text
+    )
   )
-  && lib.hasInfix "gtk-application-prefer-dark-theme=1" (
-    personal.config.xdg.configFile."gtk-${version}.0/settings.ini".text
-  )
-) [ "3" "4" ];
+  [
+    "3"
+    "4"
+  ];
 assert personal.config.dconf.settings."org/gnome/desktop/interface".color-scheme == "prefer-dark";
+assert lib.all
+  (
+    home:
+    home.config.dconf.settings."org/gnome/desktop/wm/preferences".button-layout
+    == ":minimize,maximize,close"
+    &&
+      lib.all
+        (
+          version:
+          lib.hasInfix "gtk-decoration-layout=:minimize,maximize,close" (
+            home.config.xdg.configFile."gtk-${version}.0/settings.ini".text
+          )
+        )
+        [
+          "3"
+          "4"
+        ]
+  )
+  [
+    workstation
+    personal
+  ];
+assert !(server.config.dconf.settings."org/gnome/desktop/wm/preferences" ? button-layout);
 assert !server.config.gtk.enable;
 assert !(builtins.hasAttr "gtk-3.0/settings.ini" server.config.xdg.configFile);
 assert !(builtins.hasAttr "gtk-4.0/settings.ini" server.config.xdg.configFile);
