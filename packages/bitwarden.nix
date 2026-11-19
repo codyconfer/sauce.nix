@@ -18,7 +18,8 @@ pkgs.bitwarden-desktop.overrideAttrs (old: {
     # The login window uses Electron's system theme before Bitwarden preferences load.
     substituteInPlace apps/desktop/src/main/window.main.ts \
       --replace-fail 'import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, protocol, net } from "electron";' \
-        'import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, protocol, net } from "electron";\nnativeTheme.themeSource = "dark";'
+        'import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, protocol, net } from "electron";
+nativeTheme.themeSource = "dark";'
   '';
   passthru = (old.passthru or { }) // {
     sauceTrayIcon = trayIcon;
