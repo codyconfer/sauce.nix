@@ -40,6 +40,9 @@ assert !(lib.elem personal.config.sauce.packageOverrides.bitwarden server.config
 assert !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" workstation.config.xdg.dataFile);
 assert !(builtins.hasAttr "flatpak/overrides/org.signal.Signal" server.config.xdg.dataFile);
 assert workstation.config.sauce.machineRole == "workstation";
+assert
+  (builtins.fromJSON workstation.config.home.file.".pi/web-search.json".text).summaryModel
+  == "openai-codex/gpt-6-luna";
 assert lib.elem "sway" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "kde" workstation.config.sauce.desktopEnvironments;
 assert lib.elem "cosmic" workstation.config.sauce.desktopEnvironments;

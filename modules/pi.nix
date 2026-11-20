@@ -26,6 +26,7 @@ in
     home.file = {
       ".pi/web-search.json".text = builtins.toJSON {
         workflow = "summary-review";
+        summaryModel = "openai-codex/gpt-6-luna";
         githubClone = {
           enabled = true;
           maxRepoSizeMB = 350;

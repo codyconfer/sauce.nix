@@ -26,6 +26,15 @@ let
         rm "$session"
       fi
     done
+    # NixOS's generic session wrapper starts a fake graphical-session target
+    # for desktops it doesn't recognize as systemd-aware. That target conflicts
+    # with UWSM, which starts and owns the real graphical-session targets.
+    # Mark this entry systemd-aware so Ly's wrapper leaves those targets alone.
+    if [ -e "$out/sway-uwsm.desktop" ]; then
+      sed '/^Type=Application$/i DesktopNames=sway;X-NIXOS-SYSTEMD-AWARE;' \
+        "$out/sway-uwsm.desktop" > "$out/sway-uwsm.desktop.tmp"
+      mv "$out/sway-uwsm.desktop.tmp" "$out/sway-uwsm.desktop"
+    fi
   '';
   themes = pkgs.runCommand "sauce-plymouth-themes" { } ''
     mkdir -p "$out/share/plymouth/themes"
