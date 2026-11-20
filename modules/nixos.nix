@@ -80,6 +80,11 @@ in
       default = true;
       description = "UPower and power-profiles-daemon.";
     };
+    keepAwakeOnAC = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Disable Sway idle suspend while connected to AC power.";
+    };
     wifiPowerSave = mkOption {
       type = types.bool;
       default = false;
@@ -288,6 +293,7 @@ in
             };
             sauce = builtins.removeAttrs cfg [ "system" ];
             home = {
+              sessionVariables.SAUCE_POWER_KEEP_AWAKE_ON_AC = if sys.keepAwakeOnAC then "1" else "0";
               username = sys.user;
               homeDirectory = sys.homeDirectory;
               stateVersion = sys.homeStateVersion;

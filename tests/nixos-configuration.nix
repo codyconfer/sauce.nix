@@ -267,6 +267,8 @@ assert odin.sauce.desktopEnvironments == workstation.sauce.desktopEnvironments;
 assert odin.services.displayManager.defaultSession == "sway";
 assert odin.sauce.sway.terminal == "alacritty";
 assert odin.sauce.system.nvidia;
+assert odin.sauce.system.keepAwakeOnAC;
+assert odin.home-manager.users.tester.home.sessionVariables.SAUCE_POWER_KEEP_AWAKE_ON_AC == "1";
 assert odin.home-manager.users.tester.services.tailscale-systray.enable;
 assert odin.nixpkgs.config.allowUnfree;
 assert lib.elem "nvidia" odin.services.xserver.videoDrivers;

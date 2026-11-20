@@ -118,9 +118,17 @@ build_idle_args() {
             IDLE_ARGS+=(
                 timeout 300 "$LOCK"
                 timeout 600 "brightnessctl -s set ${dim}%" resume 'brightnessctl -r'
-                timeout 900 "$IDLE_SCREEN_OFF" resume "$IDLE_SCREEN_ON"
-                timeout 1800 'systemctl suspend'
             )
+            if [ "${SAUCE_POWER_KEEP_AWAKE_ON_AC:-0}" = 1 ]; then
+                # Keep the display output active so the remote stream retains a
+                # connected display; turn the physical monitor off separately.
+                :
+            else
+                IDLE_ARGS+=(
+                    timeout 900 "$IDLE_SCREEN_OFF" resume "$IDLE_SCREEN_ON"
+                    timeout 1800 'systemctl suspend'
+                )
+            fi
             ;;
         battery)
             IDLE_ARGS+=(
