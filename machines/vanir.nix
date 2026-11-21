@@ -86,6 +86,9 @@
     clamav.daemon = true;
   };
 
+  # RustDesk client for connecting to remote desktops such as Odin.
+  sauce.extraPackages = [ pkgs.rustdesk ];
+
   systemd.tmpfiles.rules = [
     "d /srv/sync 2770 rslsync rslsync -"
     "d /srv/sync/downloads 2770 rslsync rslsync -"

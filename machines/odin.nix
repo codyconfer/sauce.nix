@@ -78,6 +78,10 @@
     clamav.daemon = true;
   };
 
+  # RustDesk is an optional remote-control client/server; verify COSMIC portal
+  # screen sharing and input work before relying on unattended access.
+  sauce.extraPackages = [ pkgs.rustdesk ];
+
   systemd.tmpfiles.rules = [
     "d /srv/sync 2770 rslsync rslsync -"
     "d /srv/sync/downloads 2770 rslsync rslsync -"
