@@ -54,6 +54,7 @@ in
     '';
   };
   cosmic-ext-applet-status-hub = mkApp "cosmic-ext-applet-status-hub" {
+    buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
     postInstall = ''
       install -Dm644 resources/io.github.marcelogomes90.cosmic-ext-applet-status-hub.desktop "$out/share/applications/io.github.marcelogomes90.cosmic-ext-applet-status-hub.desktop"
       install -Dm644 resources/io.github.marcelogomes90.cosmic-ext-applet-status-hub.metainfo.xml "$out/share/metainfo/io.github.marcelogomes90.cosmic-ext-applet-status-hub.metainfo.xml"
