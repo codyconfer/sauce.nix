@@ -139,6 +139,7 @@ in
       pkgs.pipewire
       pkgs.libclang.lib
     ];
+    BINDGEN_EXTRA_CLANG_ARGS = "-isystem ${pkgs.stdenv.cc.libc.dev}/include";
     LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
     postInstall = ''
       install -Dm644 res/dev.DBrox.CosmicPrivacyIndicator.desktop "$out/share/applications/dev.DBrox.CosmicPrivacyIndicator.desktop"
