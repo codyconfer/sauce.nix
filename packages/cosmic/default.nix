@@ -124,6 +124,7 @@ in
       pkgs.dbus
       pkgs.sqlite
       pkgs.aws-lc
+      pkgs.libpulseaudio
     ];
     postInstall = ''
       install -Dm644 resources/io.github.hepp3n.kdeconnect.desktop "$out/share/applications/io.github.hepp3n.kdeconnect.desktop"
