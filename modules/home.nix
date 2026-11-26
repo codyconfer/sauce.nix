@@ -139,7 +139,7 @@ in
           ++ lib.optionals desktop (packages "guiApps" cfg.guiApps ++ packages "emulators" cfg.emulators)
           ++ lib.optionals (desktop && builtins.elem "qemu" cfg.emulators) [ pkgs.virt-manager ]
           ++ lib.optionals (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) (
-            [ pkgs.forecast pkgs.cosmic-applets ]
+            [ pkgs.forecast ]
           )
           ++ cfg.extraPackages;
 
