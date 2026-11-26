@@ -469,6 +469,10 @@ in
       (mkIf sys.rslsync {
         systemd.tmpfiles.rules = [ "d /var/lib/resilio-sync/sync 2770 rslsync rslsync -" ];
       })
+      (mkIf desktop {
+        # System Polkit agents run outside Home Manager's GTK settings.
+        environment.variables.GTK_THEME = "Adwaita:dark";
+      })
       (mkIf workstation {
         hardware.rtl-sdr.enable = lib.mkDefault true;
         users.users.${sys.user}.extraGroups = lib.optional config.hardware.rtl-sdr.enable "plugdev";
