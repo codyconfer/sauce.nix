@@ -57,6 +57,9 @@ in
     buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
     nativeCheckInputs = [ pkgs.dbus ];
     checkPhase = ''
+      export DBUS_SESSION_BUS_ADDRESS="unix:path=$TMPDIR/bus"
+      export DBUS_SESSION_BUS_PID=$$
+      ${pkgs.dbus}/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --fork --nopidfile
       runHook preCheck
       dbus-run-session -- cargo test --release --target ${pkgs.stdenv.hostPlatform.rust.rustcTarget} --offline
       runHook postCheck
