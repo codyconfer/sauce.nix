@@ -35,22 +35,6 @@ let
   '';
 in
 {
-    buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
-    postInstall = ''
-      install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.desktop.in "$out/share/applications/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.desktop"
-      install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.metainfo.xml "$out/share/metainfo/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.metainfo.xml"
-      mkdir -p "$out/share/icons/hicolor/scalable"
-      cp -r data/icons/scalable/apps "$out/share/icons/hicolor/scalable/"
-    '';
-  };
-    buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
-    postInstall = ''
-      install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletQuickSettings.desktop.in "$out/share/applications/io.github.DrakRosmann.CosmicExtAppletQuickSettings.desktop"
-      install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletQuickSettings.metainfo.xml "$out/share/metainfo/io.github.DrakRosmann.CosmicExtAppletQuickSettings.metainfo.xml"
-      mkdir -p "$out/share/icons/hicolor/scalable"
-      cp -r data/icons/scalable/apps "$out/share/icons/hicolor/scalable/"
-    '';
-  };
   cosmic-ext-applet-status-hub = mkApp "cosmic-ext-applet-status-hub" {
     buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
     doCheck = false;
