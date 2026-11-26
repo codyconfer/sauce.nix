@@ -138,9 +138,7 @@ in
           ++ packages "media" (lib.filter (name: desktop || name == "ffmpeg") cfg.media)
           ++ lib.optionals desktop (packages "guiApps" cfg.guiApps ++ packages "emulators" cfg.emulators)
           ++ lib.optionals (desktop && builtins.elem "qemu" cfg.emulators) [ pkgs.virt-manager ]
-          ++ lib.optionals (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) (
-            [ pkgs.forecast ]
-          )
+          ++ lib.optionals (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) ([ pkgs.forecast ])
           ++ cfg.extraPackages;
 
         home.sessionPath = [
@@ -150,8 +148,7 @@ in
           "$HOME/.dotnet/tools"
         ];
         home.sessionVariables =
-          lib.optionalAttrs desktop { GTK_THEME = "Adwaita:dark"; }
-          // lib.optionalAttrs (builtins.elem "nvim" cfg.tools) {
+          lib.optionalAttrs (builtins.elem "nvim" cfg.tools) {
             EDITOR = "nvim";
             VISUAL = "nvim";
           }

@@ -284,7 +284,7 @@ in
         virtualisation.libvirtd.enable = emulator "qemu";
         programs.virt-manager.enable = emulator "qemu";
         programs.steam.enable = emulator "steam";
-        services.flatpak.enable = desktop && cfg.flatpaks != [];
+        services.flatpak.enable = desktop && cfg.flatpaks != [ ];
 
         boot.plymouth = {
           enable = sys.plymouthTheme != "none";
@@ -468,10 +468,6 @@ in
       })
       (mkIf sys.rslsync {
         systemd.tmpfiles.rules = [ "d /var/lib/resilio-sync/sync 2770 rslsync rslsync -" ];
-      })
-      (mkIf desktop {
-        # System Polkit agents run outside Home Manager's GTK settings.
-        environment.variables.GTK_THEME = "Adwaita:dark";
       })
       (mkIf workstation {
         hardware.rtl-sdr.enable = lib.mkDefault true;
