@@ -74,6 +74,13 @@ in
       install -Dm644 resources/io.github.AceMythos.cosmic-ext-applet-power-monitor.svg "$out/share/icons/hicolor/scalable/apps/io.github.AceMythos.cosmic-ext-applet-power-monitor.svg"
     '';
   };
+  cosmic-ext-applet-workspace-icons = mkApp "cosmic-ext-applet-workspace-icons" {
+    postInstall = ''
+      install -Dm644 resources/io.github.crocodile.cosmic-ext-applet-workspace-icons.desktop "$out/share/applications/io.github.crocodile.cosmic-ext-applet-workspace-icons.desktop"
+      install -Dm644 resources/io.github.crocodile.cosmic-ext-applet-workspace-icons.metainfo.xml "$out/share/metainfo/io.github.crocodile.cosmic-ext-applet-workspace-icons.metainfo.xml"
+      install -Dm644 resources/io.github.crocodile.cosmic-ext-applet-workspace-icons.svg "$out/share/icons/hicolor/scalable/apps/io.github.crocodile.cosmic-ext-applet-workspace-icons.svg"
+    '';
+  };
   cosmic-ext-applet-eyedropper = mkApp "cosmic-ext-applet-eyedropper" {
     postInstall = ''
       install -Dm644 resources/app.desktop "$out/share/applications/io.github.nalladev.CosmicExtAppletEyedropper.desktop"

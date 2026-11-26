@@ -1,4 +1,5 @@
 {
+  "cosmic-ext-applet-workspace-icons": {"owner":"crocodile","repo":"cosmic-ext-applet-workspace-icons","version":"0.1.0-unstable-2026-11-25","rev":"2eb379291d3c1839e579dd05c00d78e5228ce797","hash":"sha256-Hn6z8Jagxalz+jOzsVsv5HlegNxz4I4o9a0cnzhrHRA=","cargoHash":"sha256-+6P+V8M2hdS72gNtM6WpjARGs0YP0U85melvSbo9Iog="},
   "starrydex": {"owner":"mariinkys","repo":"starrydex","version":"0.4.0","rev":"b3f86ebb757ec4348c74c1544ae275f5f406e5e7","hash":"sha256-ul2KY5NC+coC4jfCw8uZKy3tbHFSVoI0DgdileVkMb8=","cargoHash":"sha256-DNzFFIZO6INi3heSbLEKguqn6CZUQQrC66EEK1giEdo="},
   "clipboard-manager": {"owner":"cosmic-utils","repo":"clipboard-manager","version":"0.1.0-unstable-2026-11-04","rev":"27a246fab0c3051a89f67e137dddada1869145ca","hash":"sha256-SsP4DxaJtzfvQkGWQ+fZcIgUngyP94LRh+ymffowNHw=","cargoHash":"sha256-ABo4fAtFCaIyNukOUZqHpBhR0fANkb/h7lz755LyRpA="},
   "cosmic-applet-music-player": {"owner":"Ebbo","repo":"cosmic-applet-music-player","version":"1.0.0-unstable-2026-11-04","rev":"1fe94a89a85be34b867ee94268e46e7fd72e88b8","hash":"sha256-GAIzV/BdU4SOV6P+qNGWmPzF5mvNym9D99/7Hg5/Amc=","cargoHash":"sha256-Cs9g2w480jquSNyEG41WqOEMPQ/BJKcOgN8VnCfZBLQ="},

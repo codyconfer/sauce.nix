@@ -138,7 +138,10 @@ in
           ++ packages "media" (lib.filter (name: desktop || name == "ffmpeg") cfg.media)
           ++ lib.optionals desktop (packages "guiApps" cfg.guiApps ++ packages "emulators" cfg.emulators)
           ++ lib.optionals (desktop && builtins.elem "qemu" cfg.emulators) [ pkgs.virt-manager ]
-          ++ lib.optionals (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) ([ pkgs.forecast ])
+          ++ lib.optionals (desktop && builtins.elem "cosmic" cfg.desktopEnvironments) [
+            pkgs.forecast
+            (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-workspace-icons
+          ]
           ++ cfg.extraPackages;
 
         home.sessionPath = [
