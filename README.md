@@ -149,10 +149,10 @@ It checks every two seconds, handles scan failure/cancellation, and does not tra
 manually launched `clamscan` processes. Backgrounds managed through symlinks are
 left untouched. Other desktop preferences remain unmanaged.
 For non-server roles selecting COSMIC, Home Manager also installs
-StarryDex, Forecast, Clipboard Manager, Privacy Indicator,
-Music Player (Ebbo), Power Monitor, and Eyedropper. Applets are
+StarryDex, Forecast, Clipboard Manager, Music Player (Ebbo), Power Monitor,
+and Eyedropper. Applets are
 available to add manually; panel layouts and enabled applets are not changed.
-Forecast and Privacy Indicator come from pinned nixpkgs; the other five use
+Forecast comes from pinned nixpkgs; the other five use
 local Rust packages in `packages/cosmic/` with pinned source and dependency
 hashes in `packages/cosmic/sources.json`. Cupola and Compass were removed
 because their upstream tests blocked system updates.

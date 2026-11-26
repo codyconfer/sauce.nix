@@ -10,10 +10,7 @@ let
   waybarSwayText = workstation.config.xdg.configFile."waybar/config-sway.jsonc".text;
   flatpakText = lib.concatStringsSep " " workstation.config.systemd.user.services.sauce-flatpaks.Service.ExecStart;
   serverFiles = builtins.attrNames server.config.xdg.configFile;
-  cosmicPackages = [
-    pkgs.forecast
-    pkgs.cosmic-ext-applet-privacy-indicator
-  ];
+  cosmicPackages = [ pkgs.forecast ];
 in
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
   personal.config.xdg.dataFile."flatpak/overrides/org.signal.Signal".text
@@ -95,7 +92,7 @@ assert
   workstation.config.systemd.user.services.sauce-cosmic-scan-indicator.Install.WantedBy
   == [ "graphical-session.target" ];
 assert !(builtins.hasAttr "sauce-cosmic-scan-indicator" server.config.systemd.user.services);
-assert builtins.length cosmicPackages == 2;
+assert builtins.length cosmicPackages == 1;
 assert lib.all (package: lib.elem package workstation.config.home.packages) cosmicPackages;
 assert lib.all (package: !(lib.elem package server.config.home.packages)) cosmicPackages;
 assert !(builtins.hasAttr "cosmic" workstation.config.xdg.configFile);

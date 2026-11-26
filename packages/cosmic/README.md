@@ -13,8 +13,7 @@ it does not modify panel configuration or automatically enable applets.
 | nalladev/cosmic-ext-applet-eyedropper | cosmic-ext-applet-eyedropper | cosmic-ext-applet-eyedropper |
 
 The other two requested projects use `pkgs.forecast` (cosmic-utils/forecast)
-and `pkgs.cosmic-ext-applet-privacy-indicator`
-(D-Brox/cosmic-ext-applet-privacy-indicator) from the existing locked nixpkgs.
+from the existing locked nixpkgs.
 
 Sources and Cargo dependency trees are fixed by revision and SHA-256 in
 `sources.json`. No additional flake inputs or Rust toolchain changes are
