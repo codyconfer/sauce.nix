@@ -35,6 +35,115 @@ let
   '';
 in
 {
+  cosmic-ext-systemd-manager = mkApp "cosmic-ext-systemd-manager" {
+    buildInputs = [
+      pkgs.openssl
+      pkgs.fontconfig
+      pkgs.dbus
+    ];
+    postInstall = ''
+      install -Dm644 res/io.github.yemresolenci.CosmicExtAppletSystemdManager.desktop "$out/share/applications/io.github.yemresolenci.CosmicExtAppletSystemdManager.desktop"
+      install -Dm644 res/io.github.yemresolenci.CosmicExtAppletSystemdManager.metainfo.xml "$out/share/metainfo/io.github.yemresolenci.CosmicExtAppletSystemdManager.metainfo.xml"
+      install -Dm644 res/icons/hicolor/scalable/apps/io.github.yemresolenci.CosmicExtAppletSystemdManager.svg "$out/share/icons/hicolor/scalable/apps/io.github.yemresolenci.CosmicExtAppletSystemdManager.svg"
+    '';
+  };
+  cosmic-ext-applet-trash = mkApp "cosmic-ext-applet-trash" {
+    buildInputs = [
+      pkgs.openssl
+      pkgs.fontconfig
+      pkgs.dbus
+    ];
+    postInstall = ''
+      install -Dm644 resources/io.github.marcelogomes90.cosmic-ext-applet-trash.desktop "$out/share/applications/io.github.marcelogomes90.cosmic-ext-applet-trash.desktop"
+      install -Dm644 resources/io.github.marcelogomes90.cosmic-ext-applet-trash.metainfo.xml "$out/share/metainfo/io.github.marcelogomes90.cosmic-ext-applet-trash.metainfo.xml"
+      install -Dm644 resources/io.github.marcelogomes90.cosmic-ext-applet-trash.svg "$out/share/icons/hicolor/scalable/apps/io.github.marcelogomes90.cosmic-ext-applet-trash.svg"
+    '';
+  };
+  cosmic-ext-whether = mkApp "cosmic-ext-whether" {
+    buildInputs = [
+      pkgs.fontconfig
+      pkgs.dbus
+      pkgs.aws-lc
+    ];
+    postInstall = ''
+      install -Dm644 data/com.github.nwxnw.cosmic-ext-whether.desktop "$out/share/applications/com.github.nwxnw.cosmic-ext-whether.desktop"
+      install -Dm644 data/com.github.nwxnw.cosmic-ext-whether.metainfo.xml "$out/share/metainfo/com.github.nwxnw.cosmic-ext-whether.metainfo.xml"
+      install -Dm644 data/com.github.nwxnw.cosmic-ext-whether-symbolic.svg "$out/share/icons/hicolor/scalable/apps/com.github.nwxnw.cosmic-ext-whether-symbolic.svg"
+    '';
+  };
+  cosmic-ext-applet-world-clock = mkApp "cosmic-ext-applet-world-clock" {
+    buildInputs = [
+      pkgs.openssl
+      pkgs.fontconfig
+      pkgs.dbus
+    ];
+    postInstall = ''
+      install -Dm644 data/io.github.cosmic_utils.cosmic-ext-applet-world-clock.desktop "$out/share/applications/io.github.cosmic_utils.cosmic-ext-applet-world-clock.desktop"
+      install -Dm644 data/io.github.cosmic_utils.cosmic-ext-applet-world-clock.metainfo.xml "$out/share/metainfo/io.github.cosmic_utils.cosmic-ext-applet-world-clock.metainfo.xml"
+      install -Dm644 data/io.github.cosmic_utils.cosmic-ext-applet-world-clock-symbolic.svg "$out/share/icons/hicolor/scalable/apps/io.github.cosmic_utils.cosmic-ext-applet-world-clock-symbolic.svg"
+    '';
+  };
+  cosmic-ext-marketwatch = mkApp "cosmic-ext-marketwatch" {
+    buildInputs = [
+      pkgs.openssl
+      pkgs.fontconfig
+      pkgs.dbus
+      pkgs.sqlite
+    ];
+    postInstall = ''
+      install -Dm644 flatpak/com.github.MiracleForge.cosmic-ext-marketwatch.desktop "$out/share/applications/com.github.MiracleForge.cosmic-ext-marketwatch.desktop"
+      install -Dm644 resources/app.metainfo.xml "$out/share/metainfo/com.github.MiracleForge.cosmic-ext-marketwatch.metainfo.xml"
+      cp -r resources/icons/hicolor "$out/share/icons/"
+    '';
+  };
+  caffeine-applet = mkApp "caffeine-applet" {
+    buildInputs = [
+      pkgs.openssl
+      pkgs.fontconfig
+      pkgs.dbus
+    ];
+    postInstall = ''
+      install -Dm644 resources/app.desktop "$out/share/applications/com.github.codevardhan.caffeine-applet.desktop"
+      install -Dm644 resources/app.metainfo.xml "$out/share/metainfo/com.github.codevardhan.caffeine-applet.metainfo.xml"
+      cp -r resources/icons/hicolor "$out/share/icons/"
+    '';
+  };
+  kdeconnect = mkApp "kdeconnect" {
+    pname = "cosmic-ext-connect-applet";
+    cargoBuildFlags = [
+      "-p"
+      "cosmic-ext-connect-applet"
+    ];
+    cargoTestFlags = [
+      "-p"
+      "cosmic-ext-connect-applet"
+    ];
+    buildInputs = [
+      pkgs.openssl
+      pkgs.fontconfig
+      pkgs.dbus
+      pkgs.sqlite
+      pkgs.aws-lc
+    ];
+    postInstall = ''
+      install -Dm644 resources/io.github.hepp3n.kdeconnect.desktop "$out/share/applications/io.github.hepp3n.kdeconnect.desktop"
+      install -Dm644 resources/io.github.hepp3n.kdeconnect.metainfo.xml "$out/share/metainfo/io.github.hepp3n.kdeconnect.metainfo.xml"
+      install -Dm644 resources/io.github.hepp3n.kdeconnect.svg "$out/share/icons/hicolor/scalable/apps/io.github.hepp3n.kdeconnect.svg"
+    '';
+  };
+  cosmic-ext-applet-privacy-indicator = mkApp "cosmic-ext-applet-privacy-indicator" {
+    buildInputs = [
+      pkgs.openssl
+      pkgs.fontconfig
+      pkgs.dbus
+      pkgs.pipewire
+    ];
+    postInstall = ''
+      install -Dm644 res/dev.DBrox.CosmicPrivacyIndicator.desktop "$out/share/applications/dev.DBrox.CosmicPrivacyIndicator.desktop"
+      install -Dm644 res/dev.DBrox.CosmicPrivacyIndicator.metainfo.xml "$out/share/metainfo/dev.DBrox.CosmicPrivacyIndicator.metainfo.xml"
+      install -Dm644 res/dev.DBrox.CosmicPrivacyIndicator.svg "$out/share/icons/hicolor/scalable/apps/dev.DBrox.CosmicPrivacyIndicator.svg"
+    '';
+  };
   starrydex = mkApp "starrydex" {
     postInstall =
       resources "dev.mariinkys.StarryDex" "resources"
