@@ -284,7 +284,8 @@ in
         virtualisation.libvirtd.enable = emulator "qemu";
         programs.virt-manager.enable = emulator "qemu";
         programs.steam.enable = emulator "steam";
-        services.flatpak.enable = desktop && cfg.flatpaks != [ ];
+        services.flatpak.enable = desktop && cfg.flatpaks != [];
+
         boot.plymouth = {
           enable = sys.plymouthTheme != "none";
           theme = lib.mkIf (sys.plymouthTheme != "none") sys.plymouthTheme;
