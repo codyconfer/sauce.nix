@@ -137,7 +137,9 @@ in
       pkgs.fontconfig
       pkgs.dbus
       pkgs.pipewire
+      pkgs.libclang.lib
     ];
+    LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
     postInstall = ''
       install -Dm644 res/dev.DBrox.CosmicPrivacyIndicator.desktop "$out/share/applications/dev.DBrox.CosmicPrivacyIndicator.desktop"
       install -Dm644 res/dev.DBrox.CosmicPrivacyIndicator.metainfo.xml "$out/share/metainfo/dev.DBrox.CosmicPrivacyIndicator.metainfo.xml"
