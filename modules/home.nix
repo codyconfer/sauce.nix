@@ -146,11 +146,12 @@ in
             (import ../packages/cosmic { inherit pkgs; }).kdeconnect
             (import ../packages/cosmic { inherit pkgs; }).caffeine-applet
             (import ../packages/cosmic { inherit pkgs; }).clipboard-manager
-            (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-marketwatch
             (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-world-clock
-            (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-whether
             (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-trash
-            (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-systemd-manager
+            (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-dynamic-island
+            (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-quick-settings
+            (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-status-hub
+            (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-weather
           ]
           ++ cfg.extraPackages;
 

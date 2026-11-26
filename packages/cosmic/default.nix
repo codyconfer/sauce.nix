@@ -35,16 +35,34 @@ let
   '';
 in
 {
-  cosmic-ext-systemd-manager = mkApp "cosmic-ext-systemd-manager" {
-    buildInputs = [
-      pkgs.openssl
-      pkgs.fontconfig
-      pkgs.dbus
-    ];
+  cosmic-ext-applet-dynamic-island = mkApp "cosmic-ext-applet-dynamic-island" {
+    buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
     postInstall = ''
-      install -Dm644 res/io.github.yemresolenci.CosmicExtAppletSystemdManager.desktop "$out/share/applications/io.github.yemresolenci.CosmicExtAppletSystemdManager.desktop"
-      install -Dm644 res/io.github.yemresolenci.CosmicExtAppletSystemdManager.metainfo.xml "$out/share/metainfo/io.github.yemresolenci.CosmicExtAppletSystemdManager.metainfo.xml"
-      install -Dm644 res/icons/hicolor/scalable/apps/io.github.yemresolenci.CosmicExtAppletSystemdManager.svg "$out/share/icons/hicolor/scalable/apps/io.github.yemresolenci.CosmicExtAppletSystemdManager.svg"
+      install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.desktop.in "$out/share/applications/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.desktop"
+      install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.metainfo.xml "$out/share/metainfo/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.metainfo.xml"
+      cp -r data/icons/scalable/apps "$out/share/icons/hicolor/scalable/"
+    '';
+  };
+  cosmic-ext-applet-quick-settings = mkApp "cosmic-ext-applet-quick-settings" {
+    buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
+    postInstall = ''
+      install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletQuickSettings.desktop.in "$out/share/applications/io.github.DrakRosmann.CosmicExtAppletQuickSettings.desktop"
+      install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletQuickSettings.metainfo.xml "$out/share/metainfo/io.github.DrakRosmann.CosmicExtAppletQuickSettings.metainfo.xml"
+      cp -r data/icons/scalable/apps "$out/share/icons/hicolor/scalable/"
+    '';
+  };
+  cosmic-ext-applet-status-hub = mkApp "cosmic-ext-applet-status-hub" {
+    postInstall = ''
+      install -Dm644 resources/io.github.marcelogomes90.cosmic-ext-applet-status-hub.desktop "$out/share/applications/io.github.marcelogomes90.cosmic-ext-applet-status-hub.desktop"
+      install -Dm644 resources/io.github.marcelogomes90.cosmic-ext-applet-status-hub.metainfo.xml "$out/share/metainfo/io.github.marcelogomes90.cosmic-ext-applet-status-hub.metainfo.xml"
+      install -Dm644 resources/io.github.marcelogomes90.cosmic-ext-applet-status-hub.svg "$out/share/icons/hicolor/scalable/apps/io.github.marcelogomes90.cosmic-ext-applet-status-hub.svg"
+    '';
+  };
+  cosmic-ext-applet-weather = mkApp "cosmic-ext-applet-weather" {
+    postInstall = ''
+      install -Dm644 data/io.github.cosmic_utils.weather-applet.desktop "$out/share/applications/io.github.cosmic_utils.weather-applet.desktop"
+      install -Dm644 data/io.github.cosmic_utils.weather-applet.metainfo.xml "$out/share/metainfo/io.github.cosmic_utils.weather-applet.metainfo.xml"
+      install -Dm644 data/io.github.cosmic_utils.weather-applet-symbolic.svg "$out/share/icons/hicolor/scalable/apps/io.github.cosmic_utils.weather-applet-symbolic.svg"
     '';
   };
   cosmic-ext-applet-trash = mkApp "cosmic-ext-applet-trash" {
@@ -83,19 +101,6 @@ in
       install -Dm644 data/io.github.cosmic_utils.cosmic-ext-applet-world-clock-symbolic.svg "$out/share/icons/hicolor/scalable/apps/io.github.cosmic_utils.cosmic-ext-applet-world-clock-symbolic.svg"
     '';
   };
-  cosmic-ext-marketwatch = mkApp "cosmic-ext-marketwatch" {
-    buildInputs = [
-      pkgs.openssl
-      pkgs.fontconfig
-      pkgs.dbus
-      pkgs.sqlite
-    ];
-    postInstall = ''
-      install -Dm644 flatpak/com.github.MiracleForge.cosmic-ext-marketwatch.desktop "$out/share/applications/com.github.MiracleForge.cosmic-ext-marketwatch.desktop"
-      install -Dm644 resources/app.metainfo.xml "$out/share/metainfo/com.github.MiracleForge.cosmic-ext-marketwatch.metainfo.xml"
-      cp -r resources/icons/hicolor "$out/share/icons/"
-    '';
-  };
   caffeine-applet = mkApp "caffeine-applet" {
     buildInputs = [
       pkgs.openssl
@@ -105,7 +110,10 @@ in
     postInstall = ''
       install -Dm644 resources/app.desktop "$out/share/applications/com.github.codevardhan.caffeine-applet.desktop"
       install -Dm644 resources/app.metainfo.xml "$out/share/metainfo/com.github.codevardhan.caffeine-applet.metainfo.xml"
-      cp -r resources/icons/hicolor "$out/share/icons/"
+      install -Dm644 resources/icons/hicolor/scalable/apps/coffee-empty.svg "$out/share/icons/hicolor/scalable/apps/com.github.codevardhan.caffeine-applet-coffee-empty.svg"
+      install -Dm644 resources/icons/hicolor/scalable/apps/coffee-full.svg "$out/share/icons/hicolor/scalable/apps/com.github.codevardhan.caffeine-applet-coffee-full.svg"
+      install -Dm644 resources/icons/hicolor/scalable/apps/coffee-symbolic.svg "$out/share/icons/hicolor/scalable/apps/com.github.codevardhan.caffeine-applet-coffee-symbolic.svg"
+      install -Dm644 resources/icons/hicolor/scalable/apps/icon.svg "$out/share/icons/hicolor/scalable/apps/com.github.codevardhan.caffeine-applet.svg"
     '';
   };
   kdeconnect = mkApp "kdeconnect" {

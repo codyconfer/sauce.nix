@@ -13,14 +13,15 @@ let
   cosmicPackages = [
     pkgs.forecast
     (import ../packages/cosmic { inherit pkgs; }).clipboard-manager
-    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-marketwatch
     (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-world-clock
-    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-whether
     (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-trash
     (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-eyedropper
     (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-privacy-indicator
     (import ../packages/cosmic { inherit pkgs; }).kdeconnect
-    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-systemd-manager
+    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-dynamic-island
+    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-quick-settings
+    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-status-hub
+    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-weather
   ];
 in
 assert lib.hasInfix "SIGNAL_PASSWORD_STORE=gnome-libsecret" (
@@ -103,7 +104,7 @@ assert
   workstation.config.systemd.user.services.sauce-cosmic-scan-indicator.Install.WantedBy
   == [ "graphical-session.target" ];
 assert !(builtins.hasAttr "sauce-cosmic-scan-indicator" server.config.systemd.user.services);
-assert builtins.length cosmicPackages == 10;
+assert builtins.length cosmicPackages == 11;
 assert lib.all (package: lib.elem package workstation.config.home.packages) cosmicPackages;
 assert lib.all (package: !(lib.elem package server.config.home.packages)) cosmicPackages;
 assert !(builtins.hasAttr "cosmic" workstation.config.xdg.configFile);
