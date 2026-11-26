@@ -35,7 +35,6 @@ let
   '';
 in
 {
-  cosmic-ext-applet-dynamic-island = mkApp "cosmic-ext-applet-dynamic-island" {
     buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
     postInstall = ''
       install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.desktop.in "$out/share/applications/io.github.DrakRosmann.CosmicExtAppletDynamicIsland.desktop"
@@ -44,7 +43,6 @@ in
       cp -r data/icons/scalable/apps "$out/share/icons/hicolor/scalable/"
     '';
   };
-  cosmic-ext-applet-quick-settings = mkApp "cosmic-ext-applet-quick-settings" {
     buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus ];
     postInstall = ''
       install -Dm644 data/io.github.DrakRosmann.CosmicExtAppletQuickSettings.desktop.in "$out/share/applications/io.github.DrakRosmann.CosmicExtAppletQuickSettings.desktop"

@@ -18,8 +18,6 @@ let
     (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-eyedropper
     (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-privacy-indicator
     (import ../packages/cosmic { inherit pkgs; }).kdeconnect
-    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-dynamic-island
-    (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-quick-settings
     (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-status-hub
     (import ../packages/cosmic { inherit pkgs; }).cosmic-ext-applet-weather
   ];
