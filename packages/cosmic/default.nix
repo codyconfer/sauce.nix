@@ -59,6 +59,8 @@ in
     '';
   };
   cosmic-ext-applet-weather = mkApp "cosmic-ext-applet-weather" {
+    buildInputs = [ pkgs.openssl pkgs.fontconfig pkgs.dbus pkgs.aws-lc ];
+    env.AWS_LC_SYS_USE_SYSTEM = "0";
     postInstall = ''
       install -Dm644 data/io.github.cosmic_utils.weather-applet.desktop "$out/share/applications/io.github.cosmic_utils.weather-applet.desktop"
       install -Dm644 data/io.github.cosmic_utils.weather-applet.metainfo.xml "$out/share/metainfo/io.github.cosmic_utils.weather-applet.metainfo.xml"
