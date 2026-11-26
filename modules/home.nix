@@ -150,7 +150,8 @@ in
           "$HOME/.dotnet/tools"
         ];
         home.sessionVariables =
-          lib.optionalAttrs (builtins.elem "nvim" cfg.tools) {
+          lib.optionalAttrs desktop { GTK_THEME = "Adwaita:dark"; }
+          // lib.optionalAttrs (builtins.elem "nvim" cfg.tools) {
             EDITOR = "nvim";
             VISUAL = "nvim";
           }
