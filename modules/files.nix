@@ -172,6 +172,7 @@ in
       })
       (lib.mkIf (desktop && builtins.elem "zed" cfg.guiApps) {
         home.packages = [
+          pkgs.zed-editor
           pkgs.nil
           pkgs.nixd
         ];
